@@ -20,7 +20,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id_user = null;
+    private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     private ?string $email = null;
@@ -76,9 +76,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
 
-    public function getIdUser(): ?int
+    public function getId(): ?int
     {
-        return $this->id_user;
+        return $this->id;
     }
 
     public function getEmail(): ?string
@@ -275,7 +275,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->categories->contains($category)) {
             $this->categories->add($category);
-            $category->setIdUser($this);
+            $category->setUser($this);
         }
 
         return $this;
@@ -283,11 +283,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeCategory(Category $category): static
     {
-        if ($this->categories->removeElement($category)) {
-            // set the owning side to null (unless already changed)
-            if ($category->getIdUser() === $this) {
-                $category->setIdUser(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->categories->removeElement($category) && $category->getUser() === $this) {
+            $category->setUser(null);
         }
 
         return $this;
