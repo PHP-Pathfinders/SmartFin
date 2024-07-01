@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\TransactionRepository;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -23,7 +24,7 @@ class Transaction
     private ?string $cash_or_card = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $transaction_date = null;
+    private ?DateTimeInterface $transaction_date = null;
 
     #[ORM\Column]
     private ?float $money_amount = null;
@@ -66,12 +67,12 @@ class Transaction
         return $this;
     }
 
-    public function getTransactionDate(): ?\DateTimeInterface
+    public function getTransactionDate(): ?DateTimeInterface
     {
         return $this->transaction_date;
     }
 
-    public function setTransactionDate(\DateTimeInterface $transaction_date): static
+    public function setTransactionDate(DateTimeInterface $transaction_date): static
     {
         $this->transaction_date = $transaction_date;
 
