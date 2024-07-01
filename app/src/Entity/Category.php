@@ -35,9 +35,16 @@ class Category
     #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'category')]
     private Collection $transactions;
 
+    /**
+     * @var Collection<int, TransactionTemplate>
+     */
+    #[ORM\OneToMany(targetEntity: TransactionTemplate::class, mappedBy: 'category')]
+    private Collection $transactionTemplates;
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
+        $this->transactionTemplates = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -117,6 +124,36 @@ class Category
             // set the owning side to null (unless already changed)
             if ($transaction->getCategory() === $this) {
                 $transaction->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TransactionTemplate>
+     */
+    public function getTransactionTemplates(): Collection
+    {
+        return $this->transactionTemplates;
+    }
+
+    public function addTransactionTemplate(TransactionTemplate $transactionTemplate): static
+    {
+        if (!$this->transactionTemplates->contains($transactionTemplate)) {
+            $this->transactionTemplates->add($transactionTemplate);
+            $transactionTemplate->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionTemplate(TransactionTemplate $transactionTemplate): static
+    {
+        if ($this->transactionTemplates->removeElement($transactionTemplate)) {
+            // set the owning side to null (unless already changed)
+            if ($transactionTemplate->getCategory() === $this) {
+                $transactionTemplate->setCategory(null);
             }
         }
 
