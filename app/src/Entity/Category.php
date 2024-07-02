@@ -95,16 +95,14 @@ class Category
         return $this;
     }
 
-    public function isCustom(): ?bool
+    public function getIsCustom(): ?bool
     {
         return $this->is_custom;
     }
 
-    public function setCustom(bool $is_custom): static
+    public function setIsCustom(?bool $is_custom): void
     {
         $this->is_custom = $is_custom;
-
-        return $this;
     }
 
     /**

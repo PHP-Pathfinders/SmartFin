@@ -3,6 +3,8 @@
 namespace App\Factory;
 
 use App\Entity\Category;
+use App\Repository\CategoryRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -10,12 +12,10 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
  */
 final class CategoryFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private CategoryRepository $categoryRepository
+    )
     {
     }
 
@@ -24,24 +24,19 @@ final class CategoryFactory extends PersistentProxyObjectFactory
         return Category::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
     protected function defaults(): array|callable
     {
         return [
-            'category_name' => self::faker()->text(50),
-            'income_or_expense' => self::faker()->text(10),
-            'is_custom' => self::faker()->boolean(),
-            'user' => UserFactory::new(),
+//            'category_name' => self::faker()->randomElement([
+//                'Groceries', 'Transportation', 'Utilities', 'Rent', 'Entertainment',
+//                'Healthcare', 'Dining Out', 'Travel', 'Savings', 'Miscellaneous'
+//            ]),
+//            'income_or_expense' => self::faker()->randomElement(['income', 'expense']),
+//            'is_custom' => true,
+//            'user' => UserFactory::random(),
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
     protected function initialize(): static
     {
         return $this

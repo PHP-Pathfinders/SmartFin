@@ -16,6 +16,25 @@ class CategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Category::class);
     }
 
+    /**
+     * Check if a user already has a category with the given name.
+     *
+     * @param int $userId
+     * @param string $categoryName
+     * @return bool
+     */
+    public function userHasCategory(int $userId, string $categoryName): bool
+    {
+        return (bool) $this->createQueryBuilder('c')
+            ->select('count(c.id)')
+            ->where('c.user = :user')
+            ->andWhere('c.category_name = :category_name')
+            ->setParameter('user', $userId)
+            ->setParameter('category_name', $categoryName)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
 //    /**
 //     * @return Category[] Returns an array of Category objects
 //     */

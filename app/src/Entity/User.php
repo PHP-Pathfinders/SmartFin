@@ -66,7 +66,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Category>
      */
-    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'id_user')]
+    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'user')]
     private Collection $categories;
 
     public function __construct()
@@ -74,7 +74,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->created_at = new DateTimeImmutable();
         $this->categories = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
