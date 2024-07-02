@@ -33,14 +33,14 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'created_at' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-5 years', '2024-12-31')),
+            'created_at' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-5 years', '2024-06-03')),
             'email' => self::faker()->unique()->email(),
             'full_name' => self::faker()->name(),
             'is_active' => true,
             'is_verified' => true,
             'plainPassword' => self::faker()->password(),
             'roles' => ['ROLE_USER'],
-            'birthday' => self::faker()->dateTimeBetween('-60 years', '2010-12-31') // Birthday no later than 2010
+            'birthday' => self::faker()->dateTimeBetween('-60 years', '2010-12-31')
         ];
     }
 
