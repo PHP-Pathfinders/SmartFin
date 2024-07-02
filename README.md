@@ -14,6 +14,18 @@ Ensure you have the following tools installed on your system:
 - Docker
 - Docker Compose
 
+### Configuration
+
+Before proceeding with the installation, you need to set up your environment variables:
+
+1. **Create a `.env.local` file** in the app directory.
+2. **Add the following configuration** to the `.env.local` file:
+    ```dotenv
+    DATABASE_URL="This is secret, contact administrators to get real connection string"
+    ```
+
+> **Note:** Ensure that the `.env.local` file is not committed to the repository.
+
 ### Installation
 
 1. **Clone the repository**:
@@ -41,9 +53,24 @@ Ensure you have the following tools installed on your system:
     composer install
     ```
 
+6. **Create the database**:
+    ```bash
+    ./bin/console doctrine:database:create
+    ```
+
+7. **Run the migrations**:
+    ```bash
+    ./bin/console doctrine:migrations:migrate
+    ```
+
+8. **Load the fixtures**:
+    ```bash
+    ./bin/console doctrine:fixtures:load
+    ```
+
 ## Usage
 
-After completing the above steps, the SmartFin application should be up and running. You can access the application via your web browser or interact with it as required.
+After completing the above steps, the SmartFin application should be up and running. You can access the application via your web browser on localhost:8080/ or interact with it as required.
 
 ## Contributing
 
@@ -52,4 +79,3 @@ We welcome contributions to improve the SmartFin project. If you have any sugges
 ---
 
 Thank you for using SmartFin!
-
