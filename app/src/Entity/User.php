@@ -163,16 +163,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isVerified(): ?bool
+    public function getIsVerified(): ?bool
     {
         return $this->is_verified;
     }
 
-    public function setVerified(bool $is_verified): static
+    public function setIsVerified(?bool $is_verified): void
     {
         $this->is_verified = $is_verified;
-
-        return $this;
     }
 
     public function getPasswordToken(): ?string
@@ -223,12 +221,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isActive(): ?bool
+    public function getIsActive(): ?bool
     {
         return $this->is_active;
     }
 
-    public function setActive(bool $is_active): static
+    public function setIsActive(bool $is_active): static
     {
         $this->is_active = $is_active;
 

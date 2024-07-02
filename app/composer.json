@@ -11,6 +11,7 @@
         "doctrine/doctrine-bundle": "^2.12",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.2",
+        "stof/doctrine-extensions-bundle": "^1.12",
         "symfony/console": "7.1.*",
         "symfony/dotenv": "7.1.*",
         "symfony/flex": "^2",
@@ -20,7 +21,9 @@
         "symfony/yaml": "7.1.*"
     },
     "require-dev": {
-        "symfony/maker-bundle": "^1.60"
+        "doctrine/doctrine-fixtures-bundle": "^3.6",
+        "symfony/maker-bundle": "^1.60",
+        "zenstruck/foundry": "^2.0"
     },
     "config": {
         "allow-plugins": {
