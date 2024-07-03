@@ -21,22 +21,22 @@ class Transaction
     private ?Category $category = null;
 
     #[ORM\Column(length: 10)]
-    private ?string $cash_or_card = null;
+    private ?string $paymentType = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?DateTimeInterface $transaction_date = null;
+    private ?DateTimeInterface $transactionDate = null;
 
     #[ORM\Column]
-    private ?float $money_amount = null;
+    private ?float $moneyAmount = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $transaction_name = null;
+    private ?string $transactionName = null;
 
     #[ORM\Column(length: 50, nullable: true)]
-    private ?string $party_name = null;
+    private ?string $partyName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $transaction_notes = null;
+    private ?string $transactionNotes = null;
 
     public function getId(): ?int
     {
@@ -55,74 +55,72 @@ class Transaction
         return $this;
     }
 
-    public function getCashOrCard(): ?string
+    public function getPaymentType(): ?string
     {
-        return $this->cash_or_card;
+        return $this->paymentType;
     }
 
-    public function setCashOrCard(string $cash_or_card): static
+    public function setPaymentType(?string $paymentType): void
     {
-        $this->cash_or_card = $cash_or_card;
-
-        return $this;
+        $this->paymentType = $paymentType;
     }
 
     public function getTransactionDate(): ?DateTimeInterface
     {
-        return $this->transaction_date;
+        return $this->transactionDate;
     }
 
-    public function setTransactionDate(DateTimeInterface $transaction_date): static
+    public function setTransactionDate(DateTimeInterface $transactionDate): static
     {
-        $this->transaction_date = $transaction_date;
+        $this->transactionDate = $transactionDate;
 
         return $this;
     }
 
     public function getMoneyAmount(): ?float
     {
-        return $this->money_amount;
+        return $this->moneyAmount;
     }
 
-    public function setMoneyAmount(float $money_amount): static
+    public function setMoneyAmount(float $moneyAmount): static
     {
-        $this->money_amount = $money_amount;
+        $this->moneyAmount = $moneyAmount;
 
         return $this;
     }
 
     public function getTransactionName(): ?string
     {
-        return $this->transaction_name;
+        return $this->transactionName;
     }
 
-    public function setTransactionName(string $transaction_name): static
+    public function setTransactionName(string $transactionName): static
     {
-        $this->transaction_name = $transaction_name;
+        $this->transactionName = $transactionName;
 
         return $this;
     }
 
     public function getPartyName(): ?string
     {
-        return $this->party_name;
+        return $this->partyName;
     }
 
-    public function setPartyName(?string $party_name): static
+    public function setPartyName(?string $partyName): static
     {
-        $this->party_name = $party_name;
+        $this->partyName = $partyName;
 
         return $this;
     }
 
     public function getTransactionNotes(): ?string
     {
-        return $this->transaction_notes;
+        return $this->transactionNotes;
     }
 
-    public function setTransactionNotes(?string $transaction_notes): static
+    public function setTransactionNotes(?string $transactionNotes): static
     {
-        $this->transaction_notes = $transaction_notes;
+        $this->transactionNotes = $transactionNotes;
 
         return $this;
     }
