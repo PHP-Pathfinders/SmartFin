@@ -15,7 +15,7 @@ class AppFixtures extends Fixture
         UserFactory::new([
             'email' => 'admin@gmail.com',
             'plainPassword' => 'password',
-            'full_name' => 'Kristijan Dulic',
+            'fullName' => 'Kristijan Dulic',
             'roles' => ['ROLE_ADMIN']
         ])->create();
 
@@ -23,10 +23,10 @@ class AppFixtures extends Fixture
         UserFactory::new([
             'email' => 'user@gmail.com',
             'plainPassword' => 'password',
-            'full_name' => 'Andrej Dvornic',
+            'fullName' => 'Andrej Dvornic',
         ])->create();
 
-        UserFactory::createMany(5);
+        UserFactory::createMany(3);
 
         // Default categories
         $defaultCategories = [
@@ -38,17 +38,17 @@ class AppFixtures extends Fixture
         foreach (UserFactory::repository()->findAll() as $user) {
             foreach ($defaultCategories['income'] as $incomeCategoryName) {
                 CategoryFactory::new([
-                    'category_name' => $incomeCategoryName,
-                    'income_or_expense' => 'income',
-                    'is_custom' => false,
+                    'categoryName' => $incomeCategoryName,
+                    'incomeOrExpense' => 'income',
+                    'isCustom' => false,
                     'user' => $user,
                 ])->create();
             }
             foreach ($defaultCategories['expense'] as $expenseCategoryName) {
                 CategoryFactory::new([
-                    'category_name' => $expenseCategoryName,
-                    'income_or_expense' => 'expense',
-                    'is_custom' => false,
+                    'categoryName' => $expenseCategoryName,
+                    'incomeOrExpense' => 'expense',
+                    'isCustom' => false,
                     'user' => $user,
                 ])->create();
             }
