@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`users`')]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', columns: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -38,28 +38,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 80)]
-    private ?string $full_name = null;
+    private ?string $fullName = null;
 
     #[ORM\Column]
-    private ?bool $is_verified = null;
+    private ?bool $isVerified = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $password_token = null;
+    private ?string $passwordToken = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?DateTimeInterface $password_token_expires = null;
+    private ?DateTimeInterface $passwordTokenExpires = null;
 
     #[ORM\Column]
-    private ?DateTimeImmutable $created_at;
+    private ?DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $birthday = null;
 
     #[ORM\Column]
-    private ?bool $is_active = null;
+    private ?bool $isActive = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatar_path = null;
+    private ?string $avatarPath = null;
 
     private string $plainPassword;
 
@@ -71,7 +71,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->created_at = new DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
         $this->categories = new ArrayCollection();
     }
 
@@ -147,63 +147,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
-         $this->plainPassword = '';
+        $this->plainPassword = '';
     }
 
     public function getFullName(): ?string
     {
-        return $this->full_name;
+        return $this->fullName;
     }
 
-    public function setFullName(string $full_name): static
+    public function setFullName(string $fullName): static
     {
-        $this->full_name = $full_name;
+        $this->fullName = $fullName;
 
         return $this;
     }
 
     public function getIsVerified(): ?bool
     {
-        return $this->is_verified;
+        return $this->isVerified;
     }
 
-    public function setIsVerified(?bool $is_verified): void
+    public function setIsVerified(?bool $isVerified): void
     {
-        $this->is_verified = $is_verified;
+        $this->isVerified = $isVerified;
     }
 
     public function getPasswordToken(): ?string
     {
-        return $this->password_token;
+        return $this->passwordToken;
     }
 
-    public function setPasswordToken(?string $password_token): static
+    public function setPasswordToken(?string $passwordToken): static
     {
-        $this->password_token = $password_token;
+        $this->passwordToken = $passwordToken;
 
         return $this;
     }
 
     public function getPasswordTokenExpires(): DateTimeInterface
     {
-        return $this->password_token_expires;
+        return $this->passwordTokenExpires;
     }
 
-    public function setPasswordTokenExpires(?string $password_token_expires): static
+    public function setPasswordTokenExpires(?string $passwordTokenExpires): static
     {
-        $this->password_token_expires = $password_token_expires;
+        $this->passwordTokenExpires = $passwordTokenExpires;
 
         return $this;
     }
 
     public function getCreatedAt(): ?DateTimeImmutable
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTimeImmutable $created_at): static
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -222,24 +222,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getIsActive(): ?bool
     {
-        return $this->is_active;
+        return $this->isActive;
     }
 
-    public function setIsActive(bool $is_active): static
+    public function setIsActive(bool $isActive): static
     {
-        $this->is_active = $is_active;
+        $this->isActive = $isActive;
 
         return $this;
     }
 
     public function getAvatarPath(): ?string
     {
-        return $this->avatar_path;
+        return $this->avatarPath;
     }
 
-    public function setAvatarPath(?string $avatar_path): static
+    public function setAvatarPath(?string $avatarPath): static
     {
-        $this->avatar_path = $avatar_path;
+        $this->avatarPath = $avatarPath;
 
         return $this;
     }
