@@ -22,6 +22,7 @@ Before proceeding with the installation, you need to set up your environment var
 2. **Add the following configuration** to the `.env.local` file:
     ```dotenv
     DATABASE_URL="This is secret, contact administrators to get real connection string"
+    JWT_PASSPHRASE="This is secret, contact administrators to get real passphrase"
     ```
 
 > **Note:** Ensure that the `.env.local` file is not committed to the repository.
@@ -68,9 +69,14 @@ Before proceeding with the installation, you need to set up your environment var
     ./bin/console doctrine:fixtures:load
     ```
 
+9. **Generate the JWT key pair**:
+    ```bash
+    ./bin/console lexik:jwt:generate-keypair
+    ```
+
 ## Usage
 
-After completing the above steps, the SmartFin application should be up and running. You can access the application via your web browser on localhost:8080/ or interact with it as required.
+After completing the above steps, the SmartFin application should be up and running. You can access the application via your web browser on `localhost:8080/` or interact with it as required.
 
 ## Contributing
 

@@ -16,7 +16,7 @@ final class UserFactory extends PersistentProxyObjectFactory
      *
      * @todo inject services if required
      */
-    public function __construct(private UserPasswordHasherInterface $passwordHasher)
+    public function __construct(private readonly UserPasswordHasherInterface $passwordHasher)
     {
     }
 
@@ -33,11 +33,11 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'created_at' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-5 years', '2024-06-03')),
+            'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-5 years', '2024-06-03')),
             'email' => self::faker()->unique()->email(),
-            'full_name' => self::faker()->name(),
-            'is_active' => true,
-            'is_verified' => true,
+            'fullName' => self::faker()->name(),
+            'isActive' => true,
+            'isVerified' => true,
             'plainPassword' => self::faker()->password(),
             'roles' => ['ROLE_USER'],
             'birthday' => self::faker()->dateTimeBetween('-60 years', '2010-12-31')

@@ -21,10 +21,10 @@ class Budget
     private ?Category $category = null;
 
     #[ORM\Column]
-    private ?float $monthly_budget = null;
+    private ?float $monthlyBudget = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?DateTimeInterface $monthly_budget_date = null;
+    private ?DateTimeInterface $monthlyBudgetDate = null;
 
     public function getId(): ?int
     {
@@ -45,24 +45,24 @@ class Budget
 
     public function getMonthlyBudget(): ?float
     {
-        return $this->monthly_budget;
+        return $this->monthlyBudget;
     }
 
-    public function setMonthlyBudget(float $monthly_budget): static
+    public function setMonthlyBudget(float $monthlyBudget): static
     {
-        $this->monthly_budget = $monthly_budget;
+        $this->monthlyBudget = $monthlyBudget;
 
         return $this;
     }
 
     public function getMonthlyBudgetDate(): ?DateTimeInterface
     {
-        return $this->monthly_budget_date;
+        return $this->monthlyBudgetDate;
     }
 
-    public function setMonthlyBudgetDate(DateTimeInterface $monthly_budget_date): static
+    public function setMonthlyBudgetDate(DateTimeInterface $monthlyBudgetDate): static
     {
-        $this->monthly_budget_date = $monthly_budget_date;
+        $this->monthlyBudgetDate = $monthlyBudgetDate;
 
         return $this;
     }

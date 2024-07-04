@@ -25,13 +25,13 @@ final class TransactionFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'cash_or_card' => self::faker()->randomElement(['cash', 'card']),
+            'paymentType' => self::faker()->randomElement(['cash', 'card']),
             'category' => CategoryFactory::random(),
-            'money_amount' => self::faker()->randomFloat(3, max: 10000),
-            'transaction_date' => self::faker()->dateTimeBetween('-40 days'),
-            'transaction_name' => self::faker()->text(20),
-            'party_name' => self::faker()->optional()->name(),
-            'transaction_notes' => self::faker()->optional()->paragraph(1)
+            'moneyAmount' => self::faker()->randomFloat(3, max: 10000),
+            'transactionDate' => self::faker()->dateTimeBetween('-40 days'),
+            'transactionName' => self::faker()->text(20),
+            'partyName' => self::faker()->optional()->name(),
+            'transactionNotes' => self::faker()->optional()->paragraph(1)
         ];
     }
 

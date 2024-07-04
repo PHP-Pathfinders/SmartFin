@@ -21,13 +21,13 @@ class Category
     private ?User $user = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $category_name = null;
+    private ?string $categoryName = null;
 
     #[ORM\Column(length: 10)]
-    private ?string $income_or_expense = null;
+    private ?string $incomeOrExpense = null;
 
     #[ORM\Column]
-    private ?bool $is_custom = null;
+    private ?bool $isCustom = null;
 
     /**
      * @var Collection<int, Transaction>
@@ -73,36 +73,36 @@ class Category
 
     public function getCategoryName(): ?string
     {
-        return $this->category_name;
+        return $this->categoryName;
     }
 
-    public function setCategoryName(string $category_name): static
+    public function setCategoryName(string $categoryName): static
     {
-        $this->category_name = $category_name;
+        $this->categoryName = $categoryName;
 
         return $this;
     }
 
     public function getIncomeOrExpense(): ?string
     {
-        return $this->income_or_expense;
+        return $this->incomeOrExpense;
     }
 
-    public function setIncomeOrExpense(string $income_or_expense): static
+    public function setIncomeOrExpense(string $incomeOrExpense): static
     {
-        $this->income_or_expense = $income_or_expense;
+        $this->incomeOrExpense = $incomeOrExpense;
 
         return $this;
     }
 
     public function getIsCustom(): ?bool
     {
-        return $this->is_custom;
+        return $this->isCustom;
     }
 
-    public function setIsCustom(?bool $is_custom): void
+    public function setIsCustom(?bool $isCustom): void
     {
-        $this->is_custom = $is_custom;
+        $this->isCustom = $isCustom;
     }
 
     /**
