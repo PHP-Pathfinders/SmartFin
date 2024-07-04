@@ -6,6 +6,7 @@ use App\Entity\Budget;
 use App\Entity\Category;
 use App\Repository\BudgetRepository;
 use App\Repository\CategoryRepository;
+use Doctrine\DBAL\Driver\PgSQL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -17,7 +18,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
     public function __construct(
         private EntityManagerInterface $entityManager,
         private BudgetRepository       $budgetRepository,
-        private CategoryRepository $categoryRepository
+        private CategoryRepository     $categoryRepository
     )
     {
     }
@@ -29,7 +30,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
 
     protected function defaults(): array|callable
     {
-
+        $attempts = 0;
         do {
             $categoryProxy = CategoryFactory::random();
             $categoryId = $categoryProxy->_get('id');
@@ -42,7 +43,10 @@ final class BudgetFactory extends PersistentProxyObjectFactory
                     'monthlyBudgetDate' => $monthlyBudgetDate,
                 ];
             }
-        } while (true);
+            $attempts++;
+        } while ($attempts <= 5000);
+
+        throw new \RuntimeException("Unable to generate a monthly budget after several attempts. Please try again later.");
     }
 
     protected function initialize(): static
