@@ -2,11 +2,16 @@
 
 namespace App\Controller;
 
-use App\Dto\CategoryQueryDto;
+use App\Dto\Category\CategoryCreateDto;
+use App\Dto\Category\CategoryQueryDto;
+use App\Entity\Category;
+use App\Entity\User;
+use App\Repository\CategoryRepository;
 use App\Service\CategoryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
@@ -39,6 +44,20 @@ class CategoryController extends AbstractController
         return $this->json([
             'success' => true,
             'categories' => $categories
+        ]);
+    }
+
+    #[Route('/add-category', name: 'api_add_category', methods: ['POST'])]
+    public function createCategory(
+        #[MapRequestPayload] CategoryCreateDto $categoryCreateDto,
+        CategoryService $categoryService
+    ):JsonResponse
+    {
+        $categoryService->createCategory($categoryCreateDto);
+
+        return $this->json([
+            'success' => true,
+            'message' => 'New category created'
         ]);
     }
 }

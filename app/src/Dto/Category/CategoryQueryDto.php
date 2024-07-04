@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Dto;
+namespace App\Dto\Category;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CategoryQueryDto
+readonly class CategoryQueryDto
 {
     public function __construct(
     #[Assert\NotBlank]

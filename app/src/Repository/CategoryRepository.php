@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Category;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -12,7 +13,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CategoryRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(
+        ManagerRegistry $registry,
+        private EntityManagerInterface $entityManager
+    )
     {
         parent::__construct($registry, Category::class);
     }
@@ -38,7 +42,19 @@ class CategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult();
     }
+    public function createCategory(string $categoryName, string $type, User $user):void
+    {
+        //TODO check if user already has category with given name for that type
+        // before adding new category to database
+        $newCategory = new Category();
+        $newCategory->setCategoryName($categoryName);
+        $newCategory->setIncomeOrExpense($type);
+        $newCategory->setIsCustom(true);
+        $newCategory->setUser($user);
 
+        $this->entityManager->persist($newCategory);
+        $this->entityManager->flush();
+    }
     /**
      * Check if a user already has a category with the given name.
      *
