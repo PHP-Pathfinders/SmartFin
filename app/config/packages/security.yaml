@@ -9,16 +9,16 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
+#     -----------   This was added in order for jwt auth to work ---------
         login:
             pattern: ^/api/login
             stateless: true
             json_login:
-#                check_path: /api/login_check # or api_login_check as defined in config/routes.yaml
                 check_path: /api/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
@@ -27,12 +27,10 @@ security:
             pattern: ^/api
             stateless: true
             jwt: ~
-
+# --------------------------------------------------------------------------
         main:
             lazy: true
             provider: app_user_provider
-#            json_login:
-#                check_path: api_login
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -43,7 +41,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/profile, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
