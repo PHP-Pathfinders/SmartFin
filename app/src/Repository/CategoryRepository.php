@@ -22,8 +22,9 @@ class CategoryRepository extends ServiceEntityRepository
      * @param string $type
      * @return array
      */
-    public function findCategoriesByType(string $type, User $user, int $page): array
+    public function findCategoriesByType(string $type,int $page, User $user): array
     {
+        // Pagination
         $limit = 10;
 
         return $this->createQueryBuilder('c')
