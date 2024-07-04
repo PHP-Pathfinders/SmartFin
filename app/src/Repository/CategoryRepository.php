@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Category;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,28 @@ class CategoryRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Category::class);
+    }
+
+    /**
+     * Find categories by their type (Income or Expense)
+     * @param string $type
+     * @return array
+     */
+    public function findCategoriesByType(string $type,int $page, User $user): array
+    {
+        // Pagination
+        $limit = 10;
+
+        return $this->createQueryBuilder('c')
+            ->select('c.categoryName, c.isCustom')
+            ->where('c.incomeOrExpense = :type')
+            ->andWhere('c.user = :user')
+            ->setParameter('type', $type)
+            ->setParameter('user', $user)
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getArrayResult();
     }
 
     /**

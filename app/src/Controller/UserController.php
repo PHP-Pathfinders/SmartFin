@@ -10,14 +10,18 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api')]
 class UserController extends AbstractController
 {
-    #[Route('/login', name: 'app_login', methods: ['POST'])]
+    #[Route('/login', name: 'api_login', methods: ['POST'])]
     public function login(): void
     {
     }
 
-    #[Route('/logout', name: 'app_logout', methods: ['POST'])]
+    #[Route('/logout', name: 'api_logout', methods: ['POST'])]
     public function logout(): JsonResponse
     {
-        dd('Hello from user controller logout method');
+        // This endpoint doesn't need to do anything server-side
+        return $this->json([
+            'success' => true,
+            'message' => 'Logged out successfully',
+        ]);
     }
 }
