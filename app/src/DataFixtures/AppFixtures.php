@@ -2,7 +2,10 @@
 
 namespace App\DataFixtures;
 
+use App\Factory\BudgetFactory;
 use App\Factory\CategoryFactory;
+use App\Factory\TransactionFactory;
+use App\Factory\TransactionTemplateFactory;
 use App\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -53,6 +56,12 @@ class AppFixtures extends Fixture
                 ])->create();
             }
         }
+
+        BudgetFactory::createMany(300);
+
+        TransactionFactory::createMany(40);
+
+        TransactionTemplateFactory::createMany(40);
 
         $manager->flush();
     }
