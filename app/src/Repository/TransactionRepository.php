@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Transaction;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,6 +16,30 @@ class TransactionRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Transaction::class);
     }
+
+        public function findAllByParameters($paymentType, User $user, $transactionDate): array
+        {
+            $qb = $this->createQueryBuilder('t')
+                ->leftJoin('t.category', 'c')
+                ->leftJoin('c.user', 'u')
+                ->andWhere('c.user = :user')
+                ->setParameter('user', $user);
+
+            if($paymentType !== null){
+                $qb->andWhere('t.paymentType = :paymentType')
+                    ->setParameter('paymentType', $paymentType);
+            }
+
+            if($transactionDate !== null){
+                $qb->andWhere('MONTH(t.transactionDate) = MONTH(:transactionDate)')
+                    ->andWhere('YEAR(t.transactionDate) = YEAR(:transactionDate)')
+                    ->setParameter('transactionDate', $transactionDate);
+            }
+
+            return $qb->getQuery()->getArrayResult();
+        }
+
+
 
     //    /**
     //     * @return Transaction[] Returns an array of Transaction objects
