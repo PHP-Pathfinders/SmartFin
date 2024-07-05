@@ -7,6 +7,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 /**
  * @extends ServiceEntityRepository<Category>
@@ -33,7 +34,7 @@ class CategoryRepository extends ServiceEntityRepository
 
         return $this->createQueryBuilder('c')
             ->select('c.categoryName, c.isCustom')
-            ->where('c.incomeOrExpense = :type')
+            ->where('c.type = :type')
             ->andWhere('c.user = :user')
             ->setParameter('type', $type)
             ->setParameter('user', $user)
@@ -42,14 +43,25 @@ class CategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult();
     }
+
+    /**
+     * Create new category
+     * @param string $categoryName
+     * @param string $type
+     * @param User $user
+     * @return void
+     */
     public function createCategory(string $categoryName, string $type, User $user):void
     {
         //TODO check if user already has category with given name for that type
         // before adding new category to database
-
+        $userHasCategory = $this->userHasCategory($categoryName,$type,$user);
+        if($userHasCategory){
+            throw new ConflictHttpException('User already has a category with the given name for this type.');
+        }
         $newCategory = new Category();
         $newCategory->setCategoryName($categoryName);
-        $newCategory->setIncomeOrExpense($type);
+        $newCategory->setType($type);
         $newCategory->setIsCustom(true);
         $newCategory->setUser($user);
 
@@ -57,20 +69,21 @@ class CategoryRepository extends ServiceEntityRepository
         $this->entityManager->flush();
     }
     /**
-     * Check if a user already has a category with the given name.
-     *
+     * Check if a user already has a category with the given name
      * @param string $categoryName
      * @param User $user
      * @return bool
      */
-    public function userHasCategory(string $categoryName,string $type, User $user): bool
+    private function userHasCategory(string $categoryName,string $type, User $user): bool
     {
         return (bool) $this->createQueryBuilder('c')
             ->select('count(c.id)')
-            ->where('c.user = :user')
-            ->andWhere('c.category_name = :category_name')
-            ->setParameter('user', $user)
-            ->setParameter('category_name', $categoryName)
+            ->andWhere('c.categoryName = :categoryName')
+            ->andWhere('c.type = :type')
+            ->andWhere('c.user = :user')
+            ->setParameter(':categoryName', $categoryName)
+            ->setParameter(':type',$type)
+            ->setParameter(':user', $user)
             ->getQuery()
             ->getSingleScalarResult();
     }
