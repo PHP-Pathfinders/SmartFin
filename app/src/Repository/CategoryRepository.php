@@ -46,6 +46,7 @@ class CategoryRepository extends ServiceEntityRepository
     {
         //TODO check if user already has category with given name for that type
         // before adding new category to database
+
         $newCategory = new Category();
         $newCategory->setCategoryName($categoryName);
         $newCategory->setIncomeOrExpense($type);
@@ -58,17 +59,17 @@ class CategoryRepository extends ServiceEntityRepository
     /**
      * Check if a user already has a category with the given name.
      *
-     * @param int $userId
      * @param string $categoryName
+     * @param User $user
      * @return bool
      */
-    public function userHasCategory(int $userId, string $categoryName): bool
+    public function userHasCategory(string $categoryName,string $type, User $user): bool
     {
         return (bool) $this->createQueryBuilder('c')
             ->select('count(c.id)')
             ->where('c.user = :user')
             ->andWhere('c.category_name = :category_name')
-            ->setParameter('user', $userId)
+            ->setParameter('user', $user)
             ->setParameter('category_name', $categoryName)
             ->getQuery()
             ->getSingleScalarResult();

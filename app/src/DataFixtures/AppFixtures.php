@@ -42,7 +42,7 @@ class AppFixtures extends Fixture
             foreach ($defaultCategories['income'] as $incomeCategoryName) {
                 CategoryFactory::new([
                     'categoryName' => $incomeCategoryName,
-                    'incomeOrExpense' => 'income',
+                    'type' => 'income',
                     'isCustom' => false,
                     'user' => $user,
                 ])->create();
@@ -50,7 +50,7 @@ class AppFixtures extends Fixture
             foreach ($defaultCategories['expense'] as $expenseCategoryName) {
                 CategoryFactory::new([
                     'categoryName' => $expenseCategoryName,
-                    'incomeOrExpense' => 'expense',
+                    'type' => 'expense',
                     'isCustom' => false,
                     'user' => $user,
                 ])->create();
