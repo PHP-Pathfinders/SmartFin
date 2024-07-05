@@ -6,8 +6,6 @@ use App\Entity\Budget;
 use App\Entity\Category;
 use App\Repository\BudgetRepository;
 use App\Repository\CategoryRepository;
-use Doctrine\DBAL\Driver\PgSQL\Exception;
-use Doctrine\ORM\EntityManagerInterface;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -16,7 +14,6 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 final class BudgetFactory extends PersistentProxyObjectFactory
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
         private BudgetRepository       $budgetRepository,
         private CategoryRepository     $categoryRepository
     )

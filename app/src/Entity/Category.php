@@ -24,10 +24,10 @@ class Category
     private ?string $categoryName = null;
 
     #[ORM\Column(length: 10)]
-    private ?string $incomeOrExpense = null;
+    private ?string $type = null;
 
-    #[ORM\Column]
-    private ?bool $isCustom = null;
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private ?bool $isCustom=true;
 
     /**
      * @var Collection<int, Transaction>
@@ -83,17 +83,17 @@ class Category
         return $this;
     }
 
-    public function getIncomeOrExpense(): ?string
+    public function getType(): ?string
     {
-        return $this->incomeOrExpense;
+        return $this->type;
     }
 
-    public function setIncomeOrExpense(string $incomeOrExpense): static
+    public function setType(?string $type): void
     {
-        $this->incomeOrExpense = $incomeOrExpense;
-
-        return $this;
+        $this->type = $type;
     }
+
+
 
     public function getIsCustom(): ?bool
     {
