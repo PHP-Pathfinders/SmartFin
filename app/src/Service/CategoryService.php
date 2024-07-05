@@ -20,15 +20,17 @@ readonly class CategoryService
         if (null === $categoryQueryDto) {
             $type = 'income';
             $page = 1;
+            $limit = 10;
         } else {
             $type = $categoryQueryDto->type;
             $page = $categoryQueryDto->page;
+            $limit = $categoryQueryDto->limit;
         }
         // Get the logged-in user
         /** @var User $user */
         $user = $this->security->getUser();
 
-        return $this->categoryRepository->search($type, $page, $user);
+        return $this->categoryRepository->search($type, $page, $limit,$user);
     }
 
     public function create(CategoryCreateDto $categoryCreateDto):void

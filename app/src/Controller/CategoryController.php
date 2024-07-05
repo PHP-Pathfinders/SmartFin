@@ -23,11 +23,13 @@ class CategoryController extends AbstractController
      * - Example url: localhost:8080/api/find-categories-by-type?page=1&type=expense
      */
     #[Route('/categories', name: 'api_find_categories_by_type', methods: ['GET'])]
-    public function findCategoriesByType(
+    public function search(
         #[MapQueryString] ?CategoryQueryDto $categoryQueryDto,
         CategoryService $categoryService
     ): JsonResponse
     {
+        //TODO fix search so it return current page,prev,next and total pages, and validation
+        dd($categoryQueryDto);
         //search
         $categories = $categoryService->search($categoryQueryDto);
 

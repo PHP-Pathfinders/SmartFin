@@ -27,13 +27,14 @@ class CategoryRepository extends ServiceEntityRepository
      * @param string $type
      * @return array
      */
-    public function search(string $type,int $page, User $user): array
+    public function search(string $type,int $page,int $limit,User $user): array
     {
         // Pagination
-        $limit = 10;
+//        $limit = 10;
+        //TODO return current page, previous page, next page, total pages
 
         return $this->createQueryBuilder('c')
-            ->select('c.id, c.categoryName, c.type, c.isCustom')
+            ->select('c.id, c.categoryName, c.type, c.color ,c.isCustom')
             ->where('c.type = :type')
             ->andWhere('c.user = :user')
             ->setParameter('type', $type)
