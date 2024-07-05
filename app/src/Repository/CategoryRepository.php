@@ -27,7 +27,7 @@ class CategoryRepository extends ServiceEntityRepository
      * @param string $type
      * @return array
      */
-    public function findCategoriesByType(string $type,int $page, User $user): array
+    public function search(string $type,int $page, User $user): array
     {
         // Pagination
         $limit = 10;
@@ -51,7 +51,7 @@ class CategoryRepository extends ServiceEntityRepository
      * @param User $user
      * @return void
      */
-    public function createCategory(string $categoryName, string $type, User $user):void
+    public function create(string $categoryName, string $type, User $user):void
     {
         //TODO check if user already has category with given name for that type
         // before adding new category to database

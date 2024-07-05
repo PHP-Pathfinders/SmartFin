@@ -6,7 +6,6 @@ use App\Dto\Category\CategoryCreateDto;
 use App\Dto\Category\CategoryQueryDto;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
 readonly class CategoryService
@@ -15,7 +14,7 @@ readonly class CategoryService
         private Security $security,
         private CategoryRepository $categoryRepository
     ){}
-    public function findCategoriesByType(?CategoryQueryDto $categoryQueryDto):array
+    public function search(?CategoryQueryDto $categoryQueryDto):array
     {
         // Check if no query params is passed and if not, go for default values
         if (null === $categoryQueryDto) {
@@ -29,14 +28,15 @@ readonly class CategoryService
         /** @var User $user */
         $user = $this->security->getUser();
 
-        return $this->categoryRepository->findCategoriesByType($type, $page, $user);
+        return $this->categoryRepository->search($type, $page, $user);
     }
 
-    public function createCategory(CategoryCreateDto $categoryCreateDto):void
+    public function create(CategoryCreateDto $categoryCreateDto):void
     {
+        /** @var User $user */
         $user = $this->security->getUser();
         $name = $categoryCreateDto->categoryName;
         $type = $categoryCreateDto->type;
-        $this->categoryRepository->createCategory($name,$type,$user);
+        $this->categoryRepository->create($name,$type,$user);
     }
 }

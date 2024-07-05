@@ -4,9 +4,6 @@ namespace App\Controller;
 
 use App\Dto\Category\CategoryCreateDto;
 use App\Dto\Category\CategoryQueryDto;
-use App\Entity\Category;
-use App\Entity\User;
-use App\Repository\CategoryRepository;
 use App\Service\CategoryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,7 +29,7 @@ class CategoryController extends AbstractController
     ): JsonResponse
     {
         //search
-        $categories = $categoryService->findCategoriesByType($categoryQueryDto);
+        $categories = $categoryService->search($categoryQueryDto);
 
         // If no categories are found
         if (empty($categories)) {
@@ -49,12 +46,12 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/categories', name: 'api_add_category', methods: ['POST'])]
-    public function createCategory(
+    public function create(
         #[MapRequestPayload] CategoryCreateDto $categoryCreateDto,
         CategoryService $categoryService
     ):JsonResponse
     {
-        $categoryService->createCategory($categoryCreateDto);
+        $categoryService->create($categoryCreateDto);
 
         return $this->json([
             'success' => true,
