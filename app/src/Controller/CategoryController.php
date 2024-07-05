@@ -25,12 +25,13 @@ class CategoryController extends AbstractController
      * Find categories by income or expenses using query params
      * - Example url: localhost:8080/api/find-categories-by-type?page=1&type=expense
      */
-    #[Route('/find-categories-by-type', name: 'api_find_categories_by_type', methods: ['GET'])]
+    #[Route('/categories', name: 'api_find_categories_by_type', methods: ['GET'])]
     public function findCategoriesByType(
         #[MapQueryString] ?CategoryQueryDto $categoryQueryDto,
         CategoryService $categoryService
     ): JsonResponse
     {
+        //search
         $categories = $categoryService->findCategoriesByType($categoryQueryDto);
 
         // If no categories are found
@@ -47,7 +48,7 @@ class CategoryController extends AbstractController
         ]);
     }
 
-    #[Route('/add-category', name: 'api_add_category', methods: ['POST'])]
+    #[Route('/categories', name: 'api_add_category', methods: ['POST'])]
     public function createCategory(
         #[MapRequestPayload] CategoryCreateDto $categoryCreateDto,
         CategoryService $categoryService
