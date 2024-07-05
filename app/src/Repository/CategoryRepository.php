@@ -62,7 +62,6 @@ class CategoryRepository extends ServiceEntityRepository
         $newCategory = new Category();
         $newCategory->setCategoryName($categoryName);
         $newCategory->setType($type);
-        $newCategory->setIsCustom(true);
         $newCategory->setUser($user);
 
         $this->entityManager->persist($newCategory);

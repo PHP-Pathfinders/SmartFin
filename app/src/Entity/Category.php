@@ -26,8 +26,8 @@ class Category
     #[ORM\Column(length: 10)]
     private ?string $type = null;
 
-    #[ORM\Column]
-    private ?bool $isCustom = null;
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private ?bool $isCustom=true;
 
     /**
      * @var Collection<int, Transaction>
