@@ -33,6 +33,7 @@ class CategoryRepository extends ServiceEntityRepository
         $limit = 10;
 
         return $this->createQueryBuilder('c')
+            ->select('c.id, c.categoryName, c.type, c.isCustom')
             ->where('c.type = :type')
             ->andWhere('c.user = :user')
             ->setParameter('type', $type)
@@ -40,7 +41,7 @@ class CategoryRepository extends ServiceEntityRepository
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
-            ->getResult();
+            ->getArrayResult();
     }
 
     /**
