@@ -8,15 +8,36 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final class RequestListener
 {
+    /**
+     * On each request all inputs from query params and json payload are trimmed
+     * @param RequestEvent $event
+     * @return void
+     */
     #[AsEventListener(event: KernelEvents::REQUEST)]
     public function onKernelRequest(RequestEvent $event): void
     {
-
-        //TODO fix trim for all requests
         $request = $event->getRequest();
-        // Trim request data
-        $request->request->replace($this->trimArray($request->request->all()));
+//         Trim query parameters
         $request->query->replace($this->trimArray($request->query->all()));
+
+//         Trim JSON payload
+        $content = $request->getContent();
+        if ($content) {
+            $jsonArr = json_decode($content, true);
+            if (is_array($jsonArr)) {
+                $trimmedJsonArr = $this->trimArray($jsonArr);
+//                Reinitialize request object with trimmed json and query params
+                $request->initialize(
+                    $request->query->all(),
+                    $request->request->all(),
+                    $request->attributes->all(),
+                    $request->cookies->all(),
+                    $request->files->all(),
+                    $request->server->all(),
+                    json_encode($trimmedJsonArr)
+                );
+            }
+        }
     }
     private function trimArray(array $data): array
     {

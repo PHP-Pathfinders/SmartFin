@@ -58,7 +58,6 @@ class CategoryController extends AbstractController
     ):JsonResponse
     {
         $categoryService->create($categoryCreateDto);
-
         return $this->json([
             'success' => true,
             'message' => 'New category created'
@@ -71,7 +70,6 @@ class CategoryController extends AbstractController
         CategoryService $categoryService,
     ):JsonResponse
     {
-
         $message = $categoryService->update($categoryUpdateDto);
         return $this->json([
             'success' => true,
