@@ -2,18 +2,22 @@
 
 namespace App\EventListener;
 
+use Cassandra\Exception\ValidationException;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 use Zenstruck\Assert\Not;
 
 final class ExceptionListener
@@ -23,23 +27,33 @@ final class ExceptionListener
     {
         $exception = $event->getThrowable();
 //        dd($exception);
-        // In case of duplicate entry
+//         In case of duplicate entry
         if ($exception instanceof ConflictHttpException){
             $this->setResponse($event, Response::HTTP_CONFLICT);
         }
-        // In case of invalid json
+        elseif ($exception instanceof AccessDeniedHttpException){
+            $this->setResponse($event, Response::HTTP_FORBIDDEN);
+        }
+//         In case of invalid json
         elseif ($exception instanceof BadRequestHttpException){
             $this->setResponse($event,Response::HTTP_BAD_REQUEST);
         }
-        // In Case of validation error
+
+//         In case of 404 (Query params validation error also handled here)
         elseif ($exception instanceof NotFoundHttpException) {
-            $this->handleValidationErrors($event);
+            $previousException = $exception->getPrevious();
+            // If validation fails for query parameters
+            if ($previousException instanceof ValidationFailedException){
+                $this->handleValidationErrors($event);
+            }else{
+                $this->setResponse($event, Response::HTTP_NOT_FOUND);
+            }
         }
-        // In case of validation error
+//         In case of validation error
         elseif ($exception instanceof UnprocessableEntityHttpException){
             $this->handleValidationErrors($event);
         }
-        // In case of RuntimeException
+//         In case of any error
         elseif ($exception instanceof \RuntimeException){
             $this->setResponse($event,Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -86,7 +100,7 @@ final class ExceptionListener
         $response = new JsonResponse([
             'success' => false,
             'errors' => $errors,
-        ], Response::HTTP_BAD_REQUEST);
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
         $event->setResponse($response);
     }
 }

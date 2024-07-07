@@ -7,19 +7,26 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<Category>
  */
 class CategoryRepository extends ServiceEntityRepository
 {
+    private User $user;
     public function __construct(
-        ManagerRegistry $registry,
-        private EntityManagerInterface $entityManager
+        ManagerRegistry                         $registry,
+        Security                                $security,
+        private readonly EntityManagerInterface $entityManager
     )
     {
         parent::__construct($registry, Category::class);
+        /** @var User $this->user */
+        $this->user = $security->getUser();
     }
 
     /**
@@ -27,10 +34,9 @@ class CategoryRepository extends ServiceEntityRepository
      * @param string $type
      * @param int $page
      * @param int $limit
-     * @param User $user
      * @return array
      */
-    public function search(string $type,int $page,int $limit,User $user): array
+    public function search(string $type,int $page,int $limit): array
     {
         // Get the total count of results
         $totalResults = $this->createQueryBuilder('c')
@@ -38,7 +44,7 @@ class CategoryRepository extends ServiceEntityRepository
             ->where('c.type = :type')
             ->andWhere('c.user = :user')
             ->setParameter('type', $type)
-            ->setParameter('user', $user)
+            ->setParameter('user', $this->user)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -51,7 +57,7 @@ class CategoryRepository extends ServiceEntityRepository
             ->where('c.type = :type')
             ->andWhere('c.user = :user')
             ->setParameter('type', $type)
-            ->setParameter('user', $user)
+            ->setParameter('user', $this->user)
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
@@ -76,14 +82,14 @@ class CategoryRepository extends ServiceEntityRepository
      * Create new category
      * @param string $categoryName
      * @param string $type
-     * @param User $user
+     * @param string $color
      * @return void
      */
-    public function create(string $categoryName, string $type,string $color ,User $user):void
+    public function create(string $categoryName, string $type,string $color):void
     {
         /* Check if user already has category with given name for that type
          before adding a new category to the database */
-        $userHasCategory = $this->userHasCategory($categoryName,$type,$user);
+        $userHasCategory = $this->userHasCategory($categoryName,$type,$this->user);
         if($userHasCategory){
             throw new ConflictHttpException('User already has a category with the given name for this type.');
         }
@@ -91,9 +97,26 @@ class CategoryRepository extends ServiceEntityRepository
         $newCategory->setCategoryName($categoryName);
         $newCategory->setType($type);
         $newCategory->setColor($color);
-        $newCategory->setUser($user);
+        $newCategory->setUser($this->user);
 
         $this->entityManager->persist($newCategory);
+        $this->entityManager->flush();
+    }
+
+    public function delete(int $id):void
+    {
+        $category = $this->findOneBy([
+            'id' => $id,
+            'user' => $this->user
+        ]);
+
+        if (!$category) {
+            throw new NotFoundHttpException('Category not found or does not belong to the user.');
+        }
+        if (!$category->GetIsCustom()) {
+            throw new AccessDeniedHttpException('You cannot delete default category.');
+        }
+        $this->entityManager->remove($category);
         $this->entityManager->flush();
     }
 
@@ -117,7 +140,6 @@ class CategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
-
 //    /**
 //     * @return Category[] Returns an array of Category objects
 //     */

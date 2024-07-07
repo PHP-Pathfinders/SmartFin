@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api')]
+#[Route('/api/categories', name: 'api_categories')]
 class CategoryController extends AbstractController
 {
     public function __construct()
@@ -22,7 +22,7 @@ class CategoryController extends AbstractController
      * Find categories by income or expenses using query params
      * - Example url: localhost:8080/api/find-categories-by-type?page=1&type=expense
      */
-    #[Route('/categories', name: 'api_find_categories_by_type', methods: ['GET'])]
+    #[Route('', name: 'api_find_categories_by_type', methods: ['GET'])]
     public function search(
         #[MapQueryString] ?CategoryQueryDto $categoryQueryDto,
         CategoryService $categoryService
@@ -45,7 +45,7 @@ class CategoryController extends AbstractController
         ]);
     }
 
-    #[Route('/categories', name: 'api_add_category', methods: ['POST'])]
+    #[Route('', name: 'api_add_category', methods: ['POST'])]
     public function create(
         #[MapRequestPayload] CategoryCreateDto $categoryCreateDto,
         CategoryService $categoryService
@@ -56,6 +56,15 @@ class CategoryController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'New category created'
+        ]);
+    }
+    #[Route('/{id<\d+>}', name: 'api_delete_category', methods: ['DELETE'])]
+    public function delete(int $id, CategoryService $categoryService):JsonResponse
+    {
+        $categoryService->delete($id);
+        return $this->json([
+            'success' => true,
+            'message' => "Category deleted with id=$id"
         ]);
     }
 }

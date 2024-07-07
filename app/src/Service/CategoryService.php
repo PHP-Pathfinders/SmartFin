@@ -30,7 +30,7 @@ readonly class CategoryService
         /** @var User $user */
         $user = $this->security->getUser();
 
-        return $this->categoryRepository->search($type, $page, $limit,$user);
+        return $this->categoryRepository->search($type, $page, $limit);
     }
 
     public function create(CategoryCreateDto $categoryCreateDto):void
@@ -41,6 +41,11 @@ readonly class CategoryService
         /** @var User $user */
         $user = $this->security->getUser();
 
-        $this->categoryRepository->create($name,$type,$color,$user);
+        $this->categoryRepository->create($name,$type,$color);
+    }
+
+    public function delete(int $id):void
+    {
+        $this->categoryRepository->delete($id);
     }
 }
