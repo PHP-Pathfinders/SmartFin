@@ -9,13 +9,14 @@ use Symfony\Component\Validator\Constraint;
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::IS_REPEATABLE)]
-class IntegerType extends Constraint
+class NotEmptyString extends Constraint
 {
     public function __construct(
-        public string $message = '\'{{ value }}\' is not an integer.',
+        public string $message = '{{ value }} cannot be empty string',
         mixed $options = null,
         ?array $groups = null,
-        mixed $payload = null)
+        mixed $payload = null
+    )
     {
         parent::__construct($options, $groups, $payload);
     }

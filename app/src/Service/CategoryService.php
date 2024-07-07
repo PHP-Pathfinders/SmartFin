@@ -4,14 +4,12 @@ namespace App\Service;
 
 use App\Dto\Category\CategoryCreateDto;
 use App\Dto\Category\CategoryQueryDto;
+use App\Dto\Category\CategoryUpdateDto;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
-use Symfony\Bundle\SecurityBundle\Security;
-
 readonly class CategoryService
 {
     public function __construct(
-        private Security $security,
         private CategoryRepository $categoryRepository
     ){}
     public function search(?CategoryQueryDto $categoryQueryDto):array
@@ -26,9 +24,6 @@ readonly class CategoryService
             $page = $categoryQueryDto->page;
             $limit = $categoryQueryDto->limit;
         }
-        // Get the logged-in user
-        /** @var User $user */
-        $user = $this->security->getUser();
 
         return $this->categoryRepository->search($type, $page, $limit);
     }
@@ -38,10 +33,21 @@ readonly class CategoryService
         $name = $categoryCreateDto->categoryName;
         $type = $categoryCreateDto->type;
         $color = $categoryCreateDto->color;
-        /** @var User $user */
-        $user = $this->security->getUser();
 
         $this->categoryRepository->create($name,$type,$color);
+    }
+
+    public function update(CategoryUpdateDto $categoryUpdateDto):string
+    {
+//        dd($categoryUpdateDto);
+        $id = $categoryUpdateDto->id;
+        $categoryName = $categoryUpdateDto->categoryName;
+        $color = $categoryUpdateDto->color;
+        if (!$categoryName && !$color) {
+            return 'Nothing to update';
+        }
+        $this->categoryRepository->update($id,$categoryName,$color);
+        return 'Update successful';
     }
 
     public function delete(int $id):void

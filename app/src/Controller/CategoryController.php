@@ -4,9 +4,12 @@ namespace App\Controller;
 
 use App\Dto\Category\CategoryCreateDto;
 use App\Dto\Category\CategoryQueryDto;
+use App\Dto\Category\CategoryUpdateDto;
 use App\Service\CategoryService;
+use http\Env\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,7 +23,7 @@ class CategoryController extends AbstractController
 
     /**
      * Find categories by income or expenses using query params
-     * - Example url: localhost:8080/api/find-categories-by-type?page=1&type=expense
+     * - Example url: localhost:8080/api/categories?page=1&type=expense&limit=15
      */
     #[Route('', name: 'api_find_categories_by_type', methods: ['GET'])]
     public function search(
@@ -45,6 +48,9 @@ class CategoryController extends AbstractController
         ]);
     }
 
+    /**
+     * Create a new category for logged-in user
+     */
     #[Route('', name: 'api_add_category', methods: ['POST'])]
     public function create(
         #[MapRequestPayload] CategoryCreateDto $categoryCreateDto,
@@ -58,6 +64,25 @@ class CategoryController extends AbstractController
             'message' => 'New category created'
         ]);
     }
+
+    #[Route('', name: 'api_update_category', methods: ['PATCH'])]
+    public function update(
+        #[MapRequestPayload] CategoryUpdateDto $categoryUpdateDto,
+        CategoryService $categoryService,
+    ):JsonResponse
+    {
+
+        $message = $categoryService->update($categoryUpdateDto);
+        return $this->json([
+            'success' => true,
+            'message' => $message
+        ]);
+    }
+
+    /**
+     * Delete category if it belongs to user
+     * - Example url: localhost:8080/api/categories/123
+     */
     #[Route('/{id<\d+>}', name: 'api_delete_category', methods: ['DELETE'])]
     public function delete(int $id, CategoryService $categoryService):JsonResponse
     {

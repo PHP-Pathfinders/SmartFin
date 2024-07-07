@@ -91,7 +91,7 @@ class CategoryRepository extends ServiceEntityRepository
          before adding a new category to the database */
         $userHasCategory = $this->userHasCategory($categoryName,$type,$this->user);
         if($userHasCategory){
-            throw new ConflictHttpException('User already has a category with the given name for this type.');
+            throw new ConflictHttpException('You have already a category with the given name for that type.');
         }
         $newCategory = new Category();
         $newCategory->setCategoryName($categoryName);
@@ -103,6 +103,38 @@ class CategoryRepository extends ServiceEntityRepository
         $this->entityManager->flush();
     }
 
+    public function update(int $id, ?string $categoryName, ?string $color):void
+    {
+//        Get the category using id
+        $category = $this->findOneBy([
+            'id' => $id,
+            'user' => $this->user
+        ]);
+        if (!$category) {
+            throw new NotFoundHttpException('Category not found or does not belong to the user.');
+        }
+        if (!$category->getIsCustom()) {
+            throw new AccessDeniedHttpException('You cannot modify default category.');
+        }
+        if($categoryName) {
+            $userHasCategory = $this->userHasCategory($categoryName,$category->getType(),$this->user);
+            //Check if category exists with given name and exclude if category name matches the one with given id
+            if($userHasCategory  && strtolower($categoryName) !== strtolower($category->getCategoryName())){
+                throw new ConflictHttpException('You have already a category with the given name for that type.');
+            }
+            $category->setCategoryName($categoryName);
+        }
+        if($color){
+            $category->setColor($color);
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Delete selected category
+     * @param int $id
+     * @return void
+     */
     public function delete(int $id):void
     {
         $category = $this->findOneBy([
@@ -113,7 +145,7 @@ class CategoryRepository extends ServiceEntityRepository
         if (!$category) {
             throw new NotFoundHttpException('Category not found or does not belong to the user.');
         }
-        if (!$category->GetIsCustom()) {
+        if (!$category->getIsCustom()) {
             throw new AccessDeniedHttpException('You cannot delete default category.');
         }
         $this->entityManager->remove($category);
