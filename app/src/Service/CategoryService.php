@@ -35,10 +35,12 @@ readonly class CategoryService
 
     public function create(CategoryCreateDto $categoryCreateDto):void
     {
-        /** @var User $user */
-        $user = $this->security->getUser();
         $name = $categoryCreateDto->categoryName;
         $type = $categoryCreateDto->type;
-        $this->categoryRepository->create($name,$type,$user);
+        $color = $categoryCreateDto->color;
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $this->categoryRepository->create($name,$type,$color,$user);
     }
 }

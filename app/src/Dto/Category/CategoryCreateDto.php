@@ -19,6 +19,12 @@ readonly class CategoryCreateDto
             choices: ['income', 'expense'],
             message: 'Type must be either income or expense.'
         )]
-        public string $type=''
+        public string $type='',
+        #[Assert\NotBlank(message: 'Color must be provided and cannot be blank.')]
+        #[Assert\Regex(
+            pattern: '/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/',
+            message: 'Color must be a valid hexadecimal color code in format: #00ff00 or #0f0.'
+        )]
+        public string $color='',
     ) {}
 }

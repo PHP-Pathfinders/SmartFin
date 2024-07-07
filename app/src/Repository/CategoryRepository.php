@@ -25,16 +25,29 @@ class CategoryRepository extends ServiceEntityRepository
     /**
      * Find categories by their type (Income or Expense)
      * @param string $type
+     * @param int $page
+     * @param int $limit
+     * @param User $user
      * @return array
      */
     public function search(string $type,int $page,int $limit,User $user): array
     {
-        // Pagination
-//        $limit = 10;
-        //TODO return current page, previous page, next page, total pages
+        // Get the total count of results
+        $totalResults = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.type = :type')
+            ->andWhere('c.user = :user')
+            ->setParameter('type', $type)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        return $this->createQueryBuilder('c')
-            ->select('c.id, c.categoryName, c.type, c.color ,c.isCustom')
+        // Calculate total pages
+        $totalPages = (int) ceil($totalResults / $limit);
+
+        // Get paginated results
+        $categories = $this->createQueryBuilder('c')
+            ->select('c.id, c.categoryName, c.type, c.color, c.isCustom')
             ->where('c.type = :type')
             ->andWhere('c.user = :user')
             ->setParameter('type', $type)
@@ -43,6 +56,20 @@ class CategoryRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getArrayResult();
+
+        // Calculate the previous and next page
+        $previousPage = ($page > 1) ? $page - 1 : null;
+        $nextPage = ($page < $totalPages) ? $page + 1 : null;
+
+        return [
+            'pagination' => [
+                'currentPage' => $page,
+                'previousPage' => $previousPage,
+                'nextPage' => $nextPage,
+                'totalPages' => $totalPages,
+            ],
+            'categories' => $categories
+        ];
     }
 
     /**
@@ -52,10 +79,10 @@ class CategoryRepository extends ServiceEntityRepository
      * @param User $user
      * @return void
      */
-    public function create(string $categoryName, string $type, User $user):void
+    public function create(string $categoryName, string $type,string $color ,User $user):void
     {
-        //TODO check if user already has category with given name for that type
-        // before adding new category to database
+        /* Check if user already has category with given name for that type
+         before adding a new category to the database */
         $userHasCategory = $this->userHasCategory($categoryName,$type,$user);
         if($userHasCategory){
             throw new ConflictHttpException('User already has a category with the given name for this type.');
@@ -63,14 +90,17 @@ class CategoryRepository extends ServiceEntityRepository
         $newCategory = new Category();
         $newCategory->setCategoryName($categoryName);
         $newCategory->setType($type);
+        $newCategory->setColor($color);
         $newCategory->setUser($user);
 
         $this->entityManager->persist($newCategory);
         $this->entityManager->flush();
     }
+
     /**
      * Check if a user already has a category with the given name
      * @param string $categoryName
+     * @param string $type
      * @param User $user
      * @return bool
      */

@@ -28,13 +28,11 @@ class CategoryController extends AbstractController
         CategoryService $categoryService
     ): JsonResponse
     {
-        //TODO fix search so it return current page,prev,next and total pages, and validation
-        dd($categoryQueryDto);
-        //search
-        $categories = $categoryService->search($categoryQueryDto);
+        //Search
+        $data = $categoryService->search($categoryQueryDto);
 
         // If no categories are found
-        if (empty($categories)) {
+        if (empty($data['categories'])) {
             return $this->json([
                 'success' => false,
                 'message' => 'No categories found'
@@ -43,7 +41,7 @@ class CategoryController extends AbstractController
 
         return $this->json([
             'success' => true,
-            'categories' => $categories
+            'data' => $data
         ]);
     }
 
