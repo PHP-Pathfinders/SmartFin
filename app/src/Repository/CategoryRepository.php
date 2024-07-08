@@ -17,16 +17,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class CategoryRepository extends ServiceEntityRepository
 {
-    private User $user;
     public function __construct(
         ManagerRegistry                         $registry,
-        Security                                $security,
         private readonly EntityManagerInterface $entityManager
     )
     {
         parent::__construct($registry, Category::class);
-        /** @var User $this->user */
-        $this->user = $security->getUser();
     }
 
     /**
@@ -34,9 +30,10 @@ class CategoryRepository extends ServiceEntityRepository
      * @param string $type
      * @param int $page
      * @param int $limit
+     * @param User $user
      * @return array
      */
-    public function search(string $type,int $page,int $limit): array
+    public function search(string $type,int $page,int $limit,User $user): array
     {
         // Get the total count of results
         $totalResults = $this->createQueryBuilder('c')
@@ -44,7 +41,7 @@ class CategoryRepository extends ServiceEntityRepository
             ->where('c.type = :type')
             ->andWhere('c.user = :user')
             ->setParameter('type', $type)
-            ->setParameter('user', $this->user)
+            ->setParameter('user', $user)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -57,7 +54,7 @@ class CategoryRepository extends ServiceEntityRepository
             ->where('c.type = :type')
             ->andWhere('c.user = :user')
             ->setParameter('type', $type)
-            ->setParameter('user', $this->user)
+            ->setParameter('user', $user)
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
@@ -83,13 +80,14 @@ class CategoryRepository extends ServiceEntityRepository
      * @param string $categoryName
      * @param string $type
      * @param string $color
+     * @param User $user
      * @return void
      */
-    public function create(string $categoryName, string $type,string $color):void
+    public function create(string $categoryName, string $type,string $color,User $user):void
     {
         /* Check if user already has category with given name for that type
          before adding a new category to the database */
-        $userHasCategory = $this->userHasCategory($categoryName,$type,$this->user);
+        $userHasCategory = $this->userHasCategory($categoryName,$type,$user);
         if($userHasCategory){
             throw new ConflictHttpException('You have already a category with the given name for that type.');
         }
@@ -97,18 +95,18 @@ class CategoryRepository extends ServiceEntityRepository
         $newCategory->setCategoryName($categoryName);
         $newCategory->setType($type);
         $newCategory->setColor($color);
-        $newCategory->setUser($this->user);
+        $newCategory->setUser($user);
 
         $this->entityManager->persist($newCategory);
         $this->entityManager->flush();
     }
 
-    public function update(int $id, ?string $categoryName, ?string $color):void
+    public function update(int $id, ?string $categoryName, ?string $color,User $user):void
     {
 //        Get the category using id
         $category = $this->findOneBy([
             'id' => $id,
-            'user' => $this->user
+            'user' => $user
         ]);
         if (!$category) {
             throw new NotFoundHttpException('Category not found or does not belong to the user.');
@@ -117,7 +115,7 @@ class CategoryRepository extends ServiceEntityRepository
             throw new AccessDeniedHttpException('You cannot modify default category.');
         }
         if($categoryName) {
-            $userHasCategory = $this->userHasCategory($categoryName,$category->getType(),$this->user);
+            $userHasCategory = $this->userHasCategory($categoryName,$category->getType(),$user);
             //Check if category exists with given name and exclude if category name matches the one with given id
             if($userHasCategory  && strtolower($categoryName) !== strtolower($category->getCategoryName())){
                 throw new ConflictHttpException('You have already a category with the given name for that type.');
@@ -133,13 +131,14 @@ class CategoryRepository extends ServiceEntityRepository
     /**
      * Delete selected category
      * @param int $id
+     * @param User $user
      * @return void
      */
-    public function delete(int $id):void
+    public function delete(int $id,User $user):void
     {
         $category = $this->findOneBy([
             'id' => $id,
-            'user' => $this->user
+            'user' => $user
         ]);
 
         if (!$category) {
