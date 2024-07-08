@@ -25,6 +25,11 @@ class UserChecker implements UserCheckerInterface
             // User must verify email in order to log-in
             throw new CustomUserMessageAccountStatusException('E-mail is not yet verified, please verify e-mail in order to log-in');
         }
+
+        if (!$user->getIsActive()) {
+            // Account is deactivated
+            throw new CustomUserMessageAccountStatusException('Account is deactivated');
+        }
         // user account is expired, the user may be notified
 //        if ($user->isExpired()) {
 //            throw new AccountExpiredException('...');
