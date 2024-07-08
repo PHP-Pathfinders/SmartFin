@@ -26,6 +26,9 @@ class Category
     #[ORM\Column(length: 10)]
     private ?string $type = null;
 
+    #[ORM\Column(length: 10)]
+    private ?string $color;
+
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private ?bool $isCustom=true;
 
@@ -93,7 +96,15 @@ class Category
         $this->type = $type;
     }
 
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
 
+    public function setColor(?string $color): void
+    {
+        $this->color = $color;
+    }
 
     public function getIsCustom(): ?bool
     {
