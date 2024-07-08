@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Dto\User\UserRegisterDto;
-use App\Entity\User;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,7 +36,6 @@ class UserController extends AbstractController
     public function createUser(
         #[MapRequestPayload] UserRegisterDto $userRegisterDto,
         UserService $userService
-
     ): JsonResponse
     {
         $userService->create($userRegisterDto);

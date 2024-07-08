@@ -47,6 +47,16 @@ services:
         networks:
             - nginx-php83-mysql8-node
 
+    # mailhog
+    mailhog-service:
+        image: mailhog/mailhog
+        container_name: mailhog-container
+        ports:
+            - "1025:1025"
+            - "8025:8025"
+        networks:
+            - nginx-php83-mysql8-node
+
     # node
     # node-service:
     #     image: node:latest
