@@ -8,6 +8,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<Transaction>
@@ -15,14 +16,29 @@ use Doctrine\Persistence\ManagerRegistry;
 class TransactionRepository extends ServiceEntityRepository
 {
     public function __construct(
-        ManagerRegistry $registry,
+        ManagerRegistry                $registry,
         private EntityManagerInterface $entityManager
     )
     {
         parent::__construct($registry, Transaction::class);
     }
 
-    public function findAllByParameters(int $limit, int $page, User $user,string|null $paymentType, string|null $transactionDate, string|null $transactionName, string|null $partyName, string|null $transactionNotes, int|null $categoryId, string|null $categoryName, string|null $categoryType): array
+    /**
+     * Find transactions by different parameters
+     * @param int $limit
+     * @param int $page
+     * @param User $user
+     * @param string|null $paymentType
+     * @param \DateTimeImmutable|null $transactionDate
+     * @param string|null $transactionName
+     * @param string|null $partyName
+     * @param string|null $transactionNotes
+     * @param int|null $categoryId
+     * @param string|null $categoryName
+     * @param string|null $categoryType
+     * @return array
+     */
+    public function search(int $limit, int $page, User $user, string|null $paymentType, \DateTimeImmutable|null $transactionDate, string|null $transactionName, string|null $partyName, string|null $transactionNotes, int|null $categoryId, string|null $categoryName, string|null $categoryType): array
     {
         $totalResults = $this->createQueryBuilder('t')
             ->select('COUNT(t.id)')
@@ -32,9 +48,8 @@ class TransactionRepository extends ServiceEntityRepository
             ->setParameter('user', $user);
 
 
-        //TODO add category color to select and also update pagination
         $qb = $this->createQueryBuilder('t')
-            ->select(' t.id, t.paymentType, t.transactionDate, t.moneyAmount, t.transactionName, t.partyName, t.transactionNotes, c.type, c.categoryName')
+            ->select(' t.id, t.paymentType, t.transactionDate, t.moneyAmount, t.transactionName, t.partyName, t.transactionNotes, c.type, c.categoryName, c.color')
             ->leftJoin('t.category', 'c')
             ->leftJoin('c.user', 'u')
             ->andWhere('c.user = :user')
@@ -81,10 +96,10 @@ class TransactionRepository extends ServiceEntityRepository
         }
 
         if ($categoryName !== null) {
-            $qb->andWhere('c.categoryName = :categoryName')
-                ->setParameter('categoryName', $categoryName);
-            $totalResults->andWhere('c.categoryName = :categoryName')
-                ->setParameter('categoryName', $categoryName);
+            $qb->andWhere('c.categoryName LIKE :categoryName')
+                ->setParameter('categoryName', "%" . $categoryName . "%");
+            $totalResults->andWhere('c.categoryName LIKE :categoryName')
+                ->setParameter('categoryName', "%" . $categoryName . "%");
         }
 
         if ($categoryType !== null) {
@@ -94,7 +109,7 @@ class TransactionRepository extends ServiceEntityRepository
                 ->setParameter('categoryType', $categoryType);
         }
 
-        if($categoryId !== null){
+        if ($categoryId !== null) {
             $qb->andWhere('c.id = :categoryId')
                 ->setParameter('categoryId', $categoryId);
             $totalResults->andWhere('c.id = :categoryId')
@@ -104,10 +119,9 @@ class TransactionRepository extends ServiceEntityRepository
         $transactions = $qb->getQuery()->getArrayResult();
         $totalResults = $totalResults->getQuery()->getSingleScalarResult();
 
-        $totalPages = (int) ceil($totalResults / $limit);
+        $totalPages = (int)ceil($totalResults / $limit);
         $previousPage = ($page > 1) ? $page - 1 : null;
         $nextPage = ($page < $totalPages) ? $page + 1 : null;
-
 
 
         return [
@@ -122,7 +136,18 @@ class TransactionRepository extends ServiceEntityRepository
         ];
     }
 
-    public function create(string $transactionName,Category $category,float $moneyAmount, string $paymentType, $transactionDate): void
+    /**
+     * Create new transaction
+     * @param string $transactionName
+     * @param Category $category
+     * @param float $moneyAmount
+     * @param string $paymentType
+     * @param \DateTimeImmutable $transactionDate
+     * @param string|null $partyName
+     * @param string|null $transactionNotes
+     * @return void
+     */
+    public function create(string $transactionName, Category $category, float $moneyAmount, string $paymentType, \DateTimeImmutable $transactionDate, ?string $partyName, ?string $transactionNotes): void
     {
         $newTransaction = new Transaction();
         $newTransaction->setTransactionName($transactionName);
@@ -130,10 +155,88 @@ class TransactionRepository extends ServiceEntityRepository
         $newTransaction->setMoneyAmount($moneyAmount);
         $newTransaction->setPaymentType($paymentType);
         $newTransaction->setTransactionDate($transactionDate);
+        if (null !== $transactionNotes) {
+            $newTransaction->setTransactionNotes($transactionNotes);
+        }
+        if (null !== $partyName) {
+            $newTransaction->setPartyName($partyName);
+        }
 
         $this->entityManager->persist($newTransaction);
         $this->entityManager->flush();
     }
+
+
+    public function update(int $id, ?string $transactionName, ?Category $category, ?float $moneyAmount, ?\DateTimeImmutable $transactionDate, $paymentType, ?string $partyName, ?string $transactionNotes, User $user, bool $userHasCategory): void
+    {
+        $transaction = $this->findOneBy(['id' => $id]);
+
+
+        if (!$transaction) {
+            throw new NotFoundHttpException('Transaction not found.');
+        }
+
+        if ($user !== $transaction->getCategory()->getUser()) {
+            throw new NotFoundHttpException('Transaction not owned by this user.');
+        }
+
+        if($category && $userHasCategory){
+            $transaction->setCategory($category);
+        }
+
+        if($transactionName){
+            $transaction->setTransactionName($transactionName);
+        }
+
+        if($moneyAmount){
+            $transaction->setMoneyAmount($moneyAmount);
+        }
+
+        if($transactionDate){
+            $transaction->setTransactionDate($transactionDate);
+        }
+
+        if($paymentType){
+            $transaction->setPaymentType($paymentType);
+        }
+
+        if($partyName){
+            $transaction->setPartyName($partyName);
+        }
+
+        if($transactionNotes){
+            $transaction->setTransactionNotes($transactionNotes);
+        }
+
+        $this->entityManager->flush();
+
+    }
+
+
+    /**
+     * Delete selected transaction
+     * @param int $id
+     * @param User $user
+     * @return void
+     */
+    public function delete(int $id, User $user): void
+    {
+        $transaction = $this->findOneBy(['id' => $id]);
+
+        if (!$transaction) {
+            throw new NotFoundHttpException('Transaction not found.');
+        }
+
+        $category = $transaction->getCategory();
+        if ($user !== $category->getUser()) {
+            throw new NotFoundHttpException('Transaction not owned by this user.');
+        }
+
+        $this->entityManager->remove($transaction);
+        $this->entityManager->flush();
+
+    }
+
 
 
 

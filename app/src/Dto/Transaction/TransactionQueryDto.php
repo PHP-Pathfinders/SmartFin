@@ -3,16 +3,24 @@ namespace App\Dto\Transaction;
 
 
 use App\Entity\Category;
+use App\Validator\IntegerType;
+use App\Validator\LessThanOrEqual;
+use App\Validator\PositiveNumber;
 use Symfony\Component\Validator\Constraints as Assert;
 
 readonly class TransactionQueryDto
 {
     public function __construct(
 
+        #[PositiveNumber]
+        #[IntegerType]
         #[Assert\NotBlank(message: 'Page cannot be blank')]
         public string $page = '1',
 
+        #[PositiveNumber]
+        #[IntegerType]
         #[Assert\NotBlank(message: 'Limit cannot be blank')]
+        #[LessThanOrEqual(300)]
         public string $limit = '10',
 
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
