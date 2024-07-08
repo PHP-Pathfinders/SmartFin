@@ -39,7 +39,6 @@ final class UserFactory extends PersistentProxyObjectFactory
             'isActive' => true,
             'isVerified' => true,
             'plainPassword' => self::faker()->password(),
-            'roles' => ['ROLE_USER'],
             'birthday' => self::faker()->dateTimeBetween('-60 years', '2010-12-31')
         ];
     }

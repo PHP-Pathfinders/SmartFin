@@ -41,8 +41,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 80)]
     private ?string $fullName = null;
 
-    #[ORM\Column]
-    private ?bool $isVerified = null;
+    #[ORM\Column(options: ['default' => false])]
+    private ?bool $isVerified = false;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $passwordToken = null;
@@ -56,8 +56,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $birthday = null;
 
-    #[ORM\Column]
-    private ?bool $isActive = null;
+    #[ORM\Column(options: ['default' => false])]
+    private ?bool $isActive = false;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarPath = null;
