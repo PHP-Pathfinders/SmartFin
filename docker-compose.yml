@@ -47,7 +47,7 @@ services:
         networks:
             - nginx-php83-mysql8-node
 
-    # mailhog
+    # mailHog
     mailhog-service:
         image: mailhog/mailhog
         container_name: mailhog-container

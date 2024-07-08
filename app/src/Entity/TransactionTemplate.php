@@ -15,6 +15,9 @@ class TransactionTemplate
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactionTemplates')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+    #[ORM\ManyToOne(inversedBy: 'transactionTemplates')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Category $category = null;
 
@@ -104,6 +107,18 @@ class TransactionTemplate
     public function setTransactionNotes(?string $transactionNotes): static
     {
         $this->transactionNotes = $transactionNotes;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

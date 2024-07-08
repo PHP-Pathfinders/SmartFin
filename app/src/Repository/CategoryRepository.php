@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Dto\Category\CategoryCreateDto;
 use App\Entity\Category;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -50,13 +51,14 @@ class CategoryRepository extends ServiceEntityRepository
 
         // Get paginated results
         $categories = $this->createQueryBuilder('c')
-            ->select('c.id, c.categoryName, c.type, c.color, c.isCustom')
+            ->select('c.id, c.categoryName, c.type, c.color')
             ->where('c.type = :type')
-            ->andWhere('c.user = :user')
+            ->andWhere('c.user = :user OR c.user IS NULL')
             ->setParameter('type', $type)
             ->setParameter('user', $user)
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
+            ->orderBy('c.categoryName', 'ASC')
             ->getQuery()
             ->getArrayResult();
 
@@ -76,15 +78,17 @@ class CategoryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Create new category
-     * @param string $categoryName
-     * @param string $type
-     * @param string $color
+     * Create a new category
+     * @param CategoryCreateDto $categoryCreateDto
      * @param User $user
      * @return void
      */
-    public function create(string $categoryName, string $type,string $color,User $user):void
+    public function create(CategoryCreateDto $categoryCreateDto,User $user):void
     {
+        $categoryName = $categoryCreateDto->categoryName;
+        $type = $categoryCreateDto->type;
+        $color = $categoryCreateDto->color;
+
         /* Check if user already has category with given name for that type
          before adding a new category to the database */
         $userHasCategory = $this->userHasCategory($categoryName,$type,$user);
@@ -103,15 +107,12 @@ class CategoryRepository extends ServiceEntityRepository
 
     public function update(int $id, ?string $categoryName, ?string $color,User $user):void
     {
-//        Get the category using id
-        $category = $this->findOneBy([
-            'id' => $id,
-            'user' => $user
-        ]);
+        $category = $this->findByIdAndUser($id,$user);
+
         if (!$category) {
-            throw new NotFoundHttpException('Category not found or does not belong to the user.');
+            throw new NotFoundHttpException('Category not found or does not belongs to you');
         }
-        if (!$category->getIsCustom()) {
+        if ($category->getUser() === null) {
             throw new AccessDeniedHttpException('You cannot modify default category.');
         }
         if($categoryName) {
@@ -136,19 +137,34 @@ class CategoryRepository extends ServiceEntityRepository
      */
     public function delete(int $id,User $user):void
     {
-        $category = $this->findOneBy([
-            'id' => $id,
-            'user' => $user
-        ]);
+        $category = $this->findByIdAndUser($id,$user);
 
         if (!$category) {
             throw new NotFoundHttpException('Category not found or does not belong to the user.');
         }
-        if (!$category->getIsCustom()) {
+        if ($category->getUser() === null) {
             throw new AccessDeniedHttpException('You cannot delete default category.');
         }
         $this->entityManager->remove($category);
         $this->entityManager->flush();
+    }
+
+    /**
+     * Find category by id and user
+     * @param int $id
+     * @param User $user
+     * @return Category|null
+     */
+    private function findByIdAndUser(int $id,User $user):?Category
+    {
+//      Get the category using id and user or null user
+        return $this->createQueryBuilder('c')
+            ->where('c.id = :id')
+            ->andWhere('c.user = :user OR c.user IS NULL')
+            ->setParameter('id', $id)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     /**
