@@ -2,16 +2,23 @@
 
 namespace App\EventListener;
 
+use Cassandra\Exception\ValidationException;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Zenstruck\Assert\Not;
 
 final class ExceptionListener
 {
@@ -20,27 +27,34 @@ final class ExceptionListener
     {
         $exception = $event->getThrowable();
 //        dd($exception);
-        // In case of duplicate entry
-        if($exception instanceof ConflictHttpException){
+//         In case of duplicate entry
+        if ($exception instanceof ConflictHttpException){
             $this->setResponse($event, Response::HTTP_CONFLICT);
         }
-        // In case of invalid json
-        elseif($exception instanceof BadRequestHttpException){
+        elseif ($exception instanceof AccessDeniedHttpException){
+            $this->setResponse($event, Response::HTTP_FORBIDDEN);
+        }
+//         In case of invalid json
+        elseif ($exception instanceof BadRequestHttpException){
             $this->setResponse($event,Response::HTTP_BAD_REQUEST);
         }
-        // In case of validation error
-        elseif($exception instanceof UnprocessableEntityHttpException){
-            $validationException = $exception->getPrevious();
-            $violations = $validationException->getViolations();
-            $errors = $this->formatValidationErrors($violations);
-            $response = new JsonResponse([
-                'success' => false,
-                'errors' => $errors,
-            ], Response::HTTP_BAD_REQUEST);
-            $event->setResponse($response);
+
+//         In case of 404 (Query params validation error also handled here)
+        elseif ($exception instanceof NotFoundHttpException) {
+            $previousException = $exception->getPrevious();
+            // If validation fails for query parameters
+            if ($previousException instanceof ValidationFailedException){
+                $this->handleValidationErrors($event);
+            }else{
+                $this->setResponse($event, Response::HTTP_NOT_FOUND);
+            }
         }
-        // In case of RuntimeException
-        elseif($exception instanceof \RuntimeException){
+//         In case of validation error
+        elseif ($exception instanceof UnprocessableEntityHttpException){
+            $this->handleValidationErrors($event);
+        }
+//         In case of any error
+        elseif ($exception instanceof \RuntimeException){
             $this->setResponse($event,Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -51,7 +65,8 @@ final class ExceptionListener
      * @param int $status
      * @return void
      */
-    private function setResponse(ExceptionEvent $event, int $status){
+    private function setResponse(ExceptionEvent $event, int $status):void
+    {
         $exception = $event->getThrowable();
         $message = $exception->getMessage();
         $response = new JsonResponse([
@@ -62,14 +77,16 @@ final class ExceptionListener
     }
 
     /**
-     * Formats a validation errors for response
+     * Format and handle validation errors for response
      * @param ConstraintViolationList $violations
      * @return array
      */
-    private function formatValidationErrors(ConstraintViolationList $violations): array
+    private function handleValidationErrors($event): void
     {
+        $exception = $event->getThrowable();
+        $validationException = $exception->getPrevious();
+        $violations = $validationException->getViolations();
         $errors = [];
-
         foreach ($violations as $violation) {
             $propertyPath = $violation->getPropertyPath();
             $message = $violation->getMessage();
@@ -80,6 +97,10 @@ final class ExceptionListener
                 'code'=>$code
             ];
         }
-        return $errors;
+        $response = new JsonResponse([
+            'success' => false,
+            'errors' => $errors,
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $event->setResponse($response);
     }
 }

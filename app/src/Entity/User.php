@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use AllowDynamicProperties;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -12,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[AllowDynamicProperties] #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`users`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', columns: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface

@@ -24,4 +24,12 @@ class UserController extends AbstractController
             'message' => 'Logged out successfully',
         ]);
     }
+    #[Route('/register', name: 'api_register', methods: ['POST'])]
+    public function createUser(): JsonResponse
+    {
+        return $this->json([
+            'success' => true,
+            'message' => 'User registered successfully'
+        ]);
+    }
 }
