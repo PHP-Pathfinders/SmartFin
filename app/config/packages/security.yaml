@@ -18,6 +18,7 @@ security:
         login:
             pattern: ^/api/users/login
             stateless: true
+            user_checker: App\Security\UserChecker #Custom user checker
             json_login:
                 check_path: /api/users/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success

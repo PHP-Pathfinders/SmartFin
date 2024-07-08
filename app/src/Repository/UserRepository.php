@@ -50,11 +50,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setFullName($fullName);
         $user->setEmail($email);
         $user->setPassword($password);
-//        $user->setIsVerified(false);
-//        $user->setIsActive(false);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
+
+    /**
+     * Checks whether email is available or not
+     * @param string $email
+     * @return bool
+     */
     private function isEmailAvailable(string $email): bool
     {
 //        Checking if email exist in db

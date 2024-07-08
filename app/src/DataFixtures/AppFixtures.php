@@ -17,7 +17,7 @@ class AppFixtures extends Fixture
         // Create admin manually with specific details
         UserFactory::new([
             'email' => 'admin@gmail.com',
-            'plainPassword' => 'password',
+            'plainPassword' => 'Password#1',
             'fullName' => 'Kristijan Dulic',
             'roles' => ['ROLE_ADMIN']
         ])->create();
@@ -25,7 +25,7 @@ class AppFixtures extends Fixture
         // Create user manually with specific details
         UserFactory::new([
             'email' => 'user@gmail.com',
-            'plainPassword' => 'password',
+            'plainPassword' => 'Password#1',
             'fullName' => 'Andrej Dvornic',
         ])->create();
 
