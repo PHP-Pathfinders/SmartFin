@@ -6,7 +6,6 @@ use App\Dto\Category\CategoryCreateDto;
 use App\Dto\Category\CategoryQueryDto;
 use App\Dto\Category\CategoryUpdateDto;
 use App\Service\CategoryService;
-use http\Env\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

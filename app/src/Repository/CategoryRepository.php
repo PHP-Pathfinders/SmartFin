@@ -2,12 +2,13 @@
 
 namespace App\Repository;
 
+use App\Dto\Category\CategoryCreateDto;
 use App\Entity\Category;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Bundle\SecurityBundle\Security;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -19,7 +20,8 @@ class CategoryRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry                         $registry,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly PaginatorInterface $paginator
     )
     {
         parent::__construct($registry, Category::class);
@@ -35,31 +37,23 @@ class CategoryRepository extends ServiceEntityRepository
      */
     public function search(string $type,int $page,int $limit,User $user): array
     {
-        // Get the total count of results
-        $totalResults = $this->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
+        // Get paginated results
+        $queryBuilder = $this->createQueryBuilder('c')
+            ->select('c.id, c.categoryName, c.type, c.color')
             ->where('c.type = :type')
-            ->andWhere('c.user = :user')
+            ->andWhere('c.user = :user OR c.user IS NULL')
             ->setParameter('type', $type)
             ->setParameter('user', $user)
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->orderBy('c.categoryName', 'ASC');
+
+        $pagination = $this->paginator->paginate(
+            $queryBuilder,
+            $page,
+            $limit
+        );
 
         // Calculate total pages
-        $totalPages = (int) ceil($totalResults / $limit);
-
-        // Get paginated results
-        $categories = $this->createQueryBuilder('c')
-            ->select('c.id, c.categoryName, c.type, c.color, c.isCustom')
-            ->where('c.type = :type')
-            ->andWhere('c.user = :user')
-            ->setParameter('type', $type)
-            ->setParameter('user', $user)
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getArrayResult();
-
+        $totalPages = (int) ceil($pagination->getTotalItemCount() / $limit);
         // Calculate the previous and next page
         $previousPage = ($page > 1) ? $page - 1 : null;
         $nextPage = ($page < $totalPages) ? $page + 1 : null;
@@ -71,20 +65,22 @@ class CategoryRepository extends ServiceEntityRepository
                 'nextPage' => $nextPage,
                 'totalPages' => $totalPages,
             ],
-            'categories' => $categories
+            'categories' => $pagination->getItems()
         ];
     }
 
     /**
-     * Create new category
-     * @param string $categoryName
-     * @param string $type
-     * @param string $color
+     * Create a new category
+     * @param CategoryCreateDto $categoryCreateDto
      * @param User $user
      * @return void
      */
-    public function create(string $categoryName, string $type,string $color,User $user):void
+    public function create(CategoryCreateDto $categoryCreateDto,User $user):void
     {
+        $categoryName = $categoryCreateDto->categoryName;
+        $type = $categoryCreateDto->type;
+        $color = $categoryCreateDto->color;
+
         /* Check if user already has category with given name for that type
          before adding a new category to the database */
         $userHasCategory = $this->userHasCategory($categoryName,$type,$user);
@@ -103,15 +99,12 @@ class CategoryRepository extends ServiceEntityRepository
 
     public function update(int $id, ?string $categoryName, ?string $color,User $user):void
     {
-//        Get the category using id
-        $category = $this->findOneBy([
-            'id' => $id,
-            'user' => $user
-        ]);
+        $category = $this->findByIdAndUser($id,$user);
+
         if (!$category) {
-            throw new NotFoundHttpException('Category not found or does not belong to the user.');
+            throw new NotFoundHttpException('Category not found or does not belongs to you');
         }
-        if (!$category->getIsCustom()) {
+        if ($category->getUser() === null) {
             throw new AccessDeniedHttpException('You cannot modify default category.');
         }
         if($categoryName) {
@@ -136,19 +129,34 @@ class CategoryRepository extends ServiceEntityRepository
      */
     public function delete(int $id,User $user):void
     {
-        $category = $this->findOneBy([
-            'id' => $id,
-            'user' => $user
-        ]);
+        $category = $this->findByIdAndUser($id,$user);
 
         if (!$category) {
             throw new NotFoundHttpException('Category not found or does not belong to the user.');
         }
-        if (!$category->getIsCustom()) {
+        if ($category->getUser() === null) {
             throw new AccessDeniedHttpException('You cannot delete default category.');
         }
         $this->entityManager->remove($category);
         $this->entityManager->flush();
+    }
+
+    /**
+     * Find category by id and user
+     * @param int $id
+     * @param User $user
+     * @return Category|null
+     */
+    private function findByIdAndUser(int $id,User $user):?Category
+    {
+//      Get the category using id and user or null user
+        return $this->createQueryBuilder('c')
+            ->where('c.id = :id')
+            ->andWhere('c.user = :user OR c.user IS NULL')
+            ->setParameter('id', $id)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     /**
@@ -171,28 +179,4 @@ class CategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
-//    /**
-//     * @return Category[] Returns an array of Category objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Category
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

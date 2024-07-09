@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -31,6 +32,43 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Creates a new user if email is not taken
+     * @param string $fullName
+     * @param string $email
+     * @param string $password
+     * @return void
+     */
+    public function create(string $fullName, string $email, string $password,User $user):void
+    {
+        $isEmailAvailable = $this->isEmailAvailable($email);
+        if (!$isEmailAvailable) {
+            throw new ConflictHttpException('E-mail is already taken');
+        }
+        $user->setFullName($fullName);
+        $user->setEmail($email);
+        $user->setPassword($password);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Checks whether email is available or not
+     * @param string $email
+     * @return bool
+     */
+    private function isEmailAvailable(string $email): bool
+    {
+//        Checking if email exist in db
+        $isEmailTaken = (bool) $this->createQueryBuilder('u')
+            ->select('count(u.id)')
+            ->where('u.email = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getSingleScalarResult();
+        return !$isEmailTaken;
     }
 
     //    /**

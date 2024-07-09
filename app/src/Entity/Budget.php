@@ -18,6 +18,9 @@ class Budget
 
     #[ORM\ManyToOne(inversedBy: 'budgets')]
     #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+    #[ORM\ManyToOne(inversedBy: 'budgets')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
 
     #[ORM\Column]
@@ -63,6 +66,18 @@ class Budget
     public function setMonthlyBudgetDate(DateTimeInterface $monthlyBudgetDate): static
     {
         $this->monthlyBudgetDate = $monthlyBudgetDate;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

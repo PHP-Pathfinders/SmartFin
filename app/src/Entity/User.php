@@ -41,8 +41,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 80)]
     private ?string $fullName = null;
 
-    #[ORM\Column]
-    private ?bool $isVerified = null;
+    #[ORM\Column(options: ['default' => false])]
+    private ?bool $isVerified = false;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $passwordToken = null;
@@ -56,8 +56,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $birthday = null;
 
-    #[ORM\Column]
-    private ?bool $isActive = null;
+    #[ORM\Column(options: ['default' => false])]
+    private ?bool $isActive = false;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarPath = null;
@@ -70,10 +70,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'user')]
     private Collection $categories;
 
+    /**
+     * @var Collection<int, Budget>
+     */
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'user')]
+    private Collection $budgets;
+
+    /**
+     * @var Collection<int, TransactionTemplate>
+     */
+    #[ORM\OneToMany(targetEntity: TransactionTemplate::class, mappedBy: 'user')]
+    private Collection $transactionTemplates;
+
+    /**
+     * @var Collection<int, Transaction>
+     */
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user')]
+    private Collection $transactions;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
         $this->categories = new ArrayCollection();
+        $this->budgets = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
+        $this->transactionTemplates = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -284,6 +305,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // set the owning side to null (unless already changed)
         if ($this->categories->removeElement($category) && $category->getUser() === $this) {
             $category->setUser(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Budget>
+     */
+    public function getBudgets(): Collection
+    {
+        return $this->budgets;
+    }
+
+    public function addBudget(Budget $budget): static
+    {
+        if (!$this->budgets->contains($budget)) {
+            $this->budgets->add($budget);
+            $budget->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBudget(Budget $budget): static
+    {
+        if ($this->budgets->removeElement($budget)) {
+            // set the owning side to null (unless already changed)
+            if ($budget->getUser() === $this) {
+                $budget->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Transactions>
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transactions $transaction): static
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions->add($transaction);
+            $transaction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transactions $transaction): static
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getUser() === $this) {
+                $transaction->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TransactionTemplate>
+     */
+    public function getTransactionTemplates(): Collection
+    {
+        return $this->transactionTemplates;
+    }
+
+    public function addTransactionTemplate(TransactionTemplate $transactionTemplate): static
+    {
+        if (!$this->transactionTemplates->contains($transactionTemplate)) {
+            $this->transactionTemplates->add($transactionTemplate);
+            $transactionTemplate->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransactionTemplate(TransactionTemplate $transactionTemplate): static
+    {
+        if ($this->transactionTemplates->removeElement($transactionTemplate)) {
+            // set the owning side to null (unless already changed)
+            if ($transactionTemplate->getUser() === $this) {
+                $transactionTemplate->setUser(null);
+            }
         }
 
         return $this;

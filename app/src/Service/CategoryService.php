@@ -35,13 +35,9 @@ readonly class CategoryService
 
     public function create(CategoryCreateDto $categoryCreateDto):void
     {
-        $name = $categoryCreateDto->categoryName;
-        $type = $categoryCreateDto->type;
-        $color = $categoryCreateDto->color;
         /** @var User $user */
         $user = $this->security->getUser();
-
-        $this->categoryRepository->create($name,$type,$color,$user);
+        $this->categoryRepository->create($categoryCreateDto,$user);
     }
 
     public function update(CategoryUpdateDto $categoryUpdateDto):string
