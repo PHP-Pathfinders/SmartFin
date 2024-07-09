@@ -20,14 +20,17 @@ readonly class TransactionQueryDto
         #[PositiveNumber]
         #[IntegerType]
         #[Assert\NotBlank(message: 'Limit cannot be blank')]
-        #[LessThanOrEqual(300)]
-        public string $limit = '10',
+        #[LessThanOrEqual(200)]
+        public string $limit = '200',
 
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
         public ?string $paymentType = null,
 
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?\DateTimeInterface $transactionDate = null,
+        public ?\DateTimeInterface $dateStart = null,
+
+        #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
+        public ?\DateTimeInterface $dateEnd = null,
 
         #[Assert\NotBlank(message: 'Transaction name cannot be blank', allowNull: true)]
         public ?string $transactionName = null,

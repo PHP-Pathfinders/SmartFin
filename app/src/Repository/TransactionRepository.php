@@ -2,12 +2,15 @@
 
 namespace App\Repository;
 
+use App\Dto\Transaction\TransactionCreateDto;
+use App\Dto\Transaction\TransactionQueryDto;
 use App\Entity\Category;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -17,7 +20,8 @@ class TransactionRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry                $registry,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private PaginatorInterface     $paginator
     )
     {
         parent::__construct($registry, Transaction::class);
@@ -25,26 +29,34 @@ class TransactionRepository extends ServiceEntityRepository
 
     /**
      * Find transactions by different parameters
-     * @param int $limit
-     * @param int $page
+     * @param TransactionQueryDto|null $transactionQueryDto
      * @param User $user
-     * @param string|null $paymentType
-     * @param \DateTimeImmutable|null $transactionDate
-     * @param string|null $transactionName
-     * @param string|null $partyName
-     * @param string|null $transactionNotes
-     * @param int|null $categoryId
-     * @param string|null $categoryName
-     * @param string|null $categoryType
      * @return array
      */
-    public function search(int $limit, int $page, User $user, string|null $paymentType, \DateTimeImmutable|null $transactionDate, string|null $transactionName, string|null $partyName, string|null $transactionNotes, int|null $categoryId, string|null $categoryName, string|null $categoryType): array
+    public function search(?TransactionQueryDto $transactionQueryDto, User $user): array
     {
+        $paymentType = $transactionQueryDto->paymentType ?? null;
+        $dateStart = $transactionQueryDto->dateStart ?? null;
+        $dateEnd = $transactionQueryDto->dateEnd ?? null;
+        $transactionName = $transactionQueryDto->transactionName ?? null;
+        $partyName = $transactionQueryDto->partyName ?? null;
+        $transactionNotes = $transactionQueryDto->transactionNotes ?? null;
+        $categoryName = $transactionQueryDto->categoryName ?? null;
+        $categoryType = $transactionQueryDto->categoryType ?? null;
+        $categoryId = $transactionQueryDto->categoryId ?? null;
+        $page = $transactionQueryDto->page ?? '1';
+        $limit = $transactionQueryDto->limit ?? '200';
+
+        if ($dateStart > $dateEnd) {
+            [$dateStart, $dateEnd] = [$dateEnd, $dateStart];
+        }
+
+
         $totalResults = $this->createQueryBuilder('t')
             ->select('COUNT(t.id)')
             ->leftJoin('t.category', 'c')
             ->leftJoin('c.user', 'u')
-            ->andWhere('c.user = :user')
+            ->andWhere('t.user = :user')
             ->setParameter('user', $user);
 
 
@@ -52,9 +64,8 @@ class TransactionRepository extends ServiceEntityRepository
             ->select(' t.id, t.paymentType, t.transactionDate, t.moneyAmount, t.transactionName, t.partyName, t.transactionNotes, c.type, c.categoryName, c.color')
             ->leftJoin('t.category', 'c')
             ->leftJoin('c.user', 'u')
-            ->andWhere('c.user = :user')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
+            ->andWhere('t.user = :user')
+            ->orderBy('t.transactionName', 'ASC')
             ->setParameter('user', $user);
 
 
@@ -65,13 +76,16 @@ class TransactionRepository extends ServiceEntityRepository
                 ->setParameter('paymentType', $paymentType);
         }
 
-        if ($transactionDate !== null) {
-            $qb->andWhere('MONTH(t.transactionDate) = MONTH(:transactionDate)')
-                ->andWhere('YEAR(t.transactionDate) = YEAR(:transactionDate)')
-                ->setParameter('transactionDate', $transactionDate);
-            $totalResults->andWhere('MONTH(t.transactionDate) = MONTH(:transactionDate)')
-                ->andWhere('YEAR(t.transactionDate) = YEAR(:transactionDate)')
-                ->setParameter('transactionDate', $transactionDate);
+        if ($dateStart !== null && $dateEnd !== null) {
+            $qb->andWhere('t.transactionDate >= :dateStart')
+                ->andWhere('t.transactionDate <= :dateEnd')
+                ->orderBy('t.transactionDate', 'ASC')
+                ->setParameter('dateStart', $dateStart)
+                ->setParameter('dateEnd', $dateEnd);
+            $totalResults->andWhere('t.transactionDate >= :dateStart')
+                ->andWhere('t.transactionDate <= :dateEnd')
+                ->setParameter('dateStart', $dateStart)
+                ->setParameter('dateEnd', $dateEnd);
         }
 
         if ($transactionName !== null) {
@@ -116,10 +130,18 @@ class TransactionRepository extends ServiceEntityRepository
                 ->setParameter('categoryId', $categoryId);
         }
 
-        $transactions = $qb->getQuery()->getArrayResult();
+        $pagination = $this->paginator->paginate(
+            $qb,
+            $page,
+            $limit
+        );
+
+        $transactions = $pagination->getItems();
         $totalResults = $totalResults->getQuery()->getSingleScalarResult();
 
-        $totalPages = (int)ceil($totalResults / $limit);
+        // Calculate total pages
+        $totalPages = (int)ceil($pagination->getTotalItemCount() / $limit);
+        // Calculate the previous and next page
         $previousPage = ($page > 1) ? $page - 1 : null;
         $nextPage = ($page < $totalPages) ? $page + 1 : null;
 
@@ -138,23 +160,28 @@ class TransactionRepository extends ServiceEntityRepository
 
     /**
      * Create new transaction
-     * @param string $transactionName
+     * @param TransactionCreateDto $transactionCreateDto
+     * @param User $user
      * @param Category $category
-     * @param float $moneyAmount
-     * @param string $paymentType
-     * @param \DateTimeImmutable $transactionDate
-     * @param string|null $partyName
-     * @param string|null $transactionNotes
      * @return void
      */
-    public function create(string $transactionName, Category $category, float $moneyAmount, string $paymentType, \DateTimeImmutable $transactionDate, ?string $partyName, ?string $transactionNotes): void
+    public function create(TransactionCreateDto $transactionCreateDto, User $user, Category $category): void
     {
+        $moneyAmount = $transactionCreateDto->moneyAmount;
+        $transactionDate = $transactionCreateDto->transactionDate;
+        $paymentType = $transactionCreateDto->paymentType;
+        $partyName = $transactionCreateDto->partyName;
+        $transactionNotes = $transactionCreateDto->transactionNotes;
+        $transactionName = $transactionCreateDto->transactionName;
+
+
         $newTransaction = new Transaction();
-        $newTransaction->setTransactionName($transactionName);
+        $newTransaction->setUser($user);
         $newTransaction->setCategory($category);
-        $newTransaction->setMoneyAmount($moneyAmount);
         $newTransaction->setPaymentType($paymentType);
         $newTransaction->setTransactionDate($transactionDate);
+        $newTransaction->setMoneyAmount($moneyAmount);
+        $newTransaction->setTransactionName($transactionName);
         if (null !== $transactionNotes) {
             $newTransaction->setTransactionNotes($transactionNotes);
         }
@@ -167,44 +194,40 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
 
-    public function update(int $id, ?string $transactionName, ?Category $category, ?float $moneyAmount, ?\DateTimeImmutable $transactionDate, $paymentType, ?string $partyName, ?string $transactionNotes, User $user, bool $userHasCategory): void
+    public function update(int $id, ?string $transactionName, ?Category $category, ?float $moneyAmount, ?\DateTimeImmutable $transactionDate, $paymentType, ?string $partyName, ?string $transactionNotes, User $user): void
     {
-        $transaction = $this->findOneBy(['id' => $id]);
+        $transaction = $this->findByIdAndUser($id, $user);
 
 
         if (!$transaction) {
-            throw new NotFoundHttpException('Transaction not found.');
+            throw new NotFoundHttpException('Transaction not found or doesn\'t belong to you.');
         }
 
-        if ($user !== $transaction->getCategory()->getUser()) {
-            throw new NotFoundHttpException('Transaction not owned by this user.');
-        }
-
-        if($category && $userHasCategory){
+        if ($category) {
             $transaction->setCategory($category);
         }
 
-        if($transactionName){
+        if ($transactionName) {
             $transaction->setTransactionName($transactionName);
         }
 
-        if($moneyAmount){
+        if ($moneyAmount) {
             $transaction->setMoneyAmount($moneyAmount);
         }
 
-        if($transactionDate){
+        if ($transactionDate) {
             $transaction->setTransactionDate($transactionDate);
         }
 
-        if($paymentType){
+        if ($paymentType) {
             $transaction->setPaymentType($paymentType);
         }
 
-        if($partyName){
+        if ($partyName) {
             $transaction->setPartyName($partyName);
         }
 
-        if($transactionNotes){
+        if ($transactionNotes) {
             $transaction->setTransactionNotes($transactionNotes);
         }
 
@@ -221,20 +244,27 @@ class TransactionRepository extends ServiceEntityRepository
      */
     public function delete(int $id, User $user): void
     {
-        $transaction = $this->findOneBy(['id' => $id]);
+        $transaction = $this->findByIdAndUser($id, $user);
 
         if (!$transaction) {
             throw new NotFoundHttpException('Transaction not found.');
         }
 
-        $category = $transaction->getCategory();
-        if ($user !== $category->getUser()) {
-            throw new NotFoundHttpException('Transaction not owned by this user.');
-        }
-
         $this->entityManager->remove($transaction);
         $this->entityManager->flush();
 
+    }
+
+
+    private function findByIdAndUser(int $id, User $user): ?Transaction
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.id = :id')
+            ->andWhere('t.user = :user')
+            ->setParameter('id', $id)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
 
