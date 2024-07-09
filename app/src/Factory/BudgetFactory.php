@@ -4,8 +4,10 @@ namespace App\Factory;
 
 use App\Entity\Budget;
 use App\Entity\Category;
+use App\Entity\User;
 use App\Repository\BudgetRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\UserRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -15,7 +17,8 @@ final class BudgetFactory extends PersistentProxyObjectFactory
 {
     public function __construct(
         private BudgetRepository       $budgetRepository,
-        private CategoryRepository     $categoryRepository
+        private CategoryRepository     $categoryRepository,
+        private UserRepository         $userRepository
     )
     {
     }
@@ -30,13 +33,21 @@ final class BudgetFactory extends PersistentProxyObjectFactory
         $attempts = 0;
         do {
             $categoryProxy = CategoryFactory::random();
-            $categoryId = $categoryProxy->_get('id');
+            $userProxy = UserFactory::random();
+
+            /** @var Category $category */
+            $category = $this->categoryRepository->findOneBy(['id' => $categoryProxy->_get('id')]);
+
+            /** @var User $user */
+            $user = $this->userRepository->findOneBy(['id' => $userProxy->_get('id')]);
+
             $monthlyBudgetDate = self::faker()->dateTimeBetween('-4 months', '+4 months');
 
-            if (!$this->budgetRepository->doesBudgetExistForCategoryAndMonth($this->categoryRepository->findOneBy(['id' => $categoryId]), $monthlyBudgetDate)) {
+            if (!$this->budgetRepository->doesBudgetExistForCategoryAndMonth($category, $user, $monthlyBudgetDate)) {
                 return [
+                    'user' => $userProxy,
                     'category' => $categoryProxy,
-                    'monthlyBudget' => self::faker()->randomFloat(2, 100, 1000),
+                    'monthlyBudget' => self::faker()->randomFloat(2, 100, 5000),
                     'monthlyBudgetDate' => $monthlyBudgetDate,
                 ];
             }

@@ -67,11 +67,11 @@ class AppFixtures extends Fixture
             ])->create();
         }
 
-//        BudgetFactory::createMany(300);
-//
-//        TransactionFactory::createMany(40);
-//
-//        TransactionTemplateFactory::createMany(40);
+        BudgetFactory::createMany(80);
+
+        TransactionFactory::createMany(40);
+
+        TransactionTemplateFactory::createMany(40);
 
         $manager->flush();
     }
