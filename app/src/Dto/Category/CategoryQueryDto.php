@@ -17,8 +17,8 @@ readonly class CategoryQueryDto
         #[Assert\NotBlank(message: 'Limit cannot be blank')]
         #[IntegerType]
         #[PositiveNumber]
-        #[LessThanOrEqual(30)]
-        public string $limit='10',
+        #[LessThanOrEqual(200)]
+        public string $limit='200',
         #[Assert\Choice(['income', 'expense'], message: 'Type must be \'income\' or \'expense\'')]
         public string $type='income'
     ) {}

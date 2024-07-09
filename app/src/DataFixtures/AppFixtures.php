@@ -17,16 +17,16 @@ class AppFixtures extends Fixture
         // Create admin manually with specific details
         UserFactory::new([
             'email' => 'admin@gmail.com',
-            'plainPassword' => 'password',
-            'fullName' => 'Kristijan Dulic',
+            'plainPassword' => 'Password#1',
+            'fullName' => 'Jane Doe',
             'roles' => ['ROLE_ADMIN']
         ])->create();
 
         // Create user manually with specific details
         UserFactory::new([
             'email' => 'user@gmail.com',
-            'plainPassword' => 'password',
-            'fullName' => 'Andrej Dvornic',
+            'plainPassword' => 'Password#1',
+            'fullName' => 'John Doe',
         ])->create();
 
         UserFactory::createMany(3);
@@ -51,32 +51,27 @@ class AppFixtures extends Fixture
             ],
         ];
         // Iterate over each user and assign default categories
-        foreach (UserFactory::repository()->findAll() as $user) {
-            foreach ($defaultCategories['income'] as $incomeCategoryName => $color) {
-                CategoryFactory::new([
-                    'categoryName' => $incomeCategoryName,
-                    'type' => 'income',
-                    'color' => $color,
-                    'isCustom' => false,
-                    'user' => $user,
-                ])->create();
-            }
-            foreach ($defaultCategories['expense'] as $expenseCategoryName => $color) {
-                CategoryFactory::new([
-                    'categoryName' => $expenseCategoryName,
-                    'type' => 'expense',
-                    'color' => $color,
-                    'isCustom' => false,
-                    'user' => $user,
-                ])->create();
-            }
+
+        foreach ($defaultCategories['income'] as $incomeCategoryName => $color) {
+            CategoryFactory::new([
+                'categoryName' => $incomeCategoryName,
+                'type' => 'income',
+                'color' => $color
+            ])->create();
+        }
+        foreach ($defaultCategories['expense'] as $expenseCategoryName => $color) {
+            CategoryFactory::new([
+                'categoryName' => $expenseCategoryName,
+                'type' => 'expense',
+                'color' => $color
+            ])->create();
         }
 
-        BudgetFactory::createMany(300);
-
-        TransactionFactory::createMany(40);
-
-        TransactionTemplateFactory::createMany(40);
+//        BudgetFactory::createMany(300);
+//
+//        TransactionFactory::createMany(40);
+//
+//        TransactionTemplateFactory::createMany(40);
 
         $manager->flush();
     }

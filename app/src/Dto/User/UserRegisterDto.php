@@ -2,8 +2,10 @@
 
 namespace App\Dto\User;
 
+use App\Validator\FieldsMatch;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[FieldsMatch(field:'password',matchingField: 'confirmPassword', message:'Passwords do not match')]
 readonly class UserRegisterDto
 {
     public function __construct(
@@ -42,6 +44,8 @@ readonly class UserRegisterDto
             min: 6,
             minMessage: 'Password must be at least {{ limit }} characters long.'
         )]
-        public string $password=''
+        public string $password='',
+        #[Assert\NotBlank(message: 'Password must be provided and cannot be blank.')]
+        public string $confirmPassword=''
     ) {}
 }

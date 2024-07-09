@@ -17,7 +17,7 @@ class Category
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
 
     #[ORM\Column(length: 50)]
@@ -29,8 +29,6 @@ class Category
     #[ORM\Column(length: 10)]
     private ?string $color;
 
-    #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    private ?bool $isCustom=true;
 
     /**
      * @var Collection<int, Transaction>
@@ -104,16 +102,6 @@ class Category
     public function setColor(?string $color): void
     {
         $this->color = $color;
-    }
-
-    public function getIsCustom(): ?bool
-    {
-        return $this->isCustom;
-    }
-
-    public function setIsCustom(?bool $isCustom): void
-    {
-        $this->isCustom = $isCustom;
     }
 
     /**

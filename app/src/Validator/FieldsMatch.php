@@ -8,12 +8,24 @@ use Symfony\Component\Validator\Constraint;
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
-#[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 class FieldsMatch extends Constraint
 {
-    /*
-     * Any public properties become valid options for the annotation.
-     * Then, use these in your validator class.
-     */
-    public string $message = 'The value "{{ value }}" is not valid.';
+    public function __construct(
+        public string $field,
+        public string $matchingField,
+        public string $message = 'Fields do not match',
+        mixed $options = null,
+        ?array $groups = null,
+        mixed $payload = null
+    )
+    {
+        parent::__construct($options, $groups, $payload);
+    }
+
+    // This is added so the attribute can be placed on top of the class
+    public function getTargets(): string
+    {
+        return self::CLASS_CONSTRAINT;
+    }
 }
