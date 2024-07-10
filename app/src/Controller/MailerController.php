@@ -37,33 +37,17 @@ class MailerController extends AbstractController
         ]);
     }
 
-    /**
-     * @throws InvalidSignatureException
-     */
-    #[Route('/verify-email', name: 'api_verify_email')]
-    public function verifyUserEmail(
-        #[MapQueryParameter] int $id,
-        MailerService $mailerService,
-        Request $request
+    #[Route('/reset-password', name: 'api_mailer_reset_password', methods: ['POST'])]
+    public function resetPassword(
+        #[MapRequestPayload] UserResetPasswordDto $userResetPasswordDto,
+        MailerService $mailerService
     ): JsonResponse
     {
-        $mailerService->verifyUserEmail($id,$request);
+        $mailerService->resetPassword($userResetPasswordDto);
 
         return $this->json([
             'success' => true,
-            'message' => 'Your email address has been verified'
-        ]);
-    }
-    #[Route('/forgot-password', name: 'api_forgot_password', methods: ['POST'])]
-    public function forgotPassword(
-        #[MapRequestPayload] UserResetPasswordDto $userResetPasswordDto
-    ): JsonResponse
-    {
-        dd($userResetPasswordDto->email);
-        //TODO finish off reset password feature
-        return $this->json([
-            'success' => true,
-            'message' => 'Check your email for password reset link'
+            'message' => 'If your email exists in our system, you will receive a password reset email shortly'
         ]);
     }
 }

@@ -44,23 +44,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(options: ['default' => false])]
     private ?bool $isVerified = false;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    private ?string $passwordToken = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?DateTimeInterface $passwordTokenExpires = null;
-
-    #[ORM\Column]
-    private ?DateTimeImmutable $createdAt;
+    #[ORM\Column(options: ['default' => true])]
+    private ?bool $isActive = true;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $birthday = null;
 
-    #[ORM\Column(options: ['default' => true])]
-    private ?bool $isActive = true;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarPath = null;
+
+    #[ORM\Column]
+    private ?DateTimeImmutable $createdAt;
 
     private string $plainPassword;
 
@@ -192,30 +186,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(?bool $isVerified): void
     {
         $this->isVerified = $isVerified;
-    }
-
-    public function getPasswordToken(): ?string
-    {
-        return $this->passwordToken;
-    }
-
-    public function setPasswordToken(?string $passwordToken): static
-    {
-        $this->passwordToken = $passwordToken;
-
-        return $this;
-    }
-
-    public function getPasswordTokenExpires(): DateTimeInterface
-    {
-        return $this->passwordTokenExpires;
-    }
-
-    public function setPasswordTokenExpires(?string $passwordTokenExpires): static
-    {
-        $this->passwordTokenExpires = $passwordTokenExpires;
-
-        return $this;
     }
 
     public function getCreatedAt(): ?DateTimeImmutable

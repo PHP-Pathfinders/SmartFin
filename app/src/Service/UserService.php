@@ -7,8 +7,11 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 
 readonly class UserService
 {
@@ -17,6 +20,20 @@ readonly class UserService
         private UserPasswordHasherInterface $passwordHasher,
         private EmailVerifier               $emailVerifier
     ){}
+
+    /**
+     * @throws InvalidSignatureException
+     */
+    public function verifyEmail(int $id,Request $request):void
+    {
+        $user = $this->userRepository->find($id);
+        // Ensure the user exists
+        if (null === $user) {
+            throw new InvalidSignatureException('Invalid signature');
+        }
+        // validate an email confirmation link, sets User isVerified=true
+        $this->emailVerifier->handleEmailConfirmation($request, $user);
+    }
 
     public function create(UserRegisterDto $userRegisterDto):void
     {
@@ -35,7 +52,7 @@ readonly class UserService
                 ->from(new Address('smart-fin@example.com', 'SmartFin'))
                 ->to($user->getEmail())
                 ->subject('Please Confirm your Email')
-                ->htmlTemplate('registration/confirmation_email.html.twig')
+                ->htmlTemplate('email/confirmation_email.html.twig')
         );
     }
 }

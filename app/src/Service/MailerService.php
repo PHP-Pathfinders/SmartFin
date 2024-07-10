@@ -2,30 +2,52 @@
 
 namespace App\Service;
 
+use App\Dto\User\UserResetPasswordDto;
 use App\Repository\UserRepository;
-use App\Security\EmailVerifier;
-use Symfony\Component\HttpFoundation\Request;
-use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 readonly class MailerService
 {
     public function __construct(
         private UserRepository $userRepository,
-        private EmailVerifier  $emailVerifier
+        private ResetPasswordHelperInterface $resetPasswordHelper,
+        private MailerInterface $mailer
     )
     {}
 
     /**
-     * @throws InvalidSignatureException
+     * @throws ResetPasswordExceptionInterface
      */
-    public function verifyUserEmail(int $id,Request $request):void
+    public function resetPassword(UserResetPasswordDto $userResetPasswordDto):void
     {
-        $user = $this->userRepository->find($id);
-        // Ensure the user exists
-        if (null === $user) {
-            throw new InvalidSignatureException('Invalid signature');
+        $email = $userResetPasswordDto->email;
+        $user = $this->userRepository->findOneBy(['email'=>$email]);
+        if (!$user) {
+            return;
         }
-        // validate email confirmation link, sets User isVerified=true
-        $this->emailVerifier->handleEmailConfirmation($request, $user);
+        $resetToken = $this->resetPasswordHelper->generateResetToken($user);
+        $subject = 'Reset password';
+        $template = 'email/reset_password.html.twig';
+        $context = [
+            'resetToken' => $resetToken->getToken(),
+            'expirationMessageKey' => 'reset_password.expiration',
+            'expirationMessageData' => ['%count%' => ($resetToken->getExpiresAt()->getTimestamp() - time()) / 60]
+        ];
+        $this->sendMail($email,$subject,$template,$context);
+    }
+    private function sendMail(string $to, string $subject, string $template, ?array $context):void
+    {
+        $email = (new TemplatedEmail())
+                ->from(new Address('smart-fin@example.com', 'SmartFin'))
+                ->to($to)
+                ->subject($subject)
+                ->htmlTemplate($template)
+                ->context($context);
+
+        $this->mailer->send($email);
     }
 }
