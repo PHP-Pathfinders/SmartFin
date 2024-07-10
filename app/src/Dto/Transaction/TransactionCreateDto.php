@@ -15,7 +15,6 @@ class TransactionCreateDto
         #[Assert\NotBlank(message: 'Money amount cannot be blank')]
         public float $moneyAmount,
 
-
         #[Assert\NotBlank(message: 'Transaction name cannot be blank')]
         #[Assert\Length(max: 50, maxMessage: 'Transaction name cannot be longer than 50 characters')]
         public string $transactionName = '',
