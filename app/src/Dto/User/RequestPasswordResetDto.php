@@ -4,7 +4,7 @@ namespace App\Dto\User;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserResetPasswordDto
+class RequestPasswordResetDto
 {
     public function __construct(
         #[Assert\NotBlank]

@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Dto\User\RequestPasswordResetDto;
+use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\UserRegisterDto;
 use App\Service\MailerService;
 use App\Service\UserService;
@@ -66,10 +68,28 @@ class UserController extends AbstractController
             'message' => 'Your email address has been verified'
         ]);
     }
+
+    /**
+     * This is a fake password reset page
+     * @return Response
+     */
     #[Route('/reset-password-page', name: 'app_reset_password_page', methods: ['GET'])]
-    public function resetPassword():Response
+    public function resetPasswordPage():Response
     {
         return $this->render('reset-password/reset_password.html.twig');
     }
-    //TODO make new endpoint for password-reset and validate token that is sent from frontend!
+
+    #[Route('/reset-password', name: 'api_reset_password', methods: ['POST'])]
+    public function resetPassword(
+        #[MapRequestPayload] ResetPasswordDto $resetPasswordDto,
+        UserService $userService
+    ): JsonResponse
+    {
+        $userService->resetPassword($resetPasswordDto);
+        return $this->json([
+            'success' => true,
+            'message' => 'Your password has been reset successfully'
+        ]);
+    }
+
 }

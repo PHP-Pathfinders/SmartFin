@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Dto\User\UserResetPasswordDto;
+use App\Dto\User\RequestPasswordResetDto;
 use App\Repository\UserRepository;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
@@ -22,9 +22,9 @@ readonly class MailerService
     /**
      * @throws ResetPasswordExceptionInterface
      */
-    public function resetPassword(UserResetPasswordDto $userResetPasswordDto):void
+    public function resetPassword(RequestPasswordResetDto $requestPasswordResetDto):void
     {
-        $email = $userResetPasswordDto->email;
+        $email = $requestPasswordResetDto->email;
         $user = $this->userRepository->findOneBy(['email'=>$email]);
         if (!$user) {
             return;

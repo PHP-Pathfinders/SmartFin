@@ -43,11 +43,9 @@ class EmailVerifier
      */
     public function handleEmailConfirmation(Request $request, UserInterface $user): void //Changed parameter type from UserInterface to User
     {
-        try {
-            $this->verifyEmailHelper->validateEmailConfirmationFromRequest($request, $user->getId(), $user->getEmail());
-        }catch (InvalidSignatureException){
-            throw new InvalidSignatureException('Invalid signature');
-        }
+
+        $this->verifyEmailHelper->validateEmailConfirmationFromRequest($request, $user->getId(), $user->getEmail());
+
         $user->setIsVerified(true);
 
         $this->entityManager->persist($user);

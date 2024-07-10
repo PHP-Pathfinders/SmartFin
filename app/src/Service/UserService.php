@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\UserRegisterDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -11,14 +12,20 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelper;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 
 readonly class UserService
 {
     public function __construct(
-        private UserRepository              $userRepository,
-        private UserPasswordHasherInterface $passwordHasher,
-        private EmailVerifier               $emailVerifier
+        private UserRepository               $userRepository,
+        private UserPasswordHasherInterface  $passwordHasher,
+        private EmailVerifier                $emailVerifier,
+        private ResetPasswordHelperInterface $resetPasswordHelper
     ){}
 
     /**
@@ -33,6 +40,22 @@ readonly class UserService
         }
         // validate an email confirmation link, sets User isVerified=true
         $this->emailVerifier->handleEmailConfirmation($request, $user);
+    }
+
+    /**
+     * @throws ResetPasswordExceptionInterface
+     */
+    public function resetPassword(ResetPasswordDto $resetPasswordDto):void
+    {
+        $token = $resetPasswordDto->token;
+        // This will throw an error if the token is invalid
+        /** @var  User $user */
+
+        $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
+
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $resetPasswordDto->password);
+//        TODO add token versioning: if user change password log out from all devices
+        $this->userRepository->resetPassword($hashedPassword,$user);
     }
 
     public function create(UserRegisterDto $userRegisterDto):void

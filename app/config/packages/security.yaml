@@ -47,6 +47,7 @@ security:
         - { path: ^/api/users/verify-email, roles: PUBLIC_ACCESS}
         - { path: ^/api/mailer/reset-password, roles: PUBLIC_ACCESS}
         - { path: ^/api/users/reset-password-page, roles: PUBLIC_ACCESS}
+        - { path: ^/api/users/reset-password, roles: PUBLIC_ACCESS}
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/profile, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }

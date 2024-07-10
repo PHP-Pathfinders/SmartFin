@@ -19,6 +19,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
+use SymfonyCasts\Bundle\ResetPassword\Exception\TooManyPasswordRequestsException;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 use Zenstruck\Assert\Not;
 
@@ -54,8 +56,17 @@ final class ExceptionListener
         elseif ($exception instanceof UnprocessableEntityHttpException){
             $this->handleValidationErrors($event);
         }
+//        In case of invalid email token
         elseif ($exception instanceof InvalidSignatureException){
-            $this->setResponse($event, Response::HTTP_BAD_REQUEST);
+            $this->setResponse($event, Response::HTTP_BAD_REQUEST,'Invalid signature');
+        }
+//        In case of invalid reset password token
+        elseif ($exception instanceof InvalidResetPasswordTokenException){
+            $this->setResponse($event, Response::HTTP_FORBIDDEN,'Invalid reset password token');
+        }
+//        In case of to many password reset requests
+        elseif ($exception instanceof TooManyPasswordRequestsException){
+            $this->setResponse($event, Response::HTTP_TOO_MANY_REQUESTS, 'Too many reset password requests, try again later...');
         }
 //         In case of any error
         elseif ($exception instanceof \RuntimeException){
@@ -69,10 +80,10 @@ final class ExceptionListener
      * @param int $status
      * @return void
      */
-    private function setResponse(ExceptionEvent $event, int $status):void
+    private function setResponse(ExceptionEvent $event, int $status, string $customMessage= null):void
     {
         $exception = $event->getThrowable();
-        $message = $exception->getMessage();
+        $message = $customMessage ?? $exception->getMessage();
         $response = new JsonResponse([
             'success' => false,
             'message' => $message
