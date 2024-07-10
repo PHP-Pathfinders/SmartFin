@@ -147,7 +147,7 @@ class CategoryRepository extends ServiceEntityRepository
      * @param User $user
      * @return Category|null
      */
-    private function findByIdAndUser(int $id,User $user):?Category
+    public function findByIdAndUser(int $id,User $user):?Category
     {
 //      Get the category using id and user or null user
         return $this->createQueryBuilder('c')

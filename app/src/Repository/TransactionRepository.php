@@ -45,7 +45,7 @@ class TransactionRepository extends ServiceEntityRepository
         $categoryType = $transactionQueryDto->categoryType ?? null;
         $categoryId = $transactionQueryDto->categoryId ?? null;
         $page = $transactionQueryDto->page ?? '1';
-        $limit = $transactionQueryDto->limit ?? '200';
+        $maxResults = $transactionQueryDto->maxResults ?? '200';
 
         if ($dateStart > $dateEnd) {
             [$dateStart, $dateEnd] = [$dateEnd, $dateStart];
@@ -133,14 +133,14 @@ class TransactionRepository extends ServiceEntityRepository
         $pagination = $this->paginator->paginate(
             $qb,
             $page,
-            $limit
+            $maxResults
         );
 
         $transactions = $pagination->getItems();
         $totalResults = $totalResults->getQuery()->getSingleScalarResult();
 
         // Calculate total pages
-        $totalPages = (int)ceil($pagination->getTotalItemCount() / $limit);
+        $totalPages = (int)ceil($pagination->getTotalItemCount() / $maxResults);
         // Calculate the previous and next page
         $previousPage = ($page > 1) ? $page - 1 : null;
         $nextPage = ($page < $totalPages) ? $page + 1 : null;

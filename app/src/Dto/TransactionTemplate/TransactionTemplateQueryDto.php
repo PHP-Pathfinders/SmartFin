@@ -1,14 +1,13 @@
 <?php
-namespace App\Dto\Transaction;
 
+namespace App\Dto\TransactionTemplate;
 
-use App\Entity\Category;
 use App\Validator\IntegerType;
 use App\Validator\LessThanOrEqual;
 use App\Validator\PositiveNumber;
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class TransactionQueryDto
+readonly class TransactionTemplateQueryDto
 {
     public function __construct(
 
@@ -25,12 +24,6 @@ readonly class TransactionQueryDto
 
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
         public ?string $paymentType = null,
-
-        #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?\DateTimeInterface $dateStart = null,
-
-        #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?\DateTimeInterface $dateEnd = null,
 
         #[Assert\NotBlank(message: 'Transaction name cannot be blank', allowNull: true)]
         public ?string $transactionName = null,
@@ -55,7 +48,6 @@ readonly class TransactionQueryDto
     {
 
     }
-
 
 
 }
