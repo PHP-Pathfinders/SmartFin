@@ -44,7 +44,8 @@ security:
     access_control:
         - { path: ^/api/users/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/users/register, roles: PUBLIC_ACCESS}
-        - { path: ^/api/mailer/verify/email, roles: PUBLIC_ACCESS}
+        - { path: ^/api/mailer/verify-email, roles: PUBLIC_ACCESS}
+        - { path: ^/api/mailer/forgot-password, roles: PUBLIC_ACCESS}
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/profile, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }

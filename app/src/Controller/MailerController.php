@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Dto\User\UserResetPasswordDto;
 use App\Service\MailerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Attribute\Route;
@@ -38,7 +40,7 @@ class MailerController extends AbstractController
     /**
      * @throws InvalidSignatureException
      */
-    #[Route('/verify/email', name: 'api_verify_email')]
+    #[Route('/verify-email', name: 'api_verify_email')]
     public function verifyUserEmail(
         #[MapQueryParameter] int $id,
         MailerService $mailerService,
@@ -50,6 +52,18 @@ class MailerController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'Your email address has been verified'
+        ]);
+    }
+    #[Route('/forgot-password', name: 'api_forgot_password', methods: ['POST'])]
+    public function forgotPassword(
+        #[MapRequestPayload] UserResetPasswordDto $userResetPasswordDto
+    ): JsonResponse
+    {
+        dd($userResetPasswordDto->email);
+        //TODO finish off reset password feature
+        return $this->json([
+            'success' => true,
+            'message' => 'Check your email for password reset link'
         ]);
     }
 }
