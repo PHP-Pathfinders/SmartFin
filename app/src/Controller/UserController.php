@@ -33,7 +33,7 @@ class UserController extends AbstractController
         ]);
     }
     #[Route('/register', name: 'api_register', methods: ['POST'])]
-    public function createUser(
+    public function create(
         #[MapRequestPayload] UserRegisterDto $userRegisterDto,
         UserService $userService
     ): JsonResponse

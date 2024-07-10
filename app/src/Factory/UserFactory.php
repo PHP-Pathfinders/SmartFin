@@ -25,7 +25,6 @@ final class UserFactory extends PersistentProxyObjectFactory
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-5 years', '2024-06-03')),
             'email' => self::faker()->unique()->email(),
             'fullName' => self::faker()->name(),
-            'isActive' => true,
             'isVerified' => true,
             'plainPassword' => self::faker()->password(),
             'birthday' => self::faker()->dateTimeBetween('-60 years', '2010-12-31')

@@ -3,6 +3,7 @@
 namespace App\EventListener;
 
 use Cassandra\Exception\ValidationException;
+use Doctrine\ORM\Exception\MissingIdentifierField;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 use Zenstruck\Assert\Not;
 
 final class ExceptionListener
@@ -26,7 +28,6 @@ final class ExceptionListener
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-//        dd($exception);
 //         In case of duplicate entry
         if ($exception instanceof ConflictHttpException){
             $this->setResponse($event, Response::HTTP_CONFLICT);
@@ -53,6 +54,9 @@ final class ExceptionListener
         elseif ($exception instanceof UnprocessableEntityHttpException){
             $this->handleValidationErrors($event);
         }
+        elseif ($exception instanceof InvalidSignatureException){
+            $this->setResponse($event, Response::HTTP_BAD_REQUEST);
+        }
 //         In case of any error
         elseif ($exception instanceof \RuntimeException){
             $this->setResponse($event,Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -78,8 +82,8 @@ final class ExceptionListener
 
     /**
      * Format and handle validation errors for response
-     * @param ConstraintViolationList $violations
-     * @return array
+     * @param $event
+     * @return void
      */
     private function handleValidationErrors($event): void
     {

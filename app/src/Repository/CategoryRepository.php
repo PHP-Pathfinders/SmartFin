@@ -35,7 +35,7 @@ class CategoryRepository extends ServiceEntityRepository
      * @param User $user
      * @return array
      */
-    public function search(string $type,int $page,int $limit,User $user): array
+    public function search(string $type,int $page,int $maxResults,User $user): array
     {
         // Get paginated results
         $queryBuilder = $this->createQueryBuilder('c')
@@ -49,11 +49,11 @@ class CategoryRepository extends ServiceEntityRepository
         $pagination = $this->paginator->paginate(
             $queryBuilder,
             $page,
-            $limit
+            $maxResults
         );
 
         // Calculate total pages
-        $totalPages = (int) ceil($pagination->getTotalItemCount() / $limit);
+        $totalPages = (int) ceil($pagination->getTotalItemCount() / $maxResults);
         // Calculate the previous and next page
         $previousPage = ($page > 1) ? $page - 1 : null;
         $nextPage = ($page < $totalPages) ? $page + 1 : null;

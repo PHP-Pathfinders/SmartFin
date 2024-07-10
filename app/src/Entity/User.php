@@ -56,8 +56,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $birthday = null;
 
-    #[ORM\Column(options: ['default' => false])]
-    private ?bool $isActive = false;
+    #[ORM\Column(options: ['default' => true])]
+    private ?bool $isActive = true;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarPath = null;

@@ -18,7 +18,7 @@ readonly class CategoryQueryDto
         #[IntegerType]
         #[PositiveNumber]
         #[LessThanOrEqual(200)]
-        public string $limit='200',
+        public string $maxResults='200',
         #[Assert\Choice(['income', 'expense'], message: 'Type must be \'income\' or \'expense\'')]
         public string $type='income'
     ) {}
