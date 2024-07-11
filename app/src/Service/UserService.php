@@ -114,4 +114,18 @@ readonly class UserService
 
         $this->userRepository->changePassword($hashedPassword, $user);
     }
+
+    public function deactivate(string $password) :void
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        if(!$user){
+            throw new NotFoundHttpException('User not found');
+        }
+        $isPasswordValid = $this->passwordHasher->isPasswordValid($user, $password);
+        if(!$isPasswordValid){
+            throw new BadRequestException('Incorrect password');
+        }
+        $this->userRepository->deactivate($user);
+    }
 }
