@@ -2,33 +2,32 @@
 
 namespace App\Controller;
 
+use App\Dto\User\RequestPasswordResetDto;
+use App\Service\MailerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 
-#[Route('/api/mailer', name: 'api_mailer')]
+use Symfony\Component\Routing\Attribute\Route;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
+
+#[Route('/api/mailer')]
 class MailerController extends AbstractController
 {
-    #[Route('', name: 'api_verify_email', methods: ['GET'])]
-    public function sendEmail(MailerInterface $mailer): JsonResponse
+    /**
+     * @throws ResetPasswordExceptionInterface
+     */
+    #[Route('/forgot-password', name: 'api_forgot_password', methods: ['POST'])]
+    public function resetPassword(
+        #[MapRequestPayload] RequestPasswordResetDto $requestPasswordResetDto,
+        MailerService                                $mailerService
+    ): JsonResponse
     {
-        $email = (new Email())
-            ->from('hello@example.com')
-            ->to('you@example.com')
-            //->cc('cc@example.com')
-            //->bcc('bcc@example.com')
-            //->replyTo('fabien@example.com')
-            //->priority(Email::PRIORITY_HIGH)
-            ->subject('Time for Symfony Mailer!')
-            ->text('Sending emails is fun again!')
-            ->html('<p>See Twig integration for better HTML integration!</p>');
+        $mailerService->resetPassword($requestPasswordResetDto);
 
-        $mailer->send($email);
         return $this->json([
             'success' => true,
-            'message' => 'Email is sent successfully'
+            'message' => 'If your email exists in our system, you will receive a password reset email shortly'
         ]);
     }
 }

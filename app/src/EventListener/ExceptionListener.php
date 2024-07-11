@@ -3,6 +3,7 @@
 namespace App\EventListener;
 
 use Cassandra\Exception\ValidationException;
+use Doctrine\ORM\Exception\MissingIdentifierField;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -18,6 +19,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ExpiredResetPasswordTokenException;
+use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
+use SymfonyCasts\Bundle\ResetPassword\Exception\TooManyPasswordRequestsException;
+use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 use Zenstruck\Assert\Not;
 
 final class ExceptionListener
@@ -26,7 +31,6 @@ final class ExceptionListener
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-//        dd($exception);
 //         In case of duplicate entry
         if ($exception instanceof ConflictHttpException){
             $this->setResponse($event, Response::HTTP_CONFLICT);
@@ -53,6 +57,22 @@ final class ExceptionListener
         elseif ($exception instanceof UnprocessableEntityHttpException){
             $this->handleValidationErrors($event);
         }
+//        In case of invalid email token
+        elseif ($exception instanceof InvalidSignatureException){
+            $this->setResponse($event, Response::HTTP_BAD_REQUEST,'Invalid signature');
+        }
+//        In case of invalid reset password token
+        elseif ($exception instanceof InvalidResetPasswordTokenException){
+            $this->setResponse($event, Response::HTTP_FORBIDDEN,'Invalid reset password token');
+        }
+//        In the case of many password reset requests
+        elseif ($exception instanceof TooManyPasswordRequestsException){
+            $this->setResponse($event, Response::HTTP_TOO_MANY_REQUESTS, 'Too many reset password requests, try again later...');
+        }
+//        In case of expired reset password token
+        elseif ($exception instanceof ExpiredResetPasswordTokenException){
+            $this->setResponse($event, Response::HTTP_FORBIDDEN,'Expired reset password token');
+        }
 //         In case of any error
         elseif ($exception instanceof \RuntimeException){
             $this->setResponse($event,Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -65,10 +85,10 @@ final class ExceptionListener
      * @param int $status
      * @return void
      */
-    private function setResponse(ExceptionEvent $event, int $status):void
+    private function setResponse(ExceptionEvent $event, int $status, string $customMessage= null):void
     {
         $exception = $event->getThrowable();
-        $message = $exception->getMessage();
+        $message = $customMessage ?? $exception->getMessage();
         $response = new JsonResponse([
             'success' => false,
             'message' => $message
@@ -78,8 +98,8 @@ final class ExceptionListener
 
     /**
      * Format and handle validation errors for response
-     * @param ConstraintViolationList $violations
-     * @return array
+     * @param $event
+     * @return void
      */
     private function handleValidationErrors($event): void
     {
