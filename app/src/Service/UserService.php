@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\UserRegisterDto;
 use App\Entity\User;
@@ -9,7 +10,9 @@ use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
@@ -84,7 +87,7 @@ readonly class UserService
          */
         $user = $this->security->getUser();
         if(!$user){
-            return [];
+            throw new NotFoundHttpException('User not found');
         }
         return [
             'fullName' => $user->getFullName(),
@@ -92,5 +95,23 @@ readonly class UserService
             'avatarPath' => $user->getAvatarPath(),
             'email' => $user->getEmail()
         ];
+    }
+    public function changePassword(ChangePasswordDto $changePasswordDto) :void
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        if(!$user){
+            throw new NotFoundHttpException('User not found');
+        }
+        $oldPassword = $changePasswordDto->oldPassword;
+        $isPasswordValid = $this->passwordHasher->isPasswordValid($user, $oldPassword);
+        if(!$isPasswordValid){
+            throw new BadRequestException('Incorrect old password');
+        }
+
+        $newPassword = $changePasswordDto->newPassword;
+        $hashedPassword = $this->passwordHasher->hashPassword($user,$newPassword);
+
+        $this->userRepository->changePassword($hashedPassword, $user);
     }
 }

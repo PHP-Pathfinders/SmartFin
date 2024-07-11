@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\UserRegisterDto;
 use App\Service\UserService;
@@ -93,6 +94,20 @@ class UserController extends AbstractController
         return $this->json([
             'success' => true,
             'data' => $profileData
+        ]);
+    }
+
+    #[Route('/change-password', name: 'api_change_password', methods: ['PATCH'] )]
+    public function changePassword(
+        #[MapRequestPayload] ChangePasswordDto $changePasswordDto,
+        UserService $userService
+    ) :JsonResponse
+    {
+        $userService->changePassword($changePasswordDto);
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Your password has been changed successfully'
         ]);
     }
 

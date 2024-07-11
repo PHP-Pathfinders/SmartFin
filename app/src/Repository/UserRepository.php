@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Dto\User\ChangePasswordDto;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -56,6 +57,13 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         }
         $user->setFullName($fullName);
         $user->setEmail($email);
+        $user->setPassword($password);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    public function changePassword(string $password, User $user):void
+    {
         $user->setPassword($password);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
