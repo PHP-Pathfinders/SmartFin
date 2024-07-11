@@ -2,10 +2,8 @@
 
 namespace App\Controller;
 
-use App\Dto\User\RequestPasswordResetDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\UserRegisterDto;
-use App\Service\MailerService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 
 #[Route('/api/users')]
@@ -70,16 +69,9 @@ class UserController extends AbstractController
     }
 
     /**
-     * This is a fake password reset page
-     * @return Response
+     * @throws ResetPasswordExceptionInterface
      */
-    #[Route('/reset-password-page', name: 'app_reset_password_page', methods: ['GET'])]
-    public function resetPasswordPage():Response
-    {
-        return $this->render('reset-password/reset_password.html.twig');
-    }
-
-    #[Route('/reset-password', name: 'api_reset_password', methods: ['POST'])]
+    #[Route('/reset-password', name: 'api_reset_password', methods: ['PATCH'])]
     public function resetPassword(
         #[MapRequestPayload] ResetPasswordDto $resetPasswordDto,
         UserService $userService
@@ -92,4 +84,25 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/profile', name: 'api_profile', methods: ['GET'] )]
+    public function fetchProfile(
+        UserService $userService
+    ): JsonResponse
+    {
+        $profileData = $userService->fetchProfile();
+        return $this->json([
+            'success' => true,
+            'data' => $profileData
+        ]);
+    }
+
+    /**
+     * This is a fake password reset page, and this route probably does not belong in this class
+     * @return Response
+     */
+    #[Route('/reset-password-page', name: 'app_reset_password_page', methods: ['GET'])]
+    public function resetPasswordPage():Response
+    {
+        return $this->render('reset-password/reset_password.html.twig');
+    }
 }

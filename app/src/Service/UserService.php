@@ -8,14 +8,11 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
-use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelper;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 
@@ -25,7 +22,8 @@ readonly class UserService
         private UserRepository               $userRepository,
         private UserPasswordHasherInterface  $passwordHasher,
         private EmailVerifier                $emailVerifier,
-        private ResetPasswordHelperInterface $resetPasswordHelper
+        private ResetPasswordHelperInterface $resetPasswordHelper,
+        private Security $security
     ){}
 
     /**
@@ -77,5 +75,22 @@ readonly class UserService
                 ->subject('Please Confirm your Email')
                 ->htmlTemplate('email/confirmation_email.html.twig')
         );
+    }
+
+    public function fetchProfile() :array
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->security->getUser();
+        if(!$user){
+            return [];
+        }
+        return [
+            'fullName' => $user->getFullName(),
+            'birthday' => $user->getBirthday(),
+            'avatarPath' => $user->getAvatarPath(),
+            'email' => $user->getEmail()
+        ];
     }
 }
