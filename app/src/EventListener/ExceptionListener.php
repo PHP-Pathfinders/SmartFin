@@ -19,6 +19,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ExpiredResetPasswordTokenException;
 use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
 use SymfonyCasts\Bundle\ResetPassword\Exception\TooManyPasswordRequestsException;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
@@ -64,9 +65,13 @@ final class ExceptionListener
         elseif ($exception instanceof InvalidResetPasswordTokenException){
             $this->setResponse($event, Response::HTTP_FORBIDDEN,'Invalid reset password token');
         }
-//        In case of to many password reset requests
+//        In the case of many password reset requests
         elseif ($exception instanceof TooManyPasswordRequestsException){
             $this->setResponse($event, Response::HTTP_TOO_MANY_REQUESTS, 'Too many reset password requests, try again later...');
+        }
+//        In case of expired reset password token
+        elseif ($exception instanceof ExpiredResetPasswordTokenException){
+            $this->setResponse($event, Response::HTTP_FORBIDDEN,'Expired reset password token');
         }
 //         In case of any error
         elseif ($exception instanceof \RuntimeException){

@@ -17,7 +17,7 @@ class MailerController extends AbstractController
     /**
      * @throws ResetPasswordExceptionInterface
      */
-    #[Route('/reset-password', name: 'api_mailer_reset_password', methods: ['POST'])]
+    #[Route('/forgot-password', name: 'api_forgot_password', methods: ['POST'])]
     public function resetPassword(
         #[MapRequestPayload] RequestPasswordResetDto $requestPasswordResetDto,
         MailerService                                $mailerService
