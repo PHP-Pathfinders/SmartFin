@@ -40,8 +40,11 @@ readonly class TransactionService
         $user = $this->security->getUser();
 
         /** @var Category $category */
-        $category = $this->categoryRepository->findOneBy(['id' => $transactionCreateDto->categoryId]);
+        $category = $this->categoryRepository->findByIdAndUser($transactionCreateDto->categoryId, $user);
 
+        if(!$category){
+            throw new NotFoundHttpException("Invalid category given");
+        }
 
         $this->transactionRepository->create($transactionCreateDto, $user, $category);
 
@@ -51,9 +54,12 @@ readonly class TransactionService
 
     public function update(TransactionUpdateDto $transactionUpdateDto): string
     {
+        /** @var User $user */
+        $user = $this->security->getUser();
+
         $id = $transactionUpdateDto->id;
         $transactionName = $transactionUpdateDto->transactionName;
-        $category = $this->categoryRepository->findOneBy(['id' => $transactionUpdateDto->categoryId]);
+        $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : null;
         $moneyAmount = $transactionUpdateDto->moneyAmount;
         $transactionDate = $transactionUpdateDto->transactionDate;
         $paymentType = $transactionUpdateDto->paymentType;
@@ -63,8 +69,6 @@ readonly class TransactionService
         if (!$transactionName && !$category && !$moneyAmount && !$transactionDate && !$paymentType && !$partyName && !$transactionNotes) {
             return 'Nothing to update';
         }
-        /** @var User $user */
-        $user = $this->security->getUser();
 
         $this->transactionRepository->update($id, $transactionName, $category, $moneyAmount, $transactionDate, $paymentType, $partyName, $transactionNotes, $user);
 
