@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Dto\User\ChangePasswordDto;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -34,6 +35,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * Reset password
+     * @param string $password
+     * @param User $user
+     * @return void
+     */
     public function resetPassword(string $password, User $user): void
     {
         $user->setPassword($password);
@@ -46,6 +53,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param string $fullName
      * @param string $email
      * @param string $password
+     * @param User $user
      * @return void
      */
     public function create(string $fullName, string $email, string $password,User $user):void
@@ -57,6 +65,31 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setFullName($fullName);
         $user->setEmail($email);
         $user->setPassword($password);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Change password
+     * @param string $password
+     * @param User $user
+     * @return void
+     */
+    public function changePassword(string $password, User $user):void
+    {
+        $user->setPassword($password);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Deactivates the user
+     * @param User $user
+     * @return void
+     */
+    public function deactivate(User $user):void
+    {
+        $user->setIsActive(false);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }

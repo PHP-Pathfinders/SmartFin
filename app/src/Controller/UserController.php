@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Dto\User\ChangePasswordDto;
+use App\Dto\User\DeactivateAccountDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\UserRegisterDto;
 use App\Service\UserService;
@@ -93,6 +95,34 @@ class UserController extends AbstractController
         return $this->json([
             'success' => true,
             'data' => $profileData
+        ]);
+    }
+
+    #[Route('/change-password', name: 'api_change_password', methods: ['PATCH'] )]
+    public function changePassword(
+        #[MapRequestPayload] ChangePasswordDto $changePasswordDto,
+        UserService $userService
+    ) :JsonResponse
+    {
+//        TODO logout this account from all other devices
+        $userService->changePassword($changePasswordDto);
+        return $this->json([
+            'success' => true,
+            'message' => 'Your password has been changed successfully'
+        ]);
+    }
+
+    #[Route('/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]
+    public function deactivate(
+        #[MapRequestPayload] DeactivateAccountDto $deactivateAccountDto,
+        UserService $userService
+    ) :JsonResponse
+    {
+        $password = $deactivateAccountDto->password;
+        $userService->deactivate($password);
+        return $this->json([
+            'success' => true,
+            'message' => 'Your account has been deactivated successfully'
         ]);
     }
 
