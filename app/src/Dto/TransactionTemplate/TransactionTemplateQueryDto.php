@@ -41,8 +41,9 @@ readonly class TransactionTemplateQueryDto
         #[Assert\Choice(options: ['income', 'expense'],message: 'Category type must be \'income\' or \'expense\'.')]
         public ?string $categoryType = null,
 
+        #[IntegerType]
         #[Assert\NotBlank(message: 'Category id cannot be blank', allowNull: true)]
-        public ?int $categoryId = null,
+        public ?string $categoryId = null,
 
     )
     {

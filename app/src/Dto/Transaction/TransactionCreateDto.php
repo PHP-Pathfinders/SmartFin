@@ -3,36 +3,38 @@
 namespace App\Dto\Transaction;
 
 use App\Validator\IntegerType;
+use App\Validator\NotEmptyString;
 use App\Validator\PositiveNumber;
 use Symfony\Component\Validator\Constraints as Assert;
 class TransactionCreateDto
 {
     public function __construct(
 
+        #[Assert\Date]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank')]
-        public \DateTimeInterface $transactionDate,
+        public string $transactionDate,
 
         #[Assert\NotBlank(message: 'Money amount cannot be blank')]
         public float $moneyAmount,
 
-        #[Assert\NotBlank(message: 'Transaction name cannot be blank')]
-        #[Assert\Length(max: 50, maxMessage: 'Transaction name cannot be longer than 50 characters')]
-        public string $transactionName = '',
-
-        #[Assert\NotBlank(message: 'Payment type cannot be blank')]
-        public string $paymentType = '',
-
-
-        #[Assert\NotBlank(message: 'Category Type cannot be blank')]
         #[Assert\Choice(options: ['income', 'expense'], message: 'Category type must be \'income\' or \'expense\'.')]
-        public string $categoryType = 'income',
+        #[Assert\NotBlank(message: 'Category Type cannot be blank')]
+        public string $categoryType,
 
         #[IntegerType]
         #[PositiveNumber]
         #[Assert\NotBlank(message: 'Category id cannot be blank')]
-        public int $categoryId = 1,
+        public int $categoryId,
 
-        #[Assert\NotBlank(message: 'Party name cannot be blank', allowNull: true)]
+        #[Assert\NotBlank(message: 'Transaction name cannot be blank')]
+        #[Assert\Length(max: 50, maxMessage: 'Transaction name cannot be longer than 50 characters')]
+        public string $transactionName,
+
+        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
+        #[Assert\NotBlank(message: 'Payment type cannot be blank')]
+        public string $paymentType,
+
+        #[NotEmptyString(message: 'Party name cannot be blank')]
         #[Assert\Length(max: 50, maxMessage: 'Party name cannot be longer than 50 characters')]
         public ?string $partyName = null,
 

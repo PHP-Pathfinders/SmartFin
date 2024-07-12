@@ -47,8 +47,8 @@ class TransactionRepository extends ServiceEntityRepository
         $page = $transactionQueryDto->page ?? '1';
         $maxResults = $transactionQueryDto->maxResults ?? '200';
 
-        if ($dateStart > $dateEnd) {
-            [$dateStart, $dateEnd] = [$dateEnd, $dateStart];
+        if ( (!$dateStart && $dateEnd) || $dateStart > $dateEnd ) {
+            throw new NotFoundHttpException('Invalid date format');
         }
 
 
@@ -169,7 +169,7 @@ class TransactionRepository extends ServiceEntityRepository
     {
         $moneyAmount = $transactionCreateDto->moneyAmount;
         $transactionDate = $transactionCreateDto->transactionDate;
-        $paymentType = $transactionCreateDto->paymentType;
+        $paymentType = $category->getType() === "expense" ? $transactionCreateDto->paymentType : null;
         $partyName = $transactionCreateDto->partyName;
         $transactionNotes = $transactionCreateDto->transactionNotes;
         $transactionName = $transactionCreateDto->transactionName;
@@ -179,7 +179,7 @@ class TransactionRepository extends ServiceEntityRepository
         $newTransaction->setUser($user);
         $newTransaction->setCategory($category);
         $newTransaction->setPaymentType($paymentType);
-        $newTransaction->setTransactionDate($transactionDate);
+        $newTransaction->setTransactionDate(new \DateTimeImmutable($transactionDate));
         $newTransaction->setMoneyAmount($moneyAmount);
         $newTransaction->setTransactionName($transactionName);
         if (null !== $transactionNotes) {
@@ -203,8 +203,13 @@ class TransactionRepository extends ServiceEntityRepository
             throw new NotFoundHttpException('Transaction not found or doesn\'t belong to you.');
         }
 
-        if ($category) {
+        if ($category && $category->getType() === 'expense') {
             $transaction->setCategory($category);
+        }
+
+        if ($category && $category->getType() === 'income') {
+            $transaction->setCategory($category);
+            $transaction->setPaymentType(null);
         }
 
         if ($transactionName) {
@@ -256,7 +261,7 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
 
-    private function findByIdAndUser(int $id, User $user): ?Transaction
+    public function findByIdAndUser(int $id, User $user): ?Transaction
     {
         return $this->createQueryBuilder('t')
             ->where('t.id = :id')

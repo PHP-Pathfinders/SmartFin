@@ -15,8 +15,9 @@ readonly class TransactionUpdateDto
         #[IntegerType]
         public int $id,
 
+        #[Assert\Date]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?\DateTimeInterface $transactionDate,
+        public ?string $transactionDate,
 
         #[IntegerType]
         #[PositiveNumber]
