@@ -10,12 +10,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[AllowDynamicProperties] #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`users`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', columns: ['email'])]
+#[Vich\Uploadable]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -50,12 +53,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $birthday = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatarPath = null;
+    #[ORM\Column(nullable: true)]
+    private ?string $avatarName = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $avatarSize = null;
+
+    // NOTE: This is not a mapped field of entity metadata, just a simple property.
+    #[Vich\UploadableField(mapping: 'users', fileNameProperty: 'avatarName', size: 'avatarSize')]
+    private ?File $avatarFile = null;
 
     #[ORM\Column]
     private ?DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeImmutable $updatedAt = null;
     private string $plainPassword;
 
     /**
@@ -200,6 +212,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getUpdatedAt(): ?DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?DateTimeImmutable $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+
+
     public function getBirthday(): ?DateTimeInterface
     {
         return $this->birthday;
@@ -224,17 +248,43 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAvatarPath(): ?string
+    public function getAvatarFile(): ?File
     {
-        return $this->avatarPath;
+        return $this->avatarFile;
     }
 
-    public function setAvatarPath(?string $avatarPath): static
+    public function setAvatarFile(?File $avatarFile = null): void
     {
-        $this->avatarPath = $avatarPath;
+        $this->avatarFile = $avatarFile;
 
-        return $this;
+        if (null !== $avatarFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTimeImmutable();
+        }
     }
+
+    public function getAvatarName(): ?string
+    {
+        return $this->avatarName;
+    }
+
+    public function setAvatarName(?string $avatarName): void
+    {
+        $this->imageName = $avatarName;
+    }
+
+    public function getAvatarSize(): ?int
+    {
+        return $this->avatarSize;
+    }
+
+    public function setAvatarSize(?int $avatarSize): void
+    {
+        $this->avatarSize = $avatarSize;
+    }
+
+
 
     /**
      * @return mixed
@@ -311,14 +361,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Transactions>
+     * @return Collection<int, Transaction>
      */
     public function getTransactions(): Collection
     {
         return $this->transactions;
     }
 
-    public function addTransaction(Transactions $transaction): static
+    public function addTransaction(Transaction $transaction): static
     {
         if (!$this->transactions->contains($transaction)) {
             $this->transactions->add($transaction);
@@ -328,7 +378,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeTransaction(Transactions $transaction): static
+    public function removeTransaction(Transaction $transaction): static
     {
         if ($this->transactions->removeElement($transaction)) {
             // set the owning side to null (unless already changed)

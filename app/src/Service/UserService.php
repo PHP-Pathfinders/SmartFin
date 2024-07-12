@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\ResetPasswordDto;
-use App\Dto\User\UserRegisterDto;
+use App\Dto\User\RegisterDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
@@ -59,11 +59,11 @@ readonly class UserService
         $this->userRepository->resetPassword($hashedPassword,$user);
     }
 
-    public function create(UserRegisterDto $userRegisterDto):void
+    public function create(RegisterDto $registerDto):void
     {
-        $fullName = $userRegisterDto->fullName;
-        $email = $userRegisterDto->email;
-        $plainPassword = $userRegisterDto->password;
+        $fullName = $registerDto->fullName;
+        $email = $registerDto->email;
+        $plainPassword = $registerDto->password;
 
 //        Make new instance of user and hash password
         $user = new User();

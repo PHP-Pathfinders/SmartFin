@@ -5,14 +5,19 @@ namespace App\Controller;
 use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\DeactivateAccountDto;
 use App\Dto\User\ResetPasswordDto;
-use App\Dto\User\UserRegisterDto;
+use App\Dto\User\UpdateDataDto;
+use App\Dto\User\RegisterDto;
+use App\Form\UserType;
+use App\Repository\UserRepository;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
@@ -41,11 +46,11 @@ class UserController extends AbstractController
     }
     #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function create(
-        #[MapRequestPayload] UserRegisterDto $userRegisterDto,
-        UserService $userService
+        #[MapRequestPayload] RegisterDto $registerDto,
+        UserService                      $userService
     ): JsonResponse
     {
-        $userService->create($userRegisterDto);
+        $userService->create($registerDto);
         return $this->json([
             'success' => true,
             'message' => 'User registered successfully'
@@ -110,6 +115,35 @@ class UserController extends AbstractController
             'success' => true,
             'message' => 'Your password has been changed successfully'
         ]);
+    }
+
+    #[Route('/profile', name:'api_update_user', methods: ['POST'])]
+    public function update(
+        Request $request,
+        UserRepository $userRepository,
+        Security $security
+    ) :JsonResponse
+    {
+        $user = $security->getUser();
+        if (!$user) {
+            throw new NotFoundHttpException('User not found');
+        }
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        dd($request->request->all(),$request->files->all() , $form->getName() ,$form->isSubmitted());
+        if ($form->isSubmitted() && $form->isValid()) {
+//            $userRepository->save($user, true);
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Very good, it works'
+            ]);
+        }
+
+        return $this->json([
+            'success'=>false,
+            'message' => 'Something went wrong'
+        ],Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     #[Route('/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]
