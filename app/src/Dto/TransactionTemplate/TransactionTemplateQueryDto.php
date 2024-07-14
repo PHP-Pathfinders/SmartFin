@@ -22,6 +22,7 @@ readonly class TransactionTemplateQueryDto
         #[LessThanOrEqual(200)]
         public string $maxResults = '200',
 
+        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
         public ?string $paymentType = null,
 

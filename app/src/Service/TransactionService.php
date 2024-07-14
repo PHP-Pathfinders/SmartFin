@@ -60,14 +60,13 @@ readonly class TransactionService
         $id = $transactionUpdateDto->id;
         $transaction = $this->transactionRepository->findByIdAndUser($id, $user);
 
-        /** @var Category $currentCategory */
-        $currentCategory = $this->transactionRepository->findbyIdAndUser($id, $user)->getCategory();
-        $currentCategoryType = $currentCategory->getType();
-
-
         if (!$transaction) {
             throw new NotFoundHttpException("Transaction not owned by you or does not exist");
         }
+
+        /** @var Category $currentCategory */
+        $currentCategory = $transaction->getCategory();
+        $currentCategoryType = $currentCategory->getType();
 
         $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : $currentCategory ;
 

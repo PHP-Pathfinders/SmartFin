@@ -30,6 +30,7 @@ readonly class TransactionUpdateDto
         public ?string $transactionName = null,
 
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
+        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
         #[NotEmptyString]
         public ?string $paymentType = null,
 

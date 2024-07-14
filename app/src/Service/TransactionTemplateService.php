@@ -51,27 +51,28 @@ readonly class TransactionTemplateService
         $user = $this->security->getUser();
 
         $id = $transactionTemplateUpdateDto->id;
-        $template = $this->transactionTemplateRepository->findBYIdAndUser($id,$user);
+        $template = $this->transactionTemplateRepository->findBYIdAndUser($id, $user);
 
-        if(!$template){
+        if (!$template) {
             throw new NotFoundHttpException("Transaction template not found or doesn't belong to you");
         }
 
+        $currentCategory = $template->getCategory();
+
         $transactionName = $transactionTemplateUpdateDto->transactionName;
-        $category = $this->categoryRepository->findByIdAndUser($transactionTemplateUpdateDto->categoryId, $user);
-        if(!$category){
-            $category = $this->transactionTemplateRepository->findBYIdAndUser($id,$user)->getCategory();
-            if(!$category){
-                throw new NotFoundHttpException("Category could not be found");
-            }
+        $category = $transactionTemplateUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionTemplateUpdateDto->categoryId, $user) : $currentCategory;
+
+        if (!$category) {
+            throw new NotFoundHttpException("Category could not be found");
         }
-        $paymentType = $transactionTemplateUpdateDto->paymentType;
+
+        $paymentType = $category->getType() === "expense" ? $transactionTemplateUpdateDto->paymentType : null;
         $partyName = $transactionTemplateUpdateDto->partyName;
         $transactionNotes = $transactionTemplateUpdateDto->transactionNotes;
         $moneyAmount = $transactionTemplateUpdateDto->moneyAmount;
 
 
-        if (!$transactionName && !$category && !$paymentType && !$partyName && !$transactionNotes && !$moneyAmount) {
+        if (!$transactionName && !$paymentType && !$partyName && !$transactionNotes && !$moneyAmount && $category === $currentCategory) {
             return 'Nothing to update';
         }
 
