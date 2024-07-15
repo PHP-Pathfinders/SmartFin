@@ -21,9 +21,7 @@ class NotEmptyStringValidator extends ConstraintValidator
         if ($value !== ''){
             return;
         }
-
         $this->context->buildViolation($constraint->message)
-            ->setParameter('{{ value }}', $value)
             ->setCode('empty_string')
             ->addViolation();
     }

@@ -10,6 +10,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -50,8 +52,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $birthday = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatarPath = null;
+    #[ORM\Column(nullable: true)]
+    private ?string $avatarFileName = null;
 
     #[ORM\Column]
     private ?DateTimeImmutable $createdAt;
@@ -224,16 +226,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAvatarPath(): ?string
+    public function getAvatarFileName(): ?string
     {
-        return $this->avatarPath;
+        return $this->avatarFileName;
     }
 
-    public function setAvatarPath(?string $avatarPath): static
+    public function setAvatarFileName(?string $avatarFileName): void
     {
-        $this->avatarPath = $avatarPath;
-
-        return $this;
+        $this->avatarFileName = $avatarFileName;
     }
 
     /**
@@ -311,14 +311,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Transactions>
+     * @return Collection<int, Transaction>
      */
     public function getTransactions(): Collection
     {
         return $this->transactions;
     }
 
-    public function addTransaction(Transactions $transaction): static
+    public function addTransaction(Transaction $transaction): static
     {
         if (!$this->transactions->contains($transaction)) {
             $this->transactions->add($transaction);
@@ -328,7 +328,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeTransaction(Transactions $transaction): static
+    public function removeTransaction(Transaction $transaction): static
     {
         if ($this->transactions->removeElement($transaction)) {
             // set the owning side to null (unless already changed)

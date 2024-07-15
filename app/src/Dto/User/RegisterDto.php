@@ -6,7 +6,7 @@ use App\Validator\FieldsMatch;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[FieldsMatch(field:'password',matchingField: 'confirmPassword', message:'Passwords do not match')]
-readonly class UserRegisterDto
+readonly class RegisterDto
 {
     public function __construct(
         #[Assert\NotBlank(message: 'Full name must be provided and cannot be blank')]

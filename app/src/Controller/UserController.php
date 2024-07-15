@@ -5,14 +5,18 @@ namespace App\Controller;
 use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\DeactivateAccountDto;
 use App\Dto\User\ResetPasswordDto;
-use App\Dto\User\UserRegisterDto;
+use App\Dto\User\RegisterDto;
+use App\Entity\User;
+use App\Form\UserType;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
@@ -41,11 +45,11 @@ class UserController extends AbstractController
     }
     #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function create(
-        #[MapRequestPayload] UserRegisterDto $userRegisterDto,
-        UserService $userService
+        #[MapRequestPayload] RegisterDto $registerDto,
+        UserService                      $userService
     ): JsonResponse
     {
-        $userService->create($userRegisterDto);
+        $userService->create($registerDto);
         return $this->json([
             'success' => true,
             'message' => 'User registered successfully'
@@ -110,6 +114,35 @@ class UserController extends AbstractController
             'success' => true,
             'message' => 'Your password has been changed successfully'
         ]);
+    }
+
+    #[Route('/profile/image', name:'api_update_user', methods: ['POST'])]
+    public function updateProfileImage(
+        Request $request,
+        UserService $userService,
+        Security $security,
+    ) :JsonResponse
+    {
+//        TODO modify this method or add new method to delete profile image...
+        /** @var User $user */
+        $user = $security->getUser();
+        if (!$user) {
+            throw new NotFoundHttpException('User not found');
+        }
+        $form = $this->createForm(UserType::class, $user);
+
+        $isUploaded = $userService->updateProfileImage($request,$form,$user);
+
+        if($isUploaded) {
+            return $this->json([
+                'success' => true,
+                'message' => 'Profile image is updated successfully'
+            ]);
+        }
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Profile image was not uploaded'
+        ], Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]

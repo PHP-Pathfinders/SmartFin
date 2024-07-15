@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraint;
 class NotEmptyString extends Constraint
 {
     public function __construct(
-        public string $message = '{{ value }} cannot be empty string',
+        public string $message = 'This field cannot be empty string',
         mixed $options = null,
         ?array $groups = null,
         mixed $payload = null
