@@ -5,10 +5,9 @@ namespace App\Controller;
 use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\DeactivateAccountDto;
 use App\Dto\User\ResetPasswordDto;
-use App\Dto\User\UpdateDataDto;
 use App\Dto\User\RegisterDto;
+use App\Entity\User;
 use App\Form\UserType;
-use App\Repository\UserRepository;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -117,33 +116,33 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/profile', name:'api_update_user', methods: ['POST'])]
-    public function update(
+    #[Route('/profile/image', name:'api_update_user', methods: ['POST'])]
+    public function updateProfileImage(
         Request $request,
-        UserRepository $userRepository,
-        Security $security
+        UserService $userService,
+        Security $security,
     ) :JsonResponse
     {
+//        TODO modify this method or add new method to delete profile image...
+        /** @var User $user */
         $user = $security->getUser();
         if (!$user) {
             throw new NotFoundHttpException('User not found');
         }
         $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
 
-        dd($request->request->all(),$request->files->all() , $form->getName() ,$form->isSubmitted());
-        if ($form->isSubmitted() && $form->isValid()) {
-//            $userRepository->save($user, true);
-            return new JsonResponse([
+        $isUploaded = $userService->updateProfileImage($request,$form,$user);
+
+        if($isUploaded) {
+            return $this->json([
                 'success' => true,
-                'message' => 'Very good, it works'
+                'message' => 'Profile image is updated successfully'
             ]);
         }
-
-        return $this->json([
-            'success'=>false,
-            'message' => 'Something went wrong'
-        ],Response::HTTP_INTERNAL_SERVER_ERROR);
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Profile image was not uploaded'
+        ], Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]

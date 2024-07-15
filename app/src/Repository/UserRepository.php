@@ -69,6 +69,13 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    public function updateProfileImage(string $newFileName, User $user):void
+    {
+        $user->setAvatarFileName($newFileName);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
     /**
      * Change password
      * @param string $password

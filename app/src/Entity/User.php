@@ -18,7 +18,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[AllowDynamicProperties] #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`users`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', columns: ['email'])]
-#[Vich\Uploadable]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -54,20 +53,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?DateTimeInterface $birthday = null;
 
     #[ORM\Column(nullable: true)]
-    private ?string $avatarName = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?int $avatarSize = null;
-
-    // NOTE: This is not a mapped field of entity metadata, just a simple property.
-    #[Vich\UploadableField(mapping: 'users', fileNameProperty: 'avatarName', size: 'avatarSize')]
-    private ?File $avatarFile = null;
+    private ?string $avatarFileName = null;
 
     #[ORM\Column]
     private ?DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?DateTimeImmutable $updatedAt = null;
     private string $plainPassword;
 
     /**
@@ -212,18 +202,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getUpdatedAt(): ?DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?DateTimeImmutable $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
-
-
     public function getBirthday(): ?DateTimeInterface
     {
         return $this->birthday;
@@ -248,43 +226,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAvatarFile(): ?File
+    public function getAvatarFileName(): ?string
     {
-        return $this->avatarFile;
+        return $this->avatarFileName;
     }
 
-    public function setAvatarFile(?File $avatarFile = null): void
+    public function setAvatarFileName(?string $avatarFileName): void
     {
-        $this->avatarFile = $avatarFile;
-
-        if (null !== $avatarFile) {
-            // It is required that at least one field changes if you are using doctrine
-            // otherwise the event listeners won't be called and the file is lost
-            $this->updatedAt = new \DateTimeImmutable();
-        }
+        $this->avatarFileName = $avatarFileName;
     }
-
-    public function getAvatarName(): ?string
-    {
-        return $this->avatarName;
-    }
-
-    public function setAvatarName(?string $avatarName): void
-    {
-        $this->imageName = $avatarName;
-    }
-
-    public function getAvatarSize(): ?int
-    {
-        return $this->avatarSize;
-    }
-
-    public function setAvatarSize(?int $avatarSize): void
-    {
-        $this->avatarSize = $avatarSize;
-    }
-
-
 
     /**
      * @return mixed

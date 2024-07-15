@@ -6,15 +6,18 @@ use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\RegisterDto;
 use App\Entity\User;
+use App\Form\UserType;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
@@ -26,7 +29,9 @@ readonly class UserService
         private UserPasswordHasherInterface  $passwordHasher,
         private EmailVerifier                $emailVerifier,
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private Security $security
+        private Security $security,
+        private string $avatarDirectory,
+        private SluggerInterface $slugger,
     ){}
 
     /**
@@ -92,10 +97,44 @@ readonly class UserService
         return [
             'fullName' => $user->getFullName(),
             'birthday' => $user->getBirthday(),
-            'avatarPath' => $user->getAvatarPath(),
+            'avatarFileName' => $user->getAvatarFileName(),
             'email' => $user->getEmail()
         ];
     }
+
+    public function updateProfileImage(
+        Request $request,
+        FormInterface $form,
+        User $user
+    ):bool
+    {
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $avatarFile = $form->get('avatar')->getData();
+            if ($avatarFile) {
+                $originalFilename = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFileName = $this->slugger->slug($originalFilename);
+                $newFileName = $safeFileName.'-'.uniqid('', true).'.'.$avatarFile->guessExtension();
+
+                // Check if user already has a profile image
+                $oldAvatar = $user->getAvatarFileName();
+                if ($oldAvatar) {
+                    $oldAvatarPath = $this->avatarDirectory . '/' . $oldAvatar;
+                    if (file_exists($oldAvatarPath)) {
+                        // If profile image exists, delete it
+                        unlink($oldAvatarPath);
+                    }
+                }
+
+                // Move the new image to the directory where avatars are stored
+                $avatarFile->move($this->avatarDirectory, $newFileName);
+                $this->userRepository->updateProfileImage($newFileName,$user);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function changePassword(ChangePasswordDto $changePasswordDto) :void
     {
         /** @var User $user */
