@@ -23,7 +23,7 @@ class Transaction
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
 
-    #[ORM\Column(length: 10)]
+    #[ORM\Column(length: 10, nullable: true)]
     private ?string $paymentType = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]

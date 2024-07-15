@@ -15,8 +15,9 @@ readonly class TransactionUpdateDto
         #[IntegerType]
         public int $id,
 
+        #[Assert\Date]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?\DateTimeInterface $transactionDate,
+        public ?string $transactionDate,
 
         #[IntegerType]
         #[PositiveNumber]
@@ -29,6 +30,7 @@ readonly class TransactionUpdateDto
         public ?string $transactionName = null,
 
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
+        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
         #[NotEmptyString]
         public ?string $paymentType = null,
 

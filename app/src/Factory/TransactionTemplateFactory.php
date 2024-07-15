@@ -24,15 +24,19 @@ final class TransactionTemplateFactory extends PersistentProxyObjectFactory
 
     protected function defaults(): array|callable
     {
-        return [
+        $data = [
             'user' => UserFactory::random(),
             'category' => self::faker()->randomElement([null, CategoryFactory::random()]),
-            'paymentType' => self::faker()->optional()->randomElement(['cash', 'card']),
             'moneyAmount' => self::faker()->optional()->randomFloat(3, max: 10000),
             'transactionName' => self::faker()->optional()->text(20),
             'partyName' => self::faker()->optional()->name(),
             'transactionNotes' => self::faker()->optional()->paragraph(1)
         ];
+
+
+        $data['paymentType'] = $data['category'] ? $data['category']->_get('type') === 'expense' ? self::faker()->optional()->randomElement(['cash', 'card']) : null : null;
+
+        return $data;
     }
 
 

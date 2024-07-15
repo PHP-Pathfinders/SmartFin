@@ -18,6 +18,7 @@ readonly class TransactionTemplateCreateDto
         #[Assert\Length(max: 50, maxMessage: 'Transaction name cannot be longer than 50 characters')]
         public ?string $transactionName = null,
 
+        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
         public ?string $paymentType = null,
 
