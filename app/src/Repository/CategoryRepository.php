@@ -159,6 +159,19 @@ class CategoryRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findByIdUserAndType(int $id, User $user, string $type)
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.id = :id')
+            ->andWhere('c.user = :user OR c.user IS NULL')
+            ->andWhere('c.type = :type')
+            ->setParameter('id', $id)
+            ->setParameter('user', $user)
+            ->setParameter('type', $type)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * Check if a user already has a category with the given name
      * @param string $categoryName

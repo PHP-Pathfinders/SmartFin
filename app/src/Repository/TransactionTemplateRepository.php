@@ -11,6 +11,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -149,7 +150,7 @@ class TransactionTemplateRepository extends ServiceEntityRepository
     public function create(TransactionTemplateCreateDto $transactionTemplateCreateDto, User $user, ?Category $category): void
     {
         $transactionName = $transactionTemplateCreateDto->transactionName;
-        $paymentType = $transactionTemplateCreateDto->paymentType;
+        $paymentType = $category ? $category->getType() === "expense" ? $transactionTemplateCreateDto->paymentType : null : $transactionTemplateCreateDto->paymentType;
         $moneyAmount = $transactionTemplateCreateDto->moneyAmount;
         $partyName = $transactionTemplateCreateDto->partyName;
         $transactionNotes = $transactionTemplateCreateDto->transactionNotes;
@@ -174,21 +175,20 @@ class TransactionTemplateRepository extends ServiceEntityRepository
 
     }
 
-    public function update(int $id, ?string $transactionName, ?Category $category, ?string $paymentType, ?string $partyName, ?string $transactionNotes, ?float $moneyAmount, User $user)
+    public function update(TransactionTemplate $template, ?string $transactionName, ?Category $category, ?string $paymentType, ?string $partyName, ?string $transactionNotes, ?float $moneyAmount, User $user): void
     {
-        $template = $this->findBYIdAndUser($id, $user);
-
-
-        if (!$template) {
-            throw new NotFoundHttpException("Transaction template not found or doesn't belong to you");
-        }
 
         if ($transactionName) {
             $template->setTransactionName($transactionName);
         }
 
-        if ($category) {
+        if ($category && $category->getType() === 'expense') {
             $template->setCategory($category);
+        }
+
+        if ($category && $category->getType() === 'income') {
+            $template->setCategory($category);
+            $template->setPaymentType(null);
         }
 
         if ($paymentType) {

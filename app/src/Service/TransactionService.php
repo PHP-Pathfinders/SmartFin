@@ -40,9 +40,9 @@ readonly class TransactionService
         $user = $this->security->getUser();
 
         /** @var Category $category */
-        $category = $this->categoryRepository->findByIdAndUser($transactionCreateDto->categoryId, $user);
+        $category = $this->categoryRepository->findByIdUserAndType($transactionCreateDto->categoryId, $user, $transactionCreateDto->categoryType);
 
-        if(!$category){
+        if (!$category) {
             throw new NotFoundHttpException("Invalid category given");
         }
 
@@ -58,15 +58,34 @@ readonly class TransactionService
         $user = $this->security->getUser();
 
         $id = $transactionUpdateDto->id;
+        $transaction = $this->transactionRepository->findByIdAndUser($id, $user);
+
+        if (!$transaction) {
+            throw new NotFoundHttpException("Transaction not owned by you or does not exist");
+        }
+
+        /** @var Category $currentCategory */
+        $currentCategory = $transaction->getCategory();
+        $currentCategoryType = $currentCategory->getType();
+
+        $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : $currentCategory ;
+
+        if (!$category) {
+            throw new NotFoundHttpException("Category could not be found");
+        }
+
+        if($currentCategoryType !== $category->getType()){
+            throw new NotFoundHttpException("Can't change income to expense and vice versa");
+        }
+
         $transactionName = $transactionUpdateDto->transactionName;
-        $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : null;
         $moneyAmount = $transactionUpdateDto->moneyAmount;
-        $transactionDate = $transactionUpdateDto->transactionDate;
-        $paymentType = $transactionUpdateDto->paymentType;
+        $transactionDate = $transactionUpdateDto->transactionDate ? new \DateTimeImmutable($transactionUpdateDto->transactionDate) : null;
+        $paymentType = $category->getType() === 'expense' ? $transactionUpdateDto->paymentType : null;
         $partyName = $transactionUpdateDto->partyName;
         $transactionNotes = $transactionUpdateDto->transactionNotes;
 
-        if (!$transactionName && !$category && !$moneyAmount && !$transactionDate && !$paymentType && !$partyName && !$transactionNotes) {
+        if (!$transactionName && !$moneyAmount && !$transactionDate && !$paymentType && !$partyName && !$transactionNotes && $category === $currentCategory) {
             return 'Nothing to update';
         }
 

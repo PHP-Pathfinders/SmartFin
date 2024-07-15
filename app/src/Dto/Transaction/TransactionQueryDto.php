@@ -3,6 +3,7 @@ namespace App\Dto\Transaction;
 
 
 use App\Entity\Category;
+use App\Validator\DateFormat;
 use App\Validator\IntegerType;
 use App\Validator\LessThanOrEqual;
 use App\Validator\PositiveNumber;
@@ -24,13 +25,16 @@ readonly class TransactionQueryDto
         public string $maxResults = '200',
 
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
+        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
         public ?string $paymentType = null,
 
+        #[Assert\Date]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?\DateTimeInterface $dateStart = null,
+        public ?string $dateStart = null,
 
+        #[Assert\Date]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?\DateTimeInterface $dateEnd = null,
+        public ?string $dateEnd = null,
 
         #[Assert\NotBlank(message: 'Transaction name cannot be blank', allowNull: true)]
         public ?string $transactionName = null,
@@ -48,8 +52,9 @@ readonly class TransactionQueryDto
         #[Assert\Choice(options: ['income', 'expense'],message: 'Category type must be \'income\' or \'expense\'.')]
         public ?string $categoryType = null,
 
+        #[IntegerType]
         #[Assert\NotBlank(message: 'Category id cannot be blank', allowNull: true)]
-        public ?int $categoryId = null,
+        public ?string $categoryId = null,
 
     )
     {
