@@ -123,7 +123,6 @@ class UserController extends AbstractController
         Security $security,
     ) :JsonResponse
     {
-//        TODO modify this method or add new method to delete profile image...
         /** @var User $user */
         $user = $security->getUser();
         if (!$user) {
