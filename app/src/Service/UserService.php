@@ -109,7 +109,6 @@ readonly class UserService
     ):bool
     {
         $form->handleRequest($request);
-//        dd($form->isSubmitted(),$form->isValid());
         if ($form->isSubmitted() && $form->isValid()) {
             $avatarFile = $form->get('avatar')->getData();
             if ($avatarFile) {

@@ -116,7 +116,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/profile/image', name:'api_update_user', methods: ['POST'])]
+    #[Route('/profile/image', name:'api_update_user', methods: ["PUT","POST","PATCH"])]
     public function updateProfileImage(
         Request $request,
         UserService $userService,
@@ -129,7 +129,6 @@ class UserController extends AbstractController
             throw new NotFoundHttpException('User not found');
         }
         $form = $this->createForm(UserType::class, $user);
-
         $isUploaded = $userService->updateProfileImage($request,$form,$user);
 
         if($isUploaded) {
