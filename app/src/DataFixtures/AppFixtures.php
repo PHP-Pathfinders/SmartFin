@@ -29,7 +29,7 @@ class AppFixtures extends Fixture
             'fullName' => 'John Doe',
         ])->create();
 
-        UserFactory::createMany(3);
+//        UserFactory::createMany(3);
 
         // Default categories
         $defaultCategories = [
@@ -69,7 +69,7 @@ class AppFixtures extends Fixture
 
         BudgetFactory::createMany(80);
 
-        TransactionFactory::createMany(40);
+        TransactionFactory::createMany(100);
 
         TransactionTemplateFactory::createMany(40);
 

@@ -50,7 +50,11 @@ final class ExceptionListener
             if ($previousException instanceof ValidationFailedException){
                 $this->handleValidationErrors($event);
             }else{
-                $this->setResponse($event, Response::HTTP_NOT_FOUND);
+                $customMessage = null;
+                if($exception->getMessage() === ''){
+                    $customMessage='Missing query params';
+                }
+                $this->setResponse($event, Response::HTTP_NOT_FOUND,$customMessage);
             }
         }
 //         In case of validation error

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Dto\Transaction\SpendingsDto;
 use App\Dto\Transaction\TransactionCreateDto;
 use App\Dto\Transaction\TransactionQueryDto;
 use App\Entity\Category;
@@ -46,6 +47,9 @@ class TransactionRepository extends ServiceEntityRepository
         $categoryId = $transactionQueryDto->categoryId ?? null;
         $page = $transactionQueryDto->page ?? '1';
         $maxResults = $transactionQueryDto->maxResults ?? '200';
+
+        $orderBy = $transactionQueryDto->orderBy ?? null;
+        $sortBy = $transactionQueryDto->sortBy ?? null;
 
         if ( (!$dateStart && $dateEnd) || $dateStart > $dateEnd ) {
             throw new NotFoundHttpException('Invalid date format');
@@ -129,7 +133,12 @@ class TransactionRepository extends ServiceEntityRepository
             $totalResults->andWhere('c.id = :categoryId')
                 ->setParameter('categoryId', $categoryId);
         }
-
+        if ($orderBy !== null) {
+            // Input is validated so no sql injection is possible
+            $qb->orderBy('t.' . $orderBy, $sortBy);
+        } else {
+            $qb->orderBy('t.transactionName', 'ASC');
+        }
         $pagination = $this->paginator->paginate(
             $qb,
             $page,
@@ -159,11 +168,88 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Returns transaction overview by months and year with totalIncome and totalExpense per each month
+     * -Example:
+     * - [
+     * - "month" => 3,
+     * - "year"=> 2024,
+     * - "totalIncome" => 3254.036,
+     * - "totalExpense" => 3872.847
+     * - ] ...
+     * @param User $user
+     * @param int $year
+     * @return array
+     */
+    public function transactionOverview(User $user, int $year): array
+    {
+        $qb = $this->createQueryBuilder('t');
+        $qb->select('
+            MONTH(t.transactionDate) AS month, YEAR(t.transactionDate) AS year, 
+            SUM(CASE WHEN c.type = \'income\' THEN t.moneyAmount ELSE 0 END) AS totalIncome, 
+            SUM(CASE WHEN c.type = \'expense\' THEN t.moneyAmount ELSE 0 END) AS totalExpense')
+            ->leftJoin('t.category', 'c')
+            ->where('t.user = :user OR c.user IS NULL')
+            ->andWhere('YEAR(t.transactionDate) = :year')
+            ->setParameter('user', $user)
+            ->setParameter('year',$year)
+            ->groupBy('year, month')
+            ->orderBy('year', 'ASC')
+            ->addOrderBy('month', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function spendingByCategories(User $user, SpendingsDto $spendingsDto): array
+    {
+        $year = $spendingsDto->year;
+        $month = $spendingsDto->month;
+
+        // Calculate the total expenses for the given month
+        $totalExpenses = $this->createQueryBuilder('t')
+            ->select('SUM(t.moneyAmount) as totalMonthlyExpense')
+            ->leftJoin('t.category', 'c')
+            ->where('c.type = \'expense\'')
+            ->andWhere('t.user = :user')
+            ->andWhere('YEAR(t.transactionDate) = :year')
+            ->andWhere('MONTH(t.transactionDate) = :month')
+            ->setParameter('user', $user)
+            ->setParameter('year', $year)
+            ->setParameter('month', $month)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Get total Expense for each category individually
+        $results = $this->createQueryBuilder('t')
+            ->select('c.categoryName, SUM(t.moneyAmount) as totalExpense')
+            ->leftJoin('t.category', 'c')
+            ->where('c.type = \'expense\'')
+            ->andWhere('t.user = :user')
+            ->andWhere('YEAR(t.transactionDate) = :year')
+            ->andWhere('MONTH(t.transactionDate) = :month')
+            ->setParameter('user', $user)
+            ->setParameter('year', $year)
+            ->setParameter('month', $month)
+            ->groupBy('c.categoryName')
+            ->orderBy('c.categoryName', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        // Calculate the percentage for each category ( &$result is a reference to current element of $results) this
+        // allows direct modification of original array $results
+        foreach ($results as &$result) {
+            $result['percentage'] = ($totalExpenses > 0) ? ($result['totalExpense'] / $totalExpenses) * 100 : 0;
+        }
+
+        return $results;
+    }
+
+    /**
      * Create new transaction
      * @param TransactionCreateDto $transactionCreateDto
      * @param User $user
      * @param Category $category
      * @return void
+     * @throws \Exception
      */
     public function create(TransactionCreateDto $transactionCreateDto, User $user, Category $category): void
     {
@@ -271,32 +357,4 @@ class TransactionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-
-
-
-
-    //    /**
-    //     * @return Transaction[] Returns an array of Transaction objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Transaction
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }
