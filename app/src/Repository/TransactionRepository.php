@@ -52,14 +52,6 @@ class TransactionRepository extends ServiceEntityRepository
         }
 
 
-        $totalResults = $this->createQueryBuilder('t')
-            ->select('COUNT(t.id)')
-            ->leftJoin('t.category', 'c')
-            ->leftJoin('c.user', 'u')
-            ->andWhere('t.user = :user')
-            ->setParameter('user', $user);
-
-
         $qb = $this->createQueryBuilder('t')
             ->select(' t.id, t.paymentType, t.transactionDate, t.moneyAmount, t.transactionName, t.partyName, t.transactionNotes, c.type, c.categoryName, c.color')
             ->leftJoin('t.category', 'c')
@@ -72,8 +64,6 @@ class TransactionRepository extends ServiceEntityRepository
         if ($paymentType !== null) {
             $qb->andWhere('t.paymentType = :paymentType')
                 ->setParameter('paymentType', $paymentType);
-            $totalResults->andWhere('t.paymentType = :paymentType')
-                ->setParameter('paymentType', $paymentType);
         }
 
         if ($dateStart !== null && $dateEnd !== null) {
@@ -82,51 +72,35 @@ class TransactionRepository extends ServiceEntityRepository
                 ->orderBy('t.transactionDate', 'ASC')
                 ->setParameter('dateStart', $dateStart)
                 ->setParameter('dateEnd', $dateEnd);
-            $totalResults->andWhere('t.transactionDate >= :dateStart')
-                ->andWhere('t.transactionDate <= :dateEnd')
-                ->setParameter('dateStart', $dateStart)
-                ->setParameter('dateEnd', $dateEnd);
         }
 
         if ($transactionName !== null) {
             $qb->andWhere('t.transactionName LIKE :transactionName')
-                ->setParameter('transactionName', "%" . $transactionName . "%");
-            $totalResults->andWhere('t.transactionName LIKE :transactionName')
                 ->setParameter('transactionName', "%" . $transactionName . "%");
         }
 
         if ($partyName !== null) {
             $qb->andWhere('t.partyName LIKE :partyName')
                 ->setParameter('partyName', "%" . $partyName . "%");
-            $totalResults->andWhere('t.partyName LIKE :partyName')
-                ->setParameter('partyName', "%" . $partyName . "%");
         }
 
         if ($transactionNotes !== null) {
             $qb->andWhere('t.transactionNotes LIKE :transactionNotes')
-                ->setParameter('transactionNotes', "%" . $transactionNotes . "%");
-            $totalResults->andWhere('t.transactionNotes LIKE :transactionNotes')
                 ->setParameter('transactionNotes', "%" . $transactionNotes . "%");
         }
 
         if ($categoryName !== null) {
             $qb->andWhere('c.categoryName LIKE :categoryName')
                 ->setParameter('categoryName', "%" . $categoryName . "%");
-            $totalResults->andWhere('c.categoryName LIKE :categoryName')
-                ->setParameter('categoryName', "%" . $categoryName . "%");
         }
 
         if ($categoryType !== null) {
             $qb->andWhere('c.type = :categoryType')
                 ->setParameter('categoryType', $categoryType);
-            $totalResults->andWhere('c.type = :categoryType')
-                ->setParameter('categoryType', $categoryType);
         }
 
         if ($categoryId !== null) {
             $qb->andWhere('c.id = :categoryId')
-                ->setParameter('categoryId', $categoryId);
-            $totalResults->andWhere('c.id = :categoryId')
                 ->setParameter('categoryId', $categoryId);
         }
 
@@ -137,7 +111,6 @@ class TransactionRepository extends ServiceEntityRepository
         );
 
         $transactions = $pagination->getItems();
-        $totalResults = $totalResults->getQuery()->getSingleScalarResult();
 
         // Calculate total pages
         $totalPages = (int)ceil($pagination->getTotalItemCount() / $maxResults);
@@ -153,7 +126,7 @@ class TransactionRepository extends ServiceEntityRepository
                 'nextPage' => $nextPage,
                 'totalPages' => $totalPages,
             ],
-            'totalResults' => $totalResults,
+            'totalResults' => $pagination->getTotalItemCount(),
             'transactions' => $transactions
         ];
     }

@@ -11,7 +11,7 @@ readonly class TransactionCreateDto
 {
     public function __construct(
 
-        #[Assert\Date]
+        #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank')]
         public string  $transactionDate,
 

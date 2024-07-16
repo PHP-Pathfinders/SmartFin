@@ -28,11 +28,11 @@ readonly class TransactionQueryDto
         #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
         public ?string $paymentType = null,
 
-        #[Assert\Date]
+        #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
         public ?string $dateStart = null,
 
-        #[Assert\Date]
+        #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
         public ?string $dateEnd = null,
 
