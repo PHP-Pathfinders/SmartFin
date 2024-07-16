@@ -1,0 +1,11 @@
+# Ignore all JPEG images
+*.jpeg
+
+# Ignore all JPG images
+*.jpg
+
+# Ignore all PNG images
+*.png
+
+# Ignore all WEBP images
+*.webp

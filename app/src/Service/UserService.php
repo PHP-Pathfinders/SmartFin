@@ -109,6 +109,7 @@ readonly class UserService
     ):bool
     {
         $form->handleRequest($request);
+//        dd($form->isSubmitted(),$form->isValid());
         if ($form->isSubmitted() && $form->isValid()) {
             $avatarFile = $form->get('avatar')->getData();
             if ($avatarFile) {
@@ -116,25 +117,33 @@ readonly class UserService
                 $safeFileName = $this->slugger->slug($originalFilename);
                 $newFileName = $safeFileName.'-'.uniqid('', true).'.'.$avatarFile->guessExtension();
 
-                // Check if user already has a profile image
-                $oldAvatar = $user->getAvatarFileName();
-                if ($oldAvatar) {
-                    $oldAvatarPath = $this->avatarDirectory . '/' . $oldAvatar;
-                    if (file_exists($oldAvatarPath)) {
-                        // If profile image exists, delete it
-                        unlink($oldAvatarPath);
-                    }
-                }
-
+                // Delete if profile image already exists
+                $this->deleteAvatarIfExists($user);
                 // Move the new image to the directory where avatars are stored
                 $avatarFile->move($this->avatarDirectory, $newFileName);
                 $this->userRepository->updateProfileImage($newFileName,$user);
                 return true;
             }
+            // If avatarFile is null, delete profile image and set avatarFileName to null
+            $this->deleteAvatarIfExists($user);
+            $this->userRepository->updateProfileImage(null,$user);
+            return true;
+
         }
         return false;
     }
 
+    private function deleteAvatarIfExists(User $user):void
+    {
+        $oldAvatar = $user->getAvatarFileName();
+        if ($oldAvatar) {
+            $oldAvatarPath = $this->avatarDirectory . '/' . $oldAvatar;
+            if (file_exists($oldAvatarPath)) {
+                // If profile image exists, delete it
+                unlink($oldAvatarPath);
+            }
+        }
+    }
     public function changePassword(ChangePasswordDto $changePasswordDto) :void
     {
         /** @var User $user */
