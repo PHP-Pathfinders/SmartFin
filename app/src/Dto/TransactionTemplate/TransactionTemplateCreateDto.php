@@ -11,8 +11,14 @@ readonly class TransactionTemplateCreateDto
 {
     public function __construct(
 
+        #[PositiveNumber]
         #[Assert\NotBlank(message: 'Money amount cannot be blank', allowNull: true)]
         public ?float $moneyAmount,
+
+        #[IntegerType]
+        #[PositiveNumber]
+        #[Assert\NotBlank(message: 'Category id cannot be blank')]
+        public int $categoryId,
 
         #[Assert\NotBlank(message: 'Transaction name cannot be blank', allowNull: true)]
         #[Assert\Length(max: 50, maxMessage: 'Transaction name cannot be longer than 50 characters')]
@@ -24,12 +30,7 @@ readonly class TransactionTemplateCreateDto
 
         #[Assert\NotBlank(message: 'Category Type cannot be blank', allowNull: true)]
         #[Assert\Choice(options: ['income', 'expense'], message: 'Category type must be \'income\' or \'expense\'.')]
-        public ?string $categoryType = null,
-
-        #[IntegerType]
-        #[PositiveNumber]
-        #[Assert\NotBlank(message: 'Category id cannot be blank', allowNull: true)]
-        public ?int $categoryId = null,
+        public string $categoryType = '',
 
         #[Assert\NotBlank(message: 'Party name cannot be blank', allowNull: true)]
         #[Assert\Length(max: 50, maxMessage: 'Party name cannot be longer than 50 characters')]

@@ -144,18 +144,18 @@ class TransactionTemplateRepository extends ServiceEntityRepository
      * Create new transaction template
      * @param TransactionTemplateCreateDto $transactionTemplateCreateDto
      * @param User $user
-     * @param Category|null $category
+     * @param Category $category
      * @return void
      */
-    public function create(TransactionTemplateCreateDto $transactionTemplateCreateDto, User $user, ?Category $category): void
+    public function create(TransactionTemplateCreateDto $transactionTemplateCreateDto, User $user, Category $category): void
     {
         $transactionName = $transactionTemplateCreateDto->transactionName;
-        $paymentType = $category ? $category->getType() === "expense" ? $transactionTemplateCreateDto->paymentType : null : $transactionTemplateCreateDto->paymentType;
+        $paymentType = $category->getType() === "expense" ? $transactionTemplateCreateDto->paymentType : null;
         $moneyAmount = $transactionTemplateCreateDto->moneyAmount;
         $partyName = $transactionTemplateCreateDto->partyName;
         $transactionNotes = $transactionTemplateCreateDto->transactionNotes;
 
-        if (!$transactionName && !$paymentType && !$moneyAmount && !$partyName && !$transactionNotes && !$category) {
+        if (!$transactionName && !$paymentType && !$moneyAmount && !$partyName && !$transactionNotes) {
             throw new BadRequestHttpException("Template cannot be completly blank...");
         }
 

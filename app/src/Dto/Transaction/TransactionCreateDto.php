@@ -6,34 +6,36 @@ use App\Validator\IntegerType;
 use App\Validator\NotEmptyString;
 use App\Validator\PositiveNumber;
 use Symfony\Component\Validator\Constraints as Assert;
+
 readonly class TransactionCreateDto
 {
     public function __construct(
 
         #[Assert\Date]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank')]
-        public string $transactionDate,
+        public string  $transactionDate,
 
+        #[PositiveNumber]
         #[Assert\NotBlank(message: 'Money amount cannot be blank')]
-        public float $moneyAmount,
+        public float   $moneyAmount,
 
 
         #[IntegerType]
         #[PositiveNumber]
         #[Assert\NotBlank(message: 'Category id cannot be blank')]
-        public int $categoryId,
+        public int     $categoryId,
 
         #[Assert\NotBlank(message: 'Transaction name cannot be blank')]
         #[Assert\Length(max: 50, maxMessage: 'Transaction name cannot be longer than 50 characters')]
-        public string $transactionName,
+        public string  $transactionName,
 
-        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
+        #[Assert\Choice(options: ['cash', 'card'], message: 'Payment type must only be cash or card')]
         #[Assert\NotBlank(message: 'Payment type cannot be blank')]
-        public string $paymentType,
+        public string  $paymentType,
 
         #[Assert\Choice(options: ['income', 'expense'], message: 'Category type must be \'income\' or \'expense\'.')]
         #[Assert\NotBlank(message: 'Category Type cannot be blank')]
-        public string $categoryType = '',
+        public string  $categoryType = '',
 
         #[NotEmptyString(message: 'Party name cannot be blank')]
         #[Assert\Length(max: 50, maxMessage: 'Party name cannot be longer than 50 characters')]
@@ -44,10 +46,8 @@ readonly class TransactionCreateDto
         public ?string $transactionNotes = null,
 
 
-
     )
     {
-
 
 
     }

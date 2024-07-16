@@ -27,8 +27,10 @@ readonly class TransactionTemplateUpdateDto
 
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
         #[NotEmptyString]
+        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
         public ?string $paymentType = null,
 
+        #[PositiveNumber]
         #[Assert\NotBlank(message: 'Money amount cannot be blank', allowNull: true)]
         public ?float $moneyAmount = null,
 
