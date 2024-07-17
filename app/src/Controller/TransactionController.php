@@ -49,10 +49,11 @@ class TransactionController extends AbstractController
     #[Route('/overview', name: 'api_transactions_overview', methods: ['GET'])]
     public function transactionsOverview(
         TransactionService $transactionService,
-        #[MapQueryString] OverviewDto $overviewDto
+        #[MapQueryString] ?OverviewDto $overviewDto
     ): JsonResponse
     {
-        $data = $transactionService->transactionOverview((int) $overviewDto->year);
+        $year = $overviewDto->year ?? date('Y');
+        $data = $transactionService->transactionOverview((int) $year);
         if (empty($data)){
             return $this->json([
                 'success' => false,

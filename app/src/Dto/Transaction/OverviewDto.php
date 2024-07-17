@@ -12,6 +12,6 @@ class OverviewDto
         #[IntegerType(message:'Year must be integer')]
         #[PositiveNumber]
         #[Assert\NotBlank(message: 'Year cannot be blank')]
-        public ?string $year,
+        public ?string $year= null,
     ){}
 }
