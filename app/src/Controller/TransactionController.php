@@ -70,16 +70,20 @@ class TransactionController extends AbstractController
     #[Route('/spendings', methods: ['GET'])]
     public function spendingByCategories(
         TransactionService $transactionService,
-        #[MapQueryString] SpendingsDto $spendingsDto
+        #[MapQueryString] ?SpendingsDto $spendingsDto
     ): JsonResponse
     {
-        $data = $transactionService->spendingByCategories($spendingsDto);
+        $month = $spendingsDto->month ?? date('m');
+        $year = $spendingsDto->year ?? date('Y');
+        $data = $transactionService->spendingByCategories($month, $year);
 
         if(empty($data)){
             return $this->json(
                 [
                     'success'=>false,
-                    'message'=>'No spending\'s found'
+                    'month'=>(int)$month,
+                    'year'=>(int)$year,
+                    'message'=>'No spending\'s found for this period'
                 ]
             );
         }
@@ -87,6 +91,8 @@ class TransactionController extends AbstractController
         return $this->json(
             [
                 'success'=>true,
+                'month'=>(int)$month,
+                'year'=>(int)$year,
                 'data'=> $data
             ]
         );
