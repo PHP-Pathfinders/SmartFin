@@ -19,7 +19,6 @@ class BudgetRepository extends ServiceEntityRepository
         parent::__construct($registry, Budget::class);
     }
 
-
     public function doesBudgetExistForCategoryAndMonth(Category $category,User $user, \DateTimeInterface $dateTime ): bool
     {
 
@@ -33,37 +32,27 @@ class BudgetRepository extends ServiceEntityRepository
             ->setParameter('date' , $dateTime)
             ->setParameter('user', $user);
 
-
         $count =  $qb->getQuery()
             ->getSingleScalarResult();
 
         return $count > 0;
-
-
     }
 
-    //    /**
-    //     * @return Budget[] Returns an array of Budget objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('b.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Budget
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function fetchRandomBudgets(string $month, string $year, string $amount,User $user): array
+    {
+        return $this->createQueryBuilder('b')
+            ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryId, c.categoryName, c.color')
+            ->leftJoin('b.category', 'c')
+            ->andWhere('b.user = :user')
+            ->andWhere('MONTH(b.monthlyBudgetDate) = :month')
+            ->andWhere('YEAR(b.monthlyBudgetDate) = :year')
+            ->andWhere('c.type = \'expense\'')
+            ->setParameter('user', $user)
+            ->setParameter('month', $month)
+            ->setParameter('year', $year)
+            ->setMaxResults((int)$amount)
+            ->orderBy('RAND()')
+            ->getQuery()
+            ->getResult();
+    }
 }

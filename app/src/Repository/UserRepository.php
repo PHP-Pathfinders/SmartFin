@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Dto\User\ChangePasswordDto;
+use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -65,6 +66,22 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setFullName($fullName);
         $user->setEmail($email);
         $user->setPassword($password);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    public function update(UpdateDataDto $updateDataDto, User $user):void
+    {
+        $fullName = $updateDataDto->fullName;
+        $birthdayStr = $updateDataDto->birthday;
+
+        if ($fullName) {
+            $user->setFullName($fullName);
+        }
+        if ($birthdayStr) {
+            $birthday = \DateTime::createFromFormat('Y-m-d', $birthdayStr);
+            $user->setBirthday($birthday);
+        }
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }

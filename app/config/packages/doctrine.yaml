@@ -28,6 +28,8 @@ doctrine:
             datetime_functions:
                 month: DoctrineExtensions\Query\Mysql\Month
                 year: DoctrineExtensions\Query\Mysql\Year
+            numeric_functions:
+                rand: DoctrineExtensions\Query\Mysql\Rand
 
 when@test:
     doctrine:

@@ -56,6 +56,10 @@ readonly class TransactionQueryDto
         #[Assert\NotBlank(message: 'Category id cannot be blank', allowNull: true)]
         public ?string $categoryId = null,
 
+        #[Assert\Choice(options: ['paymentType', 'transactionDate','moneyAmount'],message: 'orderBy must be \'paymentType\' or \'transactionDate\' or \'moneyAmount\'')]
+        public ?string $orderBy= null,
+        #[Assert\Choice(options: ['asc','desc'], message: 'sortBy must be asc or desc')]
+         public ?string $sortBy= 'asc'
     )
     {
 

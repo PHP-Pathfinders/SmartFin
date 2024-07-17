@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\RegisterDto;
+use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -102,6 +103,18 @@ readonly class UserService
         ];
     }
 
+    public function update(UpdateDataDto $updateDataDto): void
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->security->getUser();
+        if(!$user){
+            throw new NotFoundHttpException('User not found');
+        }
+        $this->userRepository->update($updateDataDto,$user);
+    }
+
     public function updateProfileImage(
         Request $request,
         FormInterface $form,
@@ -109,7 +122,6 @@ readonly class UserService
     ):bool
     {
         $form->handleRequest($request);
-//        dd($form->isSubmitted(),$form->isValid());
         if ($form->isSubmitted() && $form->isValid()) {
             $avatarFile = $form->get('avatar')->getData();
             if ($avatarFile) {
