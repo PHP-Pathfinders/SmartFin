@@ -161,8 +161,8 @@ class UserController extends AbstractController
         }
         return new JsonResponse([
             'success' => false,
-            'message' => 'Profile image was not uploaded'
-        ], Response::HTTP_NOT_FOUND);
+            'message' => 'Form is not submitted or not valid. Image can be only jpg, jpeg or png'
+        ], Response::HTTP_BAD_REQUEST);
     }
 
     #[Route('/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]

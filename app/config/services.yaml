@@ -26,3 +26,6 @@ services:
     App\Service\UserService:
         arguments:
             $avatarDirectory: '%avatar_directory%'
+    App\Service\PdfXlsGeneratorService:
+        arguments:
+            $avatarDirectory: '%avatar_directory%'

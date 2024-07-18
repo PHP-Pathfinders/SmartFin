@@ -24,8 +24,7 @@ class UserType extends AbstractType
                         'mimeTypes' => [
                             'image/png',
                             'image/jpeg',
-                            'image/jpg',
-                            'image/webp'
+                            'image/jpg'
                         ],
                         'mimeTypesMessage' => 'Please upload a valid image'
                     ])

@@ -20,9 +20,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class TransactionRepository extends ServiceEntityRepository
 {
     public function __construct(
-        ManagerRegistry                $registry,
-        private EntityManagerInterface $entityManager,
-        private PaginatorInterface     $paginator
+        ManagerRegistry                         $registry,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly PaginatorInterface $paginator
     )
     {
         parent::__construct($registry, Transaction::class);
@@ -350,6 +350,60 @@ class TransactionRepository extends ServiceEntityRepository
 
     }
 
+    public function fetchSpecificColumns(
+        User $user,
+        bool $categoryId = false,
+        bool $paymentType = false,
+        bool $transactionDate = false,
+        bool $moneyAmount = false,
+        bool $transactionName = false,
+        bool $partyName = false,
+        bool $transactionNotes = false,
+    ): array
+    {
+        $columns = [
+            't.paymentType' => $paymentType ,
+            't.moneyAmount' => $moneyAmount,
+            't.transactionName' => $transactionName,
+            't.partyName' => $partyName,
+            't.transactionNotes' => $transactionNotes,
+        ];
+
+        // Filter the columns array and return keys where values are true
+        $selectedColumns = array_keys(array_filter($columns));
+
+        $transactions = $this->createQueryBuilder('t');
+
+        // If categoryId is true, do a left join and pull 3 more columns from categories
+        if ($categoryId){
+            $transactions->leftJoin('t.category','c');
+            $selectedColumns = array_merge($selectedColumns, ['c.categoryName', 'c.type', 'c.color']);
+        }
+
+        // Add separate day, month, and year fields if $transactionDate is true
+        if ($transactionDate) {
+            $selectedColumns = array_merge(
+                $selectedColumns,
+                [
+                    "DATE_FORMAT(t.transactionDate, '%Y') AS year",
+                    "DATE_FORMAT(t.transactionDate, '%m') AS month",
+                    "DATE_FORMAT(t.transactionDate, '%d') AS day"
+                ]
+            );
+        }
+
+        if (!empty($selectedColumns)) {
+            $transactions->select(implode(', ', $selectedColumns));
+        }
+
+
+        $transactions->andWhere('t.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('t.transactionDate','ASC');
+
+        return $transactions->getQuery()->getResult();
+
+    }
 
     public function findByIdAndUser(int $id, User $user): ?Transaction
     {
