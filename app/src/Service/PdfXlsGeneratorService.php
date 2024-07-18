@@ -28,10 +28,12 @@ class PdfXlsGeneratorService
             categoryId: true, paymentType: true, transactionDate: true, moneyAmount: true
         );
 
+        $image = $user->getAvatarFileName() ? $this->imageToBase64($this->avatarDirectory . '/' . $user->getAvatarFileName()) : null;
+
         return [
             'fullName' => $user->getFullName(),
             'email' => $user->getEmail(),
-            'imageSrc'  => $this->imageToBase64($this->avatarDirectory .'/'. $user->getAvatarFileName()),
+            'imageSrc'  => $image,
             'transactions' => $transactions
         ];
     }
