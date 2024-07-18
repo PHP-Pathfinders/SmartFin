@@ -372,7 +372,7 @@ class TransactionRepository extends ServiceEntityRepository
 
         $transactions->andWhere('t.user = :user')
             ->setParameter('user', $user)
-            ->orderBy('t.transactionDate','ASC');
+            ->orderBy('t.transactionDate','DESC');
 
         return $transactions->getQuery()->getResult();
 
