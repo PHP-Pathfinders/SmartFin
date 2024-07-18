@@ -6,6 +6,7 @@ use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\DeactivateAccountDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\RegisterDto;
+use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Service\UserService;
@@ -90,7 +91,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/profile', name: 'api_profile', methods: ['GET'] )]
+    #[Route('', name: 'api_profile', methods: ['GET'] )]
     public function fetchProfile(
         UserService $userService
     ): JsonResponse
@@ -116,7 +117,28 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/profile/image', name:'api_update_user', methods: ['POST'])]
+    #[Route('', name: 'api_update_user', methods: ['PATCH'])]
+    public function update(
+        UserService $userService,
+        #[MapRequestPayload] UpdateDataDto $updateDataDto
+    ): JsonResponse
+    {
+        if(!$updateDataDto->fullName && !$updateDataDto->birthday){
+            return $this->json([
+                'success' => false,
+                'message' => 'Nothing to update'
+            ]);
+        }
+
+        $userService->update($updateDataDto);
+
+        return $this->json([
+            'success' => true,
+            'message' => 'User updated successfully'
+        ]);
+    }
+
+    #[Route('/image', name:'api_update_image', methods: ["POST"])]
     public function updateProfileImage(
         Request $request,
         UserService $userService,
@@ -129,7 +151,6 @@ class UserController extends AbstractController
             throw new NotFoundHttpException('User not found');
         }
         $form = $this->createForm(UserType::class, $user);
-
         $isUploaded = $userService->updateProfileImage($request,$form,$user);
 
         if($isUploaded) {

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\Transaction\SpendingsDto;
 use App\Dto\Transaction\TransactionCreateDto;
 use App\Dto\Transaction\TransactionQueryDto;
 use App\Dto\Transaction\TransactionUpdateDto;
@@ -28,10 +29,26 @@ readonly class TransactionService
          * @var User $user
          */
         $user = $this->security->getUser();
-
         return $this->transactionRepository->search($transactionQueryDto, $user);
     }
 
+    public function transactionOverview(int $year): array
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->security->getUser();
+        return $this->transactionRepository->transactionOverview($user,$year);
+    }
+
+    public function spendingByCategories(string $month, string $year): array
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->security->getUser();
+        return $this->transactionRepository->spendingByCategories($month, $year, $user);
+    }
 
     public function create(TransactionCreateDto $transactionCreateDto): void
     {
@@ -47,7 +64,6 @@ readonly class TransactionService
         }
 
         $this->transactionRepository->create($transactionCreateDto, $user, $category);
-
 
     }
 

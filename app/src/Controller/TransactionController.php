@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Dto\Category\CategoryQueryDto;
 use App\Dto\Category\CategoryUpdateDto;
+use App\Dto\Transaction\OverviewDto;
+use App\Dto\Transaction\SpendingsDto;
 use App\Dto\Transaction\TransactionCreateDto;
 use App\Dto\Transaction\TransactionQueryDto;
 use App\Dto\Transaction\TransactionUpdateDto;
@@ -44,6 +46,57 @@ class TransactionController extends AbstractController
         ]);
     }
 
+    #[Route('/overview', name: 'api_transactions_overview', methods: ['GET'])]
+    public function transactionsOverview(
+        TransactionService $transactionService,
+        #[MapQueryString] ?OverviewDto $overviewDto
+    ): JsonResponse
+    {
+        $year = $overviewDto->year ?? date('Y');
+        $data = $transactionService->transactionOverview((int) $year);
+        if (empty($data)){
+            return $this->json([
+                'success' => false,
+                'message' => 'No transactions found'
+            ]);
+        }
+
+        return $this->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
+    #[Route('/spendings', methods: ['GET'])]
+    public function spendingByCategories(
+        TransactionService $transactionService,
+        #[MapQueryString] ?SpendingsDto $spendingsDto
+    ): JsonResponse
+    {
+        $month = $spendingsDto->month ?? date('m');
+        $year = $spendingsDto->year ?? date('Y');
+        $data = $transactionService->spendingByCategories($month, $year);
+
+        if(empty($data)){
+            return $this->json(
+                [
+                    'success'=>false,
+                    'month'=>(int)$month,
+                    'year'=>(int)$year,
+                    'message'=>'No spending\'s found for this period'
+                ]
+            );
+        }
+
+        return $this->json(
+            [
+                'success'=>true,
+                'month'=>(int)$month,
+                'year'=>(int)$year,
+                'data'=> $data
+            ]
+        );
+    }
 
     #[Route('', name: 'api_add_transaction', methods: ['POST'])]
     public function create(
@@ -71,8 +124,6 @@ class TransactionController extends AbstractController
             'message' => $message
         ]);
     }
-
-
 
     #[Route('/{id<\d+>}', name: 'api_delete_transaction', methods: ['DELETE'])]
     public function delete(int $id, TransactionService $transactionService): JsonResponse

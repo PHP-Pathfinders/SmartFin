@@ -31,7 +31,7 @@ class CategoryRepository extends ServiceEntityRepository
      * Find categories by their type (Income or Expense)
      * @param string $type
      * @param int $page
-     * @param int $limit
+     * @param int $maxResults
      * @param User $user
      * @return array
      */

@@ -39,4 +39,9 @@ class UserType extends AbstractType
             'csrf_protection' => false
         ]);
     }
+    // Added this to fix $form->isSubmitted() = false
+    public function getBlockPrefix(): string
+    {
+        return '';
+    }
 }
