@@ -221,6 +221,9 @@
     "symfonycasts/verify-email-bundle": {
         "version": "v1.17.0"
     },
+    "yectep/phpspreadsheet-bundle": {
+        "version": "v1.1.0"
+    },
     "zenstruck/foundry": {
         "version": "2.0",
         "recipe": {
