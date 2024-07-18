@@ -25,7 +25,7 @@ class PdfXlsGeneratorService
            throw new NotFoundHttpException('User not found');
         }
         $transactions = $this->transactionRepository->fetchSpecificColumns(user: $user,
-            categoryId: true, paymentType: true, transactionDate: true, moneyAmount: true
+            categoryName: true, type: true, color: true, paymentType: true, transactionDate: true, moneyAmount: true
         );
 
         $image = $user->getAvatarFileName() ? $this->imageToBase64($this->avatarDirectory . '/' . $user->getAvatarFileName()) : null;
@@ -36,6 +36,19 @@ class PdfXlsGeneratorService
             'imageSrc'  => $image,
             'transactions' => $transactions
         ];
+    }
+
+    public function generateXLS(): array
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        if (!$user){
+            throw new NotFoundHttpException('User not found');
+        }
+
+         return $this->transactionRepository->fetchSpecificColumns(user: $user,
+            categoryName: true, type: true, paymentType: true, transactionDate: true, moneyAmount: true
+        );
     }
 
     private function imageToBase64($path): string

@@ -325,7 +325,9 @@ class TransactionRepository extends ServiceEntityRepository
 
     public function fetchSpecificColumns(
         User $user,
-        bool $categoryId = false,
+        bool $categoryName = false,
+        bool $type = false,
+        bool $color = false,
         bool $paymentType = false,
         bool $transactionDate = false,
         bool $moneyAmount = false,
@@ -334,12 +336,17 @@ class TransactionRepository extends ServiceEntityRepository
         bool $transactionNotes = false,
     ): array
     {
+
+//        TODO change order of columns in this array
         $columns = [
             't.paymentType' => $paymentType ,
             't.moneyAmount' => $moneyAmount,
             't.transactionName' => $transactionName,
             't.partyName' => $partyName,
             't.transactionNotes' => $transactionNotes,
+            'c.categoryName' => $categoryName,
+            'c.type' => $type,
+            'c.color' => $color
         ];
 
         // Filter the columns array and return keys where values are true
@@ -347,12 +354,10 @@ class TransactionRepository extends ServiceEntityRepository
 
         $transactions = $this->createQueryBuilder('t');
 
-        // If categoryId is true, do a left join and pull 3 more columns from categories
-        if ($categoryId){
+        // If only one or more category fields are true, join category
+        if ($categoryName || $type || $color) {
             $transactions->leftJoin('t.category','c');
-            $selectedColumns = array_merge($selectedColumns, ['c.categoryName', 'c.type', 'c.color']);
         }
-
         // Add separate day, month, and year fields if $transactionDate is true
         if ($transactionDate) {
             $selectedColumns = array_merge(
