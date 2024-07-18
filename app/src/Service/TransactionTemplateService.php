@@ -38,8 +38,12 @@ readonly class TransactionTemplateService
         /** @var User $user */
         $user = $this->security->getUser();
 
-        $category = $transactionTemplateCreateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionTemplateCreateDto->categoryId, $user) : null;
+        /** @var Category $category */
+        $category = $this->categoryRepository->findByIdUserAndType($transactionTemplateCreateDto->categoryId, $user, $transactionTemplateCreateDto->categoryType);
 
+        if (!$category) {
+            throw new NotFoundHttpException("Invalid category given");
+        }
 
         $this->transactionTemplateRepository->create($transactionTemplateCreateDto, $user, $category);
 

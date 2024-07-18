@@ -13,16 +13,16 @@ readonly class TransactionUpdateDto
         #[Assert\Positive]
         #[Assert\NotBlank(message: 'Id cannot be blank', allowNull: true)]
         #[IntegerType]
-        public int $id,
+        public int     $id,
 
-        #[Assert\Date]
+        #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
         public ?string $transactionDate,
 
         #[IntegerType]
         #[PositiveNumber]
         #[NotEmptyString]
-        public ?int $categoryId,
+        public ?int    $categoryId,
 
         #[Assert\NotBlank(message: 'Transaction name cannot be blank', allowNull: true)]
         #[NotEmptyString]
@@ -30,12 +30,13 @@ readonly class TransactionUpdateDto
         public ?string $transactionName = null,
 
         #[Assert\NotBlank(message: 'Payment type cannot be blank', allowNull: true)]
-        #[Assert\Choice(options: ['cash','card'],message: 'Payment type must only be cash or card')]
+        #[Assert\Choice(options: ['cash', 'card'], message: 'Payment type must only be cash or card')]
         #[NotEmptyString]
         public ?string $paymentType = null,
 
+        #[PositiveNumber]
         #[Assert\NotBlank(message: 'Money amount cannot be blank', allowNull: true)]
-        public ?float $moneyAmount = null,
+        public ?float  $moneyAmount = null,
 
         #[Assert\NotBlank(message: 'Party name cannot be blank', allowNull: true)]
         #[NotEmptyString]

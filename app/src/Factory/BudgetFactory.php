@@ -41,9 +41,9 @@ final class BudgetFactory extends PersistentProxyObjectFactory
             /** @var User $user */
             $user = $this->userRepository->findOneBy(['id' => $userProxy->_get('id')]);
 
-            $monthlyBudgetDate = self::faker()->dateTimeBetween('-4 months', '+4 months');
+            $monthlyBudgetDate = self::faker()->dateTimeBetween('-2 months', '+2 months');
 
-            if (!$this->budgetRepository->doesBudgetExistForCategoryAndMonth($category, $user, $monthlyBudgetDate)) {
+            if (!$this->budgetRepository->doesBudgetExistForCategoryAndMonth($category, $user, $monthlyBudgetDate) && $category->getType() === 'expense') {
                 return [
                     'user' => $userProxy,
                     'category' => $categoryProxy,
