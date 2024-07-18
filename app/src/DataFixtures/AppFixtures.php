@@ -67,9 +67,9 @@ class AppFixtures extends Fixture
             ])->create();
         }
 
-        BudgetFactory::createMany(80);
+        BudgetFactory::createMany(40);
 
-        TransactionFactory::createMany(100);
+        TransactionFactory::createMany(50);
 
         TransactionTemplateFactory::createMany(40);
 
