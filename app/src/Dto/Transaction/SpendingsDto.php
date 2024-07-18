@@ -11,17 +11,17 @@ class SpendingsDto
     public function __construct(
         #[IntegerType]
         #[PositiveNumber]
-        #[Assert\NotBlank(message: 'Year cannot be blank')]
-        public ?string $year,
+        #[Assert\NotBlank(message: 'Year cannot be blank', allowNull: true)]
+        public ?string $year = null,
         #[IntegerType]
         #[PositiveNumber]
-        #[Assert\NotBlank(message: 'Month cannot be blank')]
+        #[Assert\NotBlank(message: 'Month cannot be blank', allowNull: true)]
         #[Assert\Range(
             notInRangeMessage: 'Month must be between {{ min }} and {{ max }} ',
             min: 1,
             max: 12,
         )]
-        public ?string $month
+        public ?string $month = null
     )
     {
     }

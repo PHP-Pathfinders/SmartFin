@@ -41,13 +41,13 @@ readonly class TransactionService
         return $this->transactionRepository->transactionOverview($user,$year);
     }
 
-    public function spendingByCategories(SpendingsDto $spendingsDto): array
+    public function spendingByCategories(string $month, string $year): array
     {
         /**
          * @var User $user
          */
         $user = $this->security->getUser();
-        return $this->transactionRepository->spendingByCategories($user, $spendingsDto);
+        return $this->transactionRepository->spendingByCategories($month, $year, $user);
     }
 
     public function create(TransactionCreateDto $transactionCreateDto): void

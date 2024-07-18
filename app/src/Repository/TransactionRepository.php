@@ -169,7 +169,7 @@ class TransactionRepository extends ServiceEntityRepository
 
     /**
      * Returns transaction overview by months and year with totalIncome and totalExpense per each month
-     * -Example:
+     * - Example:
      * - [
      * - "month" => 3,
      * - "year"=> 2024,
@@ -199,11 +199,15 @@ class TransactionRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function spendingByCategories(User $user, SpendingsDto $spendingsDto): array
+    /**
+     * Returns sum of transactions per category that user made
+     * @param string $month
+     * @param string $year
+     * @param User $user
+     * @return array
+     */
+    public function spendingByCategories(string $month, string $year, User $user): array
     {
-        $year = $spendingsDto->year;
-        $month = $spendingsDto->month;
-
         // Calculate the total expenses for the given month
         $totalExpenses = $this->createQueryBuilder('t')
             ->select('SUM(t.moneyAmount) as totalMonthlyExpense')
@@ -234,7 +238,7 @@ class TransactionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
 
-        // Calculate the percentage for each category ( &$result is a reference to current element of $results) this
+        // Calculate the percentage for each category (&$result is a reference to the current element of $results) this
         // allows direct modification of original array $results
         foreach ($results as &$result) {
             $result['percentage'] = ($totalExpenses > 0) ? ($result['totalExpense'] / $totalExpenses) * 100 : 0;
