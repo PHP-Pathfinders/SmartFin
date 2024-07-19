@@ -38,13 +38,39 @@ class PdfXlsGeneratorController extends AbstractController
         PdfXlsGeneratorService $pdfXlsGeneratorService
     ) :Response
     {
-        //TODO add table headers for each column
         $data = $pdfXlsGeneratorService->generateXLS();
+
         $spreadsheet = $factory->createSpreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Transactions');
-//        $sheet->setCellValue('B2', 'This is test value');
-        $sheet->fromArray($data,null,'B2');
+
+        // Define the headers for each column
+        $headers = ['Category Name', 'Type', 'Money Amount', 'Payment Type', 'Year', 'Month', 'Day'];
+        // Set the headers in the first row
+        $sheet->fromArray($headers, null, 'B2');
+        // Apply bold style to headers
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+        ];
+        $sheet->getStyle('B2:H2')->applyFromArray($headerStyle);
+
+        $sheet->fromArray($data,null,'B3');
+        // Apply border style to data cells
+        $dataStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+        ];
+        $sheet->getStyle('B3:H'.(count($data) + 2))->applyFromArray($dataStyle);
 
         $response = $factory->createStreamedResponse($spreadsheet, 'Xls');
 

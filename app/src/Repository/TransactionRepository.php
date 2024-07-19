@@ -358,17 +358,17 @@ class TransactionRepository extends ServiceEntityRepository
             $transactions->leftJoin('t.category','c');
         }
         // Add separate day, month, and year fields if $transactionDate is true
+
         if ($transactionDate) {
             $selectedColumns = array_merge(
                 $selectedColumns,
                 [
-                    "DATE_FORMAT(t.transactionDate, '%Y') AS year",
+                    "DATE_FORMAT(t.transactionDate, '%d') AS day",
                     "DATE_FORMAT(t.transactionDate, '%m') AS month",
-                    "DATE_FORMAT(t.transactionDate, '%d') AS day"
+                    "DATE_FORMAT(t.transactionDate, '%Y') AS year"
                 ]
             );
         }
-
         if (!empty($selectedColumns)) {
             $transactions->select(implode(', ', $selectedColumns));
         }

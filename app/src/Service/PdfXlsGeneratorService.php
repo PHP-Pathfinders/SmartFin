@@ -46,9 +46,21 @@ class PdfXlsGeneratorService
             throw new NotFoundHttpException('User not found');
         }
 
-         return $this->transactionRepository->fetchSpecificColumns(user: $user,
+         $results =  $this->transactionRepository->fetchSpecificColumns(user: $user,
             categoryName: true, type: true, paymentType: true, transactionDate: true, moneyAmount: true
         );
+        foreach ($results as &$result) {
+            if (isset($result['day'])) {
+                $result['day'] = (int) $result['day'];
+            }
+            if (isset($result['month'])) {
+                $result['month'] = (int) $result['month'];
+            }
+            if (isset($result['year'])) {
+                $result['year'] = (int) $result['year'];
+            }
+        }
+        return $results;
     }
 
     private function imageToBase64($path): string
