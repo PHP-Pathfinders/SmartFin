@@ -27,4 +27,19 @@ class ExportRepository extends ServiceEntityRepository
         $this->getEntityManager()->persist($export);
         $this->getEntityManager()->flush();
     }
+
+    public function fetchExports(User $user, ?string $fileType = null): array
+    {
+
+        $queryBuilder = $this->createQueryBuilder('e')
+            ->select('e.fileName, e.fileType, e.createdAt')
+            ->where('e.user = :user')
+            ->setParameter('user', $user);
+
+        if ($fileType) {
+            $queryBuilder->andWhere('e.fileType = :fileType')
+                ->setParameter('fileType', $fileType);
+        }
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

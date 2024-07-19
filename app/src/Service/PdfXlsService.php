@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Twig\Environment;
 use Yectep\PhpSpreadsheetBundle\Factory;
 
-class PdfXlsGeneratorService
+class PdfXlsService
 {
     public function __construct(
         private readonly TransactionRepository $transactionRepository,

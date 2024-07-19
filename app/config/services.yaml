@@ -28,7 +28,7 @@ services:
     App\Service\UserService:
         arguments:
             $avatarDirectory: '%avatar_directory%'
-    App\Service\PdfXlsGeneratorService:
+    App\Service\PdfXlsService:
         arguments:
             $avatarDir: '%avatar_directory%'
             $exportsDir: '%exports_directory%'

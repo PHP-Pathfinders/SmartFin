@@ -2,20 +2,21 @@
 
 namespace App\Controller;
 
-use App\Service\PdfXlsGeneratorService;
+use App\Service\PdfXlsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
-class PdfXlsGeneratorController extends AbstractController
+class PdfXlsController extends AbstractController
 {
     #[Route('/pdf/generator', name: 'api_pdf_generator', methods: ['GET'])]
     public function generatePDF(
-        PdfXlsGeneratorService $pdfXlsGeneratorService,
+        PdfXlsService $pdfXlsService,
     ): Response
     {
-        $dompdf = $pdfXlsGeneratorService->generatePDF();
+        $dompdf = $pdfXlsService->generatePDF();
 
         return new Response (
             $dompdf->stream('transactions', ["Attachment" => false]),
@@ -26,10 +27,10 @@ class PdfXlsGeneratorController extends AbstractController
 
     #[Route('/xls/generator', name: 'api_xls_generator', methods: ['GET'])]
     public function generateXLS(
-        PdfXlsGeneratorService $pdfXlsGeneratorService
+        PdfXlsService $pdfXlsService
     ) :Response
     {
-        $response = $pdfXlsGeneratorService->generateXLS();
+        $response = $pdfXlsService->generateXLS();
         // Redirect output to a client’s web browser (Xls)
         $response->headers->set('Content-Type', 'application/vnd.ms-excel');
         $response->headers->set('Content-Disposition', 'attachment;filename="Transactions.xls"');

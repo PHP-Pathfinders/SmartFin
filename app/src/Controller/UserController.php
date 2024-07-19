@@ -60,7 +60,7 @@ class UserController extends AbstractController
     /**
      * @throws InvalidSignatureException
      */
-    #[Route('/verify-email', name: 'api_verify_email')]
+    #[Route('/verify-email', name: 'api_verify_email', methods: ['GET'])]
     public function verifyEmail(
         #[MapQueryParameter] int $id,
         UserService $userService,
@@ -90,7 +90,7 @@ class UserController extends AbstractController
             'message' => 'Your password has been reset successfully'
         ]);
     }
-
+//TODO refactor to match RESTFUL API standard
     #[Route('', name: 'api_profile', methods: ['GET'] )]
     public function fetchProfile(
         UserService $userService
