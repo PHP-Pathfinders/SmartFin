@@ -8,12 +8,15 @@ use App\Dto\TransactionTemplate\TransactionTemplateQueryDto;
 use App\Dto\TransactionTemplate\TransactionTemplateUpdateDto;
 use App\Service\TransactionService;
 use App\Service\TransactionTemplateService;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Json;
+use OpenApi\Attributes as OA;
+
 
 #[Route('/api/transaction-templates')]
 class TransactionTemplateController extends AbstractController
@@ -24,6 +27,8 @@ class TransactionTemplateController extends AbstractController
      * - Example url: localhost:8080/api/transaction-templates?paymentType=cash&limit=5
      */
     #[Route('', name: 'api_find_transaction_templates', methods: ['GET'])]
+    #[OA\Tag(name: 'TransactionTemplates')]
+    #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?TransactionTemplateQueryDto $transactionTemplateQueryDto,
         TransactionTemplateService                     $transactionTemplateService
@@ -51,6 +56,8 @@ class TransactionTemplateController extends AbstractController
 
 
     #[Route('', name: 'api_add_transaction_template', methods: ['POST'])]
+    #[OA\Tag(name: 'TransactionTemplates')]
+    #[Security(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] TransactionTemplateCreateDto $transactionTemplateCreateDto,
         TransactionTemplateService                        $transactionTemplateService
@@ -67,6 +74,8 @@ class TransactionTemplateController extends AbstractController
 
 
     #[Route('', name: 'api_update_transaction_templates', methods: ['PATCH'])]
+    #[OA\Tag(name: 'TransactionTemplates')]
+    #[Security(name: 'Bearer')]
     public function update(
         #[MapRequestPayload] TransactionTemplateUpdateDto $transactionUpdateDto,
         TransactionTemplateService                        $transactionTemplateService,
@@ -83,6 +92,8 @@ class TransactionTemplateController extends AbstractController
 
 
     #[Route('/{id<\d+>}', name: 'api_delete_transaction_template', methods: ['DELETE'])]
+    #[OA\Tag(name: 'TransactionTemplates')]
+    #[Security(name: 'Bearer')]
     public function delete(int $id, TransactionTemplateService $transactionTemplateService): JsonResponse
     {
         $transactionTemplateService->delete($id);

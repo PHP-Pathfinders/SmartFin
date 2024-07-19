@@ -12,6 +12,7 @@ use App\Form\UserType;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Nelmio\ApiDocBundle\Annotation\Security as NSecurity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,11 +22,15 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
+use OpenApi\Attributes as OA;
+
 
 #[Route('/api/users')]
 class UserController extends AbstractController
 {
     #[Route('/login', name: 'api_login', methods: ['POST'])]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function login(): JsonResponse
     {
         //In case of client didn't send json payload at all
@@ -36,6 +41,8 @@ class UserController extends AbstractController
     }
 
     #[Route('/logout', name: 'api_logout', methods: ['POST'])]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function logout(): JsonResponse
     {
         // This endpoint doesn't need to do anything server-side
@@ -45,6 +52,8 @@ class UserController extends AbstractController
         ]);
     }
     #[Route('/register', name: 'api_register', methods: ['POST'])]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] RegisterDto $registerDto,
         UserService                      $userService
@@ -61,6 +70,8 @@ class UserController extends AbstractController
      * @throws InvalidSignatureException
      */
     #[Route('/verify-email', name: 'api_verify_email')]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function verifyEmail(
         #[MapQueryParameter] int $id,
         UserService $userService,
@@ -79,6 +90,8 @@ class UserController extends AbstractController
      * @throws ResetPasswordExceptionInterface
      */
     #[Route('/reset-password', name: 'api_reset_password', methods: ['PATCH'])]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function resetPassword(
         #[MapRequestPayload] ResetPasswordDto $resetPasswordDto,
         UserService $userService
@@ -92,6 +105,8 @@ class UserController extends AbstractController
     }
 
     #[Route('', name: 'api_profile', methods: ['GET'] )]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function fetchProfile(
         UserService $userService
     ): JsonResponse
@@ -104,6 +119,8 @@ class UserController extends AbstractController
     }
 
     #[Route('/change-password', name: 'api_change_password', methods: ['PATCH'] )]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function changePassword(
         #[MapRequestPayload] ChangePasswordDto $changePasswordDto,
         UserService $userService
@@ -118,6 +135,8 @@ class UserController extends AbstractController
     }
 
     #[Route('', name: 'api_update_user', methods: ['PATCH'])]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function update(
         UserService $userService,
         #[MapRequestPayload] UpdateDataDto $updateDataDto
@@ -139,6 +158,8 @@ class UserController extends AbstractController
     }
 
     #[Route('/image', name:'api_update_image', methods: ["POST"])]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function updateProfileImage(
         Request $request,
         UserService $userService,
@@ -166,6 +187,8 @@ class UserController extends AbstractController
     }
 
     #[Route('/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function deactivate(
         #[MapRequestPayload] DeactivateAccountDto $deactivateAccountDto,
         UserService $userService
@@ -184,6 +207,8 @@ class UserController extends AbstractController
      * @return Response
      */
     #[Route('/reset-password-page', name: 'app_reset_password_page', methods: ['GET'])]
+    #[OA\Tag(name: 'User')]
+    #[NSecurity(name: 'Bearer')]
     public function resetPasswordPage():Response
     {
         return $this->render('reset-password/reset_password.html.twig');

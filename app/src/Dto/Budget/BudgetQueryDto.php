@@ -17,7 +17,7 @@ readonly class BudgetQueryDto
 
         #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(message: 'Budget date cannot be blank')]
-        public ?string $dateEnd = '2024-07-01',
+        public ?string $dateEnd = '2024-07-31',
 
         #[PositiveNumber]
         #[IntegerType]
