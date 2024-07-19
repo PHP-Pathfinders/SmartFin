@@ -7,12 +7,15 @@ use App\Entity\User;
 use App\Repository\ExportRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\Exception\SuspiciousOperationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 readonly class ExportService
 {
     public function __construct(
         private ExportRepository $exportRepository,
         private Security $security,
+        private string $exportsDir
     )
     {}
     public function search(SearchDto $searchDto): array
@@ -24,5 +27,33 @@ readonly class ExportService
            throw new AccessDeniedException('Wrong user id or user not authenticated');
         }
         return $this->exportRepository->fetchExports($user, $searchDto->fileType);
+    }
+
+    public function download(string $fileName): string
+    {
+        // TODO check if that file belongs to logged in user!
+        /** @var User $user */
+        $user = $this->security->getUser();
+        if (!$user)
+        {
+            throw new AccessDeniedException('User not authenticated');
+        }
+
+        // Get the file extension
+        $fileInfo = pathinfo($fileName);
+        if (!isset($fileInfo['extension'])) {
+            throw new SuspiciousOperationException('File extension not found.');
+        }
+        $fileExtension = $fileInfo['extension'];
+
+//        Dir path is named after extension (xls, pdf)
+        $filePath = $this->exportsDir .'/'.$fileExtension.'/'.$fileName;
+
+//        Check if file exists
+        if (!file_exists($filePath)) {
+            throw new NotFoundHttpException('File not found.');
+        }
+
+        return $filePath;
     }
 }

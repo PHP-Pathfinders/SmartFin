@@ -33,10 +33,14 @@ class ExportController extends AbstractController
         ]);
     }
 
-    #[Route('/exports/{filename}', name: 'api_export_download', methods: ['GET'])]
-    public function downloadFile(): BinaryFileResponse
+    #[Route('/download/{fileName}', name: 'api_export_download', methods: ['GET'])]
+    public function downloadFile(
+        string $fileName,
+        ExportService $exportService
+    ): BinaryFileResponse
     {
 //        TODO finish off this
-        return new BinaryFileResponse('');
+        $filePath = $exportService->download($fileName);
+        return new BinaryFileResponse($filePath);
     }
 }

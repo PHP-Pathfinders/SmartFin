@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api')]
 class PdfXlsController extends AbstractController
 {
+//    TODO limit file generating once per 24hrs
     #[Route('/pdf/generator', name: 'api_pdf_generator', methods: ['GET'])]
     public function generatePDF(
         PdfXlsService $pdfXlsService,

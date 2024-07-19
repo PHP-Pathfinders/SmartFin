@@ -32,3 +32,6 @@ services:
         arguments:
             $avatarDir: '%avatar_directory%'
             $exportsDir: '%exports_directory%'
+    App\Service\ExportService:
+        arguments:
+            $exportsDir: '%exports_directory%'
