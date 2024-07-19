@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\PdfXlsGeneratorService;
 use Dompdf\Dompdf;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,8 +19,6 @@ class PdfXlsGeneratorController extends AbstractController
     ): Response
     {
         $data= $pdfXlsGeneratorService->generatePDF();
-
-//        dd($data);
         $html =  $this->renderView('pdf_generator/index.html.twig', $data);
         $dompdf = new Dompdf();
         $dompdf->loadHtml($html);
@@ -39,13 +38,12 @@ class PdfXlsGeneratorController extends AbstractController
     ) :Response
     {
         $data = $pdfXlsGeneratorService->generateXLS();
-
         $spreadsheet = $factory->createSpreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Transactions');
 
         // Define the headers for each column
-        $headers = ['Category Name', 'Type', 'Money Amount', 'Payment Type', 'Year', 'Month', 'Day'];
+        $headers = ['Category Name', 'Type', 'Money Amount', 'Payment Type', 'Day', 'Month', 'Year'];
         // Set the headers in the first row
         $sheet->fromArray($headers, null, 'B2');
         // Apply bold style to headers
@@ -55,7 +53,7 @@ class PdfXlsGeneratorController extends AbstractController
             ],
             'borders' => [
                 'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'borderStyle' => Border::BORDER_THIN,
                 ],
             ],
         ];
@@ -66,7 +64,7 @@ class PdfXlsGeneratorController extends AbstractController
         $dataStyle = [
             'borders' => [
                 'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'borderStyle' => Border::BORDER_THIN,
                 ],
             ],
         ];
@@ -78,7 +76,6 @@ class PdfXlsGeneratorController extends AbstractController
         $response->headers->set('Content-Type', 'application/vnd.ms-excel');
         $response->headers->set('Content-Disposition', 'attachment;filename="Transactions.xls"');
         $response->headers->set('Cache-Control','max-age=0');
-
         return $response;
     }
 

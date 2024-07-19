@@ -27,9 +27,10 @@ class PdfXlsGeneratorService
         $transactions = $this->transactionRepository->fetchSpecificColumns(user: $user,
             categoryName: true, type: true, color: true, paymentType: true, transactionDate: true, moneyAmount: true
         );
-
+        if (empty($transactions)){
+            throw new NotFoundHttpException('Transactions not found');
+        }
         $image = $user->getAvatarFileName() ? $this->imageToBase64($this->avatarDirectory . '/' . $user->getAvatarFileName()) : null;
-
         return [
             'fullName' => $user->getFullName(),
             'email' => $user->getEmail(),
@@ -49,6 +50,9 @@ class PdfXlsGeneratorService
          $results =  $this->transactionRepository->fetchSpecificColumns(user: $user,
             categoryName: true, type: true, paymentType: true, transactionDate: true, moneyAmount: true
         );
+        if (empty($results)){
+            throw new NotFoundHttpException('Transactions not found');
+        }
         foreach ($results as &$result) {
             if (isset($result['day'])) {
                 $result['day'] = (int) $result['day'];
