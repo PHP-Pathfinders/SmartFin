@@ -3,28 +3,39 @@
 namespace App\Entity;
 
 use App\Repository\ExportRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ExportRepository::class)]
+#[ORM\Table(name: '`exports`')]
 class Export
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private ?int $id;
 
     #[ORM\Column(length: 255)]
-    private ?string $fileName = null;
+    private ?string $fileName;
 
     #[ORM\Column(length: 20)]
-    private ?string $fileType = null;
+    private ?string $fileType;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?DateTimeImmutable $createdAt;
 
     #[ORM\ManyToOne(inversedBy: 'exports')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private ?User $user;
+
+    /**
+     * @param DateTimeImmutable $createdAt
+     */
+    public function __construct()
+    {
+        $this->createdAt = new DateTimeImmutable();
+    }
+
 
     public function getId(): ?int
     {
@@ -55,12 +66,12 @@ class Export
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 

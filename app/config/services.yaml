@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     avatar_directory: '%kernel.project_dir%/public/images/avatars'
+    exports_directory: '%kernel.project_dir%/exports'
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -28,4 +30,5 @@ services:
             $avatarDirectory: '%avatar_directory%'
     App\Service\PdfXlsGeneratorService:
         arguments:
-            $avatarDirectory: '%avatar_directory%'
+            $avatarDir: '%avatar_directory%'
+            $exportsDir: '%exports_directory%'

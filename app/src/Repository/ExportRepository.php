@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Export;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +17,14 @@ class ExportRepository extends ServiceEntityRepository
         parent::__construct($registry, Export::class);
     }
 
-    //    /**
-    //     * @return Export[] Returns an array of Export objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function create(string $fileName, string $fileType, User $user): void
+    {
+        $export = new Export();
+        $export->setUser($user);
+        $export->setFileName($fileName);
+        $export->setFileType($fileType);
 
-    //    public function findOneBySomeField($value): ?Export
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $this->getEntityManager()->persist($export);
+        $this->getEntityManager()->flush();
+    }
 }
