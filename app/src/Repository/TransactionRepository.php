@@ -337,16 +337,15 @@ class TransactionRepository extends ServiceEntityRepository
     ): array
     {
 
-//        TODO change order of columns in this array
         $columns = [
-            't.paymentType' => $paymentType ,
+            'c.color' => $color,
+            'c.categoryName' => $categoryName,
+            'c.type' => $type,
             't.moneyAmount' => $moneyAmount,
+            't.paymentType' => $paymentType ,
             't.transactionName' => $transactionName,
             't.partyName' => $partyName,
             't.transactionNotes' => $transactionNotes,
-            'c.categoryName' => $categoryName,
-            'c.type' => $type,
-            'c.color' => $color
         ];
 
         // Filter the columns array and return keys where values are true

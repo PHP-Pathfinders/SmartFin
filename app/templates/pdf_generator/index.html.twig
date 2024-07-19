@@ -51,24 +51,24 @@
 <table class="transaction-table">
     <thead>
     <tr>
-        <th>Payment Type</th>
-        <th>Amount</th>
         <th>Category</th>
         <th>Type</th>
+        <th>Amount</th>
+        <th>Payment Type</th>
         <th>Date</th>
     </tr>
     </thead>
     <tbody>
     {% for transaction in transactions %}
         <tr>
-            <td>{{ transaction.paymentType ? transaction.paymentType : 'N/A' }}</td>
-            <td>{{ transaction.moneyAmount }}</td>
             <td>
                 <div class="category-circle" style="background-color: {{ transaction.color }};"></div>
                 {{ transaction.categoryName }}
             </td>
             <td>{{ transaction.type }}</td>
-            <td>{{ transaction.year }}-{{ transaction.month }}-{{ transaction.day }}</td>
+            <td>{{ transaction.moneyAmount }}</td>
+            <td>{{ transaction.paymentType ? transaction.paymentType : 'N/A' }}</td>
+            <td>{{ transaction.day }}-{{ transaction.month }}-{{ transaction.year }}</td>
         </tr>
     {% endfor %}
     </tbody>
