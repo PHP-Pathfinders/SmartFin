@@ -100,7 +100,7 @@ class BudgetService
 
 
 
-        if($potentialSameBudget){
+        if($potentialSameBudget && $potentialSameBudget->getId() !== $budget->getId()){
             throw new ConflictHttpException('You already have budget for this category in this month');
         }
 

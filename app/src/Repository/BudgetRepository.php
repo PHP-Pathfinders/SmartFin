@@ -134,8 +134,9 @@ class BudgetRepository extends ServiceEntityRepository
     {
         $budget = $this->findByIdAndUser($id, $user);
 
+
         if (!$budget) {
-            throw new NotFoundHttpException('Budget not found');
+            throw new NotFoundHttpException('Budget not found or not owned by you');
         }
 
         $this->entityManager->remove($budget);
