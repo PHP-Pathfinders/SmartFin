@@ -24,12 +24,13 @@ class BudgetController extends AbstractController
         BudgetService                     $budgetService
     ): JsonResponse
     {
+
         $data = $budgetService->search($budgetQueryDto);
 
         if (empty($data['budgets'])) {
             return $this->json([
                 'success' => false,
-                'message' => 'No transactions found'
+                'message' => 'No budgets found'
             ]);
         }
 

@@ -76,6 +76,7 @@ class BudgetService
         /** @var User $user */
         $user = $this->security->getUser();
 
+
         $budget = $this->budgetRepository->findByIdAndUser($budgetUpdateDto->id, $user);
 
         if(!$budget){
@@ -94,6 +95,15 @@ class BudgetService
         if($category === $currentCategory && (!$budgetUpdateDto->monthlyBudgetAmount || $budgetUpdateDto->monthlyBudgetAmount === $budget->getMonthlyBudget())){
             return 'Nothing to update';
         }
+
+        $potentialSameBudget = $this->budgetRepository->findByCategoryAndDate($category, $budget->getMonthlyBudgetDate()->format('Y-m-d'), $user);
+
+
+
+        if($potentialSameBudget && $potentialSameBudget->getId() !== $budget->getId()){
+            throw new ConflictHttpException('You already have budget for this category in this month');
+        }
+
 
         $this->budgetRepository->update($budget, $budgetUpdateDto, $user, $category);
 
