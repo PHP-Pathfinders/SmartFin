@@ -56,17 +56,19 @@ class BudgetRepository extends ServiceEntityRepository
     {
         $page = $transactionQueryDto->page ?? '1';
         $maxResults = $transactionQueryDto->maxResults ?? '200';
-        $date = $budgetQueryDto->date ?? (new \DateTime())->format('Y-m-d');
+        $dateStart = $budgetQueryDto->dateStart ?? (new \DateTime())->format('Y-m-d');
+        $dateEnd = $budgetQueryDto->dateEnd ?? (new \DateTime())->format('Y-m-d');
 
         $qb = $this->createQueryBuilder('b')
             ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryID, c.categoryName, c.color, COALESCE(SUM(t.moneyAmount), 0) as total, 
                   CASE WHEN b.monthlyBudget > 0 THEN ((COALESCE(SUM(t.moneyAmount), 0) / b.monthlyBudget) * 100) ELSE 0 END as percent')
             ->innerJoin('b.category', 'c')
-            ->leftJoin(Transaction::class, 't', 'WITH', 't.category = c.id AND t.user = :user AND MONTH(t.transactionDate) = MONTH(:date) AND YEAR(t.transactionDate) = YEAR(:date)')
+            ->leftJoin(Transaction::class, 't', 'WITH', 't.category = c.id AND t.user = :user AND t.transactionDate >= :dateStart AND t.transactionDate <= :dateEnd')
             ->andWhere('b.user = :user')
-            ->andWhere('MONTH(b.monthlyBudgetDate) = MONTH(:date) AND YEAR(b.monthlyBudgetDate) = YEAR(:date)')
+            ->andWhere('b.monthlyBudgetDate >= :dateStart AND b.monthlyBudgetDate <= :dateEnd')
             ->setParameter('user', $user)
-            ->setParameter('date', $date)
+            ->setParameter('dateStart', $dateStart)
+            ->setParameter('dateEnd', $dateEnd)
             ->groupBy('b.id')
             ->orderBy('b.id', 'ASC');
 
@@ -122,6 +124,8 @@ class BudgetRepository extends ServiceEntityRepository
             $budget->setMonthlyBudget($monthlyBudget);
         }
 
+
+
         $this->entityManager->flush();
 
     }
@@ -130,8 +134,9 @@ class BudgetRepository extends ServiceEntityRepository
     {
         $budget = $this->findByIdAndUser($id, $user);
 
+
         if (!$budget) {
-            throw new NotFoundHttpException('Budget not found');
+            throw new NotFoundHttpException('Budget not found or not owned by you');
         }
 
         $this->entityManager->remove($budget);
