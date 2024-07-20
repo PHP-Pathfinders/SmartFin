@@ -14,7 +14,7 @@ readonly class SearchDto
         #[PositiveNumber]
         public ?string $userId,
 //        #[Assert\NotBlank(message: 'fileName must be provided and cannot be blank')]
-        #[Assert\Choice([null,'pdf', 'xls'], message: 'fileType must be pdf, xls or null')]
+        #[Assert\Choice([null,'pdf', 'xlsx'], message: 'fileType must be pdf, xls or null')]
         public ?string $fileType = null
     )
     {}

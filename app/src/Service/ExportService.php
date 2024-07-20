@@ -26,12 +26,11 @@ readonly class ExportService
         {
            throw new AccessDeniedException('Wrong user id or user not authenticated');
         }
-        return $this->exportRepository->fetchExports($user, $searchDto->fileType);
+        return $this->exportRepository->fetchExports(user: $user, fileType: $searchDto->fileType);
     }
 
     public function download(string $fileName): string
     {
-        // TODO check if that file belongs to logged in user!
         /** @var User $user */
         $user = $this->security->getUser();
         if (!$user)
@@ -46,10 +45,15 @@ readonly class ExportService
         }
         $fileExtension = $fileInfo['extension'];
 
-//        Dir path is named after extension (xls, pdf)
-        $filePath = $this->exportsDir .'/'.$fileExtension.'/'.$fileName;
+        // Check if that file belongs to logged-in user
+        $export = $this->exportRepository->fetchExports(user:$user, fileName:  $fileName);
+        if(empty($export)){
+            throw new NotFoundHttpException('File not found');
+        }
 
-//        Check if file exists
+//        Dir path is named after extension (xlsx, pdf)
+        $filePath = $this->exportsDir .'/'.$fileExtension.'/'.$fileName;
+//        Check if the file exists
         if (!file_exists($filePath)) {
             throw new NotFoundHttpException('File not found.');
         }

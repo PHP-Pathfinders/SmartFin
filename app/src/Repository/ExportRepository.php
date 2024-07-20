@@ -28,18 +28,40 @@ class ExportRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
-    public function fetchExports(User $user, ?string $fileType = null): array
+    public function fetchExports(User $user, ?string $fileType = null, ?string $fileName = null): array
     {
 
         $queryBuilder = $this->createQueryBuilder('e')
             ->select('e.fileName, e.fileType, e.createdAt')
             ->where('e.user = :user')
-            ->setParameter('user', $user);
+            ->setParameter('user', $user)
+            ->orderBy('e.fileType', 'ASC')
+            ->addOrderBy('e.createdAt', 'DESC')
+            ->addOrderBy('e.fileName', 'ASC');
 
         if ($fileType) {
             $queryBuilder->andWhere('e.fileType = :fileType')
                 ->setParameter('fileType', $fileType);
         }
+        if ($fileName) {
+            $queryBuilder->andWhere('e.fileName = :fileName')
+                ->setParameter('fileName', $fileName);
+        }
         return $queryBuilder->getQuery()->getResult();
     }
+
+    public function findLatestExportByType(User $user, string $fileType): ?array
+    {
+        return $this->createQueryBuilder('e')
+            ->select('e.createdAt')
+            ->where('e.user = :user')
+            ->andWhere('e.fileType = :fileType')
+            ->setParameter('user', $user)
+            ->setParameter('fileType', $fileType)
+            ->orderBy('e.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 }
