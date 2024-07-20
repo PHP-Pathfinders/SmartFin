@@ -84,6 +84,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user')]
     private Collection $transactions;
 
+    /**
+     * @var Collection<int, Export>
+     */
+    #[ORM\OneToMany(targetEntity: Export::class, mappedBy: 'user')]
+    private Collection $exports;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -91,6 +97,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->budgets = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->transactionTemplates = new ArrayCollection();
+        $this->exports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -364,6 +371,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($transactionTemplate->getUser() === $this) {
                 $transactionTemplate->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Export>
+     */
+    public function getExports(): Collection
+    {
+        return $this->exports;
+    }
+
+    public function addExport(Export $export): static
+    {
+        if (!$this->exports->contains($export)) {
+            $this->exports->add($export);
+            $export->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExport(Export $export): static
+    {
+        if ($this->exports->removeElement($export)) {
+            // set the owning side to null (unless already changed)
+            if ($export->getUser() === $this) {
+                $export->setUser(null);
             }
         }
 
