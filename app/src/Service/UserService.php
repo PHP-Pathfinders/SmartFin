@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -86,15 +87,11 @@ readonly class UserService
         );
     }
 
-    public function fetchProfile() :array
+    public function fetchUser(int $userId) :array
     {
-        /**
-         * @var User $user
-         */
-        $user = $this->security->getUser();
-        if(!$user){
-            throw new NotFoundHttpException('User not found');
-        }
+        $this->checkUser($userId);
+        // Search by user id
+        $user = $this->userRepository->fetchUser($userId);
         return [
             'fullName' => $user->getFullName(),
             'birthday' => $user->getBirthday(),
@@ -103,24 +100,20 @@ readonly class UserService
         ];
     }
 
-    public function update(UpdateDataDto $updateDataDto): void
+    public function update(UpdateDataDto $updateDataDto, int $userId): void
     {
-        /**
-         * @var User $user
-         */
-        $user = $this->security->getUser();
-        if(!$user){
-            throw new NotFoundHttpException('User not found');
-        }
+        $user = $this->checkUser($userId);
         $this->userRepository->update($updateDataDto,$user);
     }
 
     public function updateProfileImage(
         Request $request,
         FormInterface $form,
-        User $user
+        User $user,
+        int $userId
     ):bool
     {
+        $this->checkUser($userId);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $avatarFile = $form->get('avatar')->getData();
@@ -156,13 +149,9 @@ readonly class UserService
             }
         }
     }
-    public function changePassword(ChangePasswordDto $changePasswordDto) :void
+    public function changePassword(ChangePasswordDto $changePasswordDto, int $userId) :void
     {
-        /** @var User $user */
-        $user = $this->security->getUser();
-        if(!$user){
-            throw new NotFoundHttpException('User not found');
-        }
+        $user = $this->checkUser($userId);
         $oldPassword = $changePasswordDto->oldPassword;
         $isPasswordValid = $this->passwordHasher->isPasswordValid($user, $oldPassword);
         if(!$isPasswordValid){
@@ -175,17 +164,26 @@ readonly class UserService
         $this->userRepository->changePassword($hashedPassword, $user);
     }
 
-    public function deactivate(string $password) :void
+    public function deactivate(string $password, int $userId) :void
     {
-        /** @var User $user */
-        $user = $this->security->getUser();
-        if(!$user){
-            throw new NotFoundHttpException('User not found');
-        }
+        $user = $this->checkUser($userId);
+
         $isPasswordValid = $this->passwordHasher->isPasswordValid($user, $password);
         if(!$isPasswordValid){
             throw new BadRequestException('Incorrect password');
         }
         $this->userRepository->deactivate($user);
+    }
+
+    private function checkUser(int $userId): User
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->security->getUser();
+        if(!$user || $user->getId() !== $userId){
+            throw new NotFoundHttpException('User not found');
+        }
+        return $user;
     }
 }
