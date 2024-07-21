@@ -1,3 +1,0 @@
-#Ignore pdf and xlsx files
-/pdf/*.pdf
-/xlsx/*.xlsx

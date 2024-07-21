@@ -90,35 +90,37 @@ class UserController extends AbstractController
             'message' => 'Your password has been reset successfully'
         ]);
     }
-//TODO refactor to match RESTFUL API standard
-    #[Route('', name: 'api_profile', methods: ['GET'] )]
-    public function fetchProfile(
+    #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'] )]
+    public function fetchUser(
+        int $id,
         UserService $userService
     ): JsonResponse
     {
-        $profileData = $userService->fetchProfile();
+        $profileData = $userService->fetchUser($id);
         return $this->json([
             'success' => true,
             'data' => $profileData
         ]);
     }
 
-    #[Route('/change-password', name: 'api_change_password', methods: ['PATCH'] )]
+    #[Route('/{id<\d+>}/change-password', name: 'api_change_password', methods: ['PATCH'] )]
     public function changePassword(
+        int $id,
         #[MapRequestPayload] ChangePasswordDto $changePasswordDto,
         UserService $userService
     ) :JsonResponse
     {
 //        TODO logout this account from all other devices
-        $userService->changePassword($changePasswordDto);
+        $userService->changePassword($changePasswordDto, $id);
         return $this->json([
             'success' => true,
             'message' => 'Your password has been changed successfully'
         ]);
     }
 
-    #[Route('', name: 'api_update_user', methods: ['PATCH'])]
+    #[Route('/{id<\d+>}', name: 'api_update_user', methods: ['PATCH'])]
     public function update(
+        int $id,
         UserService $userService,
         #[MapRequestPayload] UpdateDataDto $updateDataDto
     ): JsonResponse
@@ -130,7 +132,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $userService->update($updateDataDto);
+        $userService->update($updateDataDto, $id);
 
         return $this->json([
             'success' => true,
@@ -138,8 +140,9 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/image', name:'api_update_image', methods: ["POST"])]
+    #[Route('/{id<\d+>}/image', name:'api_update_image', methods: ["POST"])]
     public function updateProfileImage(
+        int $id,
         Request $request,
         UserService $userService,
         Security $security,
@@ -151,7 +154,7 @@ class UserController extends AbstractController
             throw new NotFoundHttpException('User not found');
         }
         $form = $this->createForm(UserType::class, $user);
-        $isUploaded = $userService->updateProfileImage($request,$form,$user);
+        $isUploaded = $userService->updateProfileImage($request,$form,$user,$id);
 
         if($isUploaded) {
             return $this->json([
@@ -165,14 +168,15 @@ class UserController extends AbstractController
         ], Response::HTTP_BAD_REQUEST);
     }
 
-    #[Route('/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]
+    #[Route('/{id<\d+>}/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]
     public function deactivate(
+        int $id,
         #[MapRequestPayload] DeactivateAccountDto $deactivateAccountDto,
         UserService $userService
     ) :JsonResponse
     {
         $password = $deactivateAccountDto->password;
-        $userService->deactivate($password);
+        $userService->deactivate($password, $id);
         return $this->json([
             'success' => true,
             'message' => 'Your account has been deactivated successfully'

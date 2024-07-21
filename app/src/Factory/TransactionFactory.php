@@ -28,7 +28,7 @@ final class TransactionFactory extends PersistentProxyObjectFactory
             'user' => UserFactory::random(),
             'category' => CategoryFactory::random(),
             'moneyAmount' => self::faker()->randomFloat(3, max: 10000),
-            'transactionDate' => self::faker()->dateTimeBetween('-1 years'),
+            'transactionDate' => self::faker()->dateTimeBetween('-6 months'),
             'transactionName' => self::faker()->text(20),
             'partyName' => self::faker()->optional()->name(),
             'transactionNotes' => self::faker()->optional()->paragraph(1)
