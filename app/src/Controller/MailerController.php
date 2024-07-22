@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Dto\User\RequestPasswordResetDto;
+use App\Message\SendEmailMessage;
 use App\Service\MailerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +24,7 @@ class MailerController extends AbstractController
         MailerService                                $mailerService
     ): JsonResponse
     {
-        $mailerService->resetPassword($requestPasswordResetDto);
+        $mailerService->forgotPassword($requestPasswordResetDto);
 
         return $this->json([
             'success' => true,
