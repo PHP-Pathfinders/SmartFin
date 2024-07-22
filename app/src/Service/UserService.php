@@ -8,6 +8,7 @@ use App\Dto\User\RegisterDto;
 use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use App\Form\UserType;
+use App\Message\SendEmailVerification;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -16,6 +17,8 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
@@ -31,9 +34,10 @@ readonly class UserService
         private UserPasswordHasherInterface  $passwordHasher,
         private EmailVerifier                $emailVerifier,
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private Security $security,
-        private string $avatarDirectory,
-        private SluggerInterface $slugger,
+        private Security                     $security,
+        private string                       $avatarDirectory,
+        private SluggerInterface             $slugger,
+        private MessageBusInterface          $bus
     ){}
 
     /**
@@ -66,6 +70,9 @@ readonly class UserService
         $this->userRepository->resetPassword($hashedPassword,$user);
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     public function create(RegisterDto $registerDto):void
     {
         $fullName = $registerDto->fullName;
@@ -77,19 +84,13 @@ readonly class UserService
         $hashedPassword = $this->passwordHasher->hashPassword($user,$plainPassword);
         $this->userRepository->create($fullName,$email,$hashedPassword,$user);
 
-        // Send verification link to verify email
-        $this->emailVerifier->sendEmailConfirmation('api_verify_email', $user,
-            (new TemplatedEmail())
-                ->from(new Address('smart-fin@example.com', 'SmartFin'))
-                ->to($user->getEmail())
-                ->subject('Please Confirm your Email')
-                ->htmlTemplate('email/confirmation_email.html.twig')
-        );
+        $this->bus->dispatch(new SendEmailVerification($email));
     }
 
     public function fetchUser(int $userId) :array
     {
         $this->checkUser($userId);
+        /** @var User $user */
         // Search by user id
         $user = $this->userRepository->fetchUser($userId);
         return [

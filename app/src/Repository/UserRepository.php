@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
