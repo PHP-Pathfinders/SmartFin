@@ -29,7 +29,20 @@ use OpenApi\Attributes as OA;
 class UserController extends AbstractController
 {
     #[Route('/login', name: 'api_login', methods: ['POST'])]
-    #[OA\Tag(name: 'User')]
+    #[OA\Post(
+        summary: 'Login with existing account',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'username', type: 'string', example: 'user@gmail.com'),
+                    new OA\Property(property: 'password', type: 'string', example: 'password123')
+                ],
+                type: 'object'
+            )
+        ),
+        tags: ['User']
+    )]
     #[NSecurity(name: 'Bearer')]
     public function login(): JsonResponse
     {

@@ -24,13 +24,32 @@ class BudgetController extends AbstractController
 {
     #[Route('', name: 'api_find_budgets', methods: ['GET'])]
     #[OA\Get(
-        summary: "Finds budgets in certain time period for logged user"
+        description: 'Returns array of budgets in certain date period if no parameters given gives results for July 2024.',
+        summary: "Finds budgets in certain time period for logged user",
+        tags: ['Budgets'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/Budget')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No budgets found',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetNotFound')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetDateError')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            )
+        ]
     )]
-    #[OA\Response(
-        response: 200,
-        description: 'Successful response',
-    )]
-    #[OA\Tag(name: 'Budgets')]
     #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?BudgetQueryDto $budgetQueryDto,
@@ -44,7 +63,7 @@ class BudgetController extends AbstractController
             return $this->json([
                 'success' => false,
                 'message' => 'No budgets found'
-            ]);
+            ], 404);
         }
 
         return $this->json([
@@ -55,10 +74,23 @@ class BudgetController extends AbstractController
 
     #[Route('/random', name: 'api_budget', methods: ['GET'])]
     #[OA\Get(
-        summary: "Random 3 budgets",
+        description: 'Returns random amount of budgets for logged user',
+        summary: "Random budgets",
+        tags: ['Budgets'],
+        responses: [
+            new OA\Response(
+                response: 404,
+                description: 'Budgets not found',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: false),
+                        new OA\Property(property: 'message', type: 'string', example: "Budgets not found")
+                    ]
+                )
+            ),
+        ]
 
     )]
-    #[OA\Tag(name: 'Budgets')]
     public function random(
         #[MapQueryString] ?RandomDto $randomDto,
         BudgetService                $budgetService
@@ -79,7 +111,40 @@ class BudgetController extends AbstractController
 
     #[Route('', name: 'api_add_budget', methods: ['POST'])]
     #[OA\Post(
-        summary: "Adds budget for this month for logged user"
+        summary: "Adds budget for this month for logged user",
+        tags: ['Budgets'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful budget insertion',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputSuccess')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputError')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request',
+                content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Invalid category given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
+            ),
+            new OA\Response(
+                response: 409,
+                description: 'Same budget already exists in same month',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetConflict')
+            )
+        ]
     )]
     #[OA\Tag(name: 'Budgets')]
     public function create(
@@ -99,13 +164,46 @@ class BudgetController extends AbstractController
 
     #[Route('', name: 'api_update_budget', methods: ['PATCH'])]
     #[OA\Patch(
-        summary: "Makes changes to certain budget for logged user"
+        description: "Make changes to any budget that is in ownership of logged in user",
+        summary: "Makes changes to certain budget for logged user",
+        tags: ['Budgets'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful budget update',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateSuccess')
+            ),
+            new OA\Response(
+                response: 409,
+                description: 'Same budget already exists in same month',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetConflict')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request',
+                content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputError')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Budget you selected is either not owned by you or does not exist or invalid category was given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateFail')
+            ),
+        ]
     )]
-    #[OA\Tag(name: 'Budgets')]
     public function update(
         #[MapRequestPayload] BudgetUpdateDto $budgetUpdateDto,
-        BudgetService $budgetService
-    ):JsonResponse
+        BudgetService                        $budgetService
+    ): JsonResponse
     {
         $message = $budgetService->update($budgetUpdateDto);
         return $this->json([
@@ -117,9 +215,28 @@ class BudgetController extends AbstractController
 
     #[Route('/{id<\d+>}', name: 'api_delete_budget', methods: ['DELETE'])]
     #[OA\Delete(
-        summary: "Deletes specific budget based on given id of it"
+        description: "Removes budget that is in ownership of logged user",
+        summary: "Deletes specific budget based on given id",
+        tags: ['Budgets'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful budget deletion',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetDeleteSuccess')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Budget you selected is either not owned by you or does not exist',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateFail')
+            ),
+
+        ]
     )]
-    #[OA\Tag(name: 'Budgets')]
     public function delete(int $id, BudgetService $budgetService): JsonResponse
     {
         $budgetService->delete($id);

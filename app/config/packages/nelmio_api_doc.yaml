@@ -1,18 +1,300 @@
 nelmio_api_doc:
-    documentation:
-        info:
-            title: SmartFin
-            description: Your ultimate financial dashboard with intuitive tools for smart financial management
-            version: 1.0.0
-        components:
-            securitySchemes:
-                Bearer:
-                    type: http
-                    scheme: bearer
-                    bearerFormat: JWT
-        security:
-            - Bearer: []
-    areas: # to filter documented areas
-        default:
-            path_patterns: # an array of regexps (document only routes under /api, except /api/doc)
-                - ^/api(?!/doc$)
+  documentation:
+    info:
+      title: SmartFin
+      description: Your ultimate financial dashboard with intuitive tools for smart financial management
+      version: 1.0.0
+    components:
+      securitySchemes:
+        Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+
+      schemas:
+        QuerySuccessResponse:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: object
+              properties:
+                pagination:
+                  type: object
+                  properties:
+                    currentPage:
+                      type: string
+                      example: '1'
+                    previousPage:
+                      type: integer
+                      example: null
+                    nextPage:
+                      type: integer
+                      example: null
+                    totalPages:
+                      type: integer
+                      example: 1
+
+        Budget:
+          allOf:
+            - $ref: '#/components/schemas/QuerySuccessResponse'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    budgets:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          monthlyBudget:
+                            type: number
+                            example: 1758.14
+                          monthlyBudgetDate:
+                            type: string
+                            format: date-time
+                            example: "2024-07-23T00:00:00+00:00"
+                          categoryID:
+                            type: integer
+                            example: 9
+                          categoryName:
+                            type: string
+                            example: "Nights out"
+                          color:
+                            type: string
+                            example: "#607D8B"
+                          total:
+                            type: number
+                            example: 5876.911
+                          percent:
+                            type: number
+                            example: 334.2686589236352
+        FailedAction:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: false
+        SuccessfulAction:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+        BudgetNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Budget not found"
+        InputError:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: false
+        BudgetDateError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "dateStart"
+                      message:
+                        example: "Given date must be in format YYYY-MM-DD"
+                      code:
+                        example: "69819696-02ac-4a99-9ff0-14e127c4d1bc"
+        BudgetInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        type: string
+                        example: "categoryId"
+                      message:
+                        type: string
+                        example: "0 is not a positive number"
+                      code:
+                        type: string
+                        format: string
+                        example: "positive_number"
+        BudgetInputSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "New budget created"
+        BudgetInputFail:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Invalid category given"
+        BudgetConflict:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "You already have this budget for this month"
+        BudgetUpdateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Update successful"
+        BudgetUpdateFail:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category could not be found"
+        BudgetDeleteSuccess:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Budget with id 1 has been deleted"
+        BudgetDeleteFail:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Budget not found or not owned by you"
+        Category:
+          allOf:
+            - $ref: '#/components/schemas/QuerySuccessResponse'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    categories:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 3
+                          categoryName:
+                            type: string
+                            example: "Gift"
+                          type:
+                            type: string
+                            enum: [ "income" ]
+                            example: "income"
+                          color:
+                            type: string
+                            example: "#2196F3"
+        CategoryNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Budget not found"
+        CategoryQueryError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "page"
+                      message:
+                        example: "'123d' is not an integer."
+                      code:
+                        example: "integer_type"
+        CategoryInputError:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: false
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    example: "categoryName"
+                  message:
+                    type: string
+                    example: "Category name must be provided and cannot be blank"
+                  code:
+                    type: string
+                    example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+        CategoryInputSuccess:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "New category created"
+        CategoryUpdateSuccess:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "Update successful"
+        CategoryForbidden:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: false
+            message:
+              type: string
+              example: "You cannot modify default category."
+        Unauthorized:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: 401
+            message:
+              type: string
+              example: "JWT Token not found"
+        InvalidRequest:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  type: string
+                  example: "Request payload contains invalid \"json\" data."
+    security:
+      - Bearer: [ ]
+  areas: # to filter documented areas
+    default:
+      path_patterns: # an array of regexps (document only routes under /api, except /api/doc)
+        - ^/api(?!/doc$)

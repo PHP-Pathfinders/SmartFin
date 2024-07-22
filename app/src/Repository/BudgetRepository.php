@@ -54,8 +54,8 @@ class BudgetRepository extends ServiceEntityRepository
 
     public function search(?BudgetQueryDto $budgetQueryDto, User $user): array
     {
-        $page = $transactionQueryDto->page ?? '1';
-        $maxResults = $transactionQueryDto->maxResults ?? '200';
+        $page = $budgetQueryDto->page ?? '1';
+        $maxResults = $budgetQueryDto->maxResults ?? '200';
         $dateStart = $budgetQueryDto->dateStart ?? (new \DateTime())->format('Y-m-d');
         $dateEnd = $budgetQueryDto->dateEnd ?? (new \DateTime())->format('Y-m-d');
 
