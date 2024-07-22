@@ -23,7 +23,6 @@ final readonly class SendEmailMessageHandler
             ->subject($message->getSubject())
             ->htmlTemplate($message->getTemplate())
             ->context($message->getContext());
-
         $this->mailer->send($email);
     }
 
