@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     avatar_directory: '%kernel.project_dir%/public/images/avatars'
+    exports_directory: '%kernel.project_dir%/exports'
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -20,9 +22,22 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+#    Custom JWT login response
+    app.listener.authentication_success_response:
+        class: App\EventListener\AuthenticationSuccessListener
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     # Explicitly bind the parameter to the UserService
     App\Service\UserService:
         arguments:
             $avatarDirectory: '%avatar_directory%'
+    App\Service\PdfXlsService:
+        arguments:
+            $avatarDir: '%avatar_directory%'
+            $exportsDir: '%exports_directory%'
+    App\Service\ExportService:
+        arguments:
+            $exportsDir: '%exports_directory%'

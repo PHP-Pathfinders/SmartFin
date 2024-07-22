@@ -15,12 +15,12 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         // Create admin manually with specific details
-//        UserFactory::new([
-//            'email' => 'admin@gmail.com',
-//            'plainPassword' => 'Password#1',
-//            'fullName' => 'Jane Doe',
-//            'roles' => ['ROLE_ADMIN']
-//        ])->create();
+        UserFactory::new([
+            'email' => 'admin@gmail.com',
+            'plainPassword' => 'Password#1',
+            'fullName' => 'Jane Doe',
+            'roles' => ['ROLE_ADMIN']
+        ])->create();
 
         // Create user manually with specific details
         UserFactory::new([
@@ -29,7 +29,7 @@ class AppFixtures extends Fixture
             'fullName' => 'John Doe',
         ])->create();
 
-//        UserFactory::createMany(3);
+        UserFactory::createMany(3);
 
         // Default categories
         $defaultCategories = [

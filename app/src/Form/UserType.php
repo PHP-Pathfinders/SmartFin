@@ -24,8 +24,7 @@ class UserType extends AbstractType
                         'mimeTypes' => [
                             'image/png',
                             'image/jpeg',
-                            'image/jpg',
-                            'image/webp'
+                            'image/jpg'
                         ],
                         'mimeTypesMessage' => 'Please upload a valid image'
                     ])
@@ -36,7 +35,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
-            'csrf_protection' => false
+            'csrf_protection' => false //TODO for testing purposes this is set to false...
         ]);
     }
     // Added this to fix $form->isSubmitted() = false
