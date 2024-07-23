@@ -3,10 +3,10 @@
 namespace App\Service;
 
 use App\Dto\User\RequestPasswordResetDto;
+use App\Message\SendEmailMessage;
 use App\Repository\UserRepository;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
@@ -15,14 +15,15 @@ readonly class MailerService
     public function __construct(
         private UserRepository $userRepository,
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private MailerInterface $mailer
+        private MessageBusInterface $bus
     )
     {}
 
     /**
      * @throws ResetPasswordExceptionInterface
+     * @throws ExceptionInterface
      */
-    public function resetPassword(RequestPasswordResetDto $requestPasswordResetDto):void
+    public function forgotPassword(RequestPasswordResetDto $requestPasswordResetDto):void
     {
         $email = $requestPasswordResetDto->email;
         $user = $this->userRepository->findOneBy(['email'=>$email]);
@@ -37,17 +38,6 @@ readonly class MailerService
             'expirationMessageKey' => 'reset_password.expiration',
             'expirationMessageData' => ['%count%' => ($resetToken->getExpiresAt()->getTimestamp() - time()) / 60]
         ];
-        $this->sendMail($email,$subject,$template,$context);
-    }
-    private function sendMail(string $to, string $subject, string $template, ?array $context):void
-    {
-        $email = (new TemplatedEmail())
-                ->from(new Address('smart-fin@example.com', 'SmartFin'))
-                ->to($to)
-                ->subject($subject)
-                ->htmlTemplate($template)
-                ->context($context);
-
-        $this->mailer->send($email);
+        $this->bus->dispatch(new SendEmailMessage($email, $subject, $template, $context));
     }
 }

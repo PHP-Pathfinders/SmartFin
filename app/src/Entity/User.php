@@ -10,8 +10,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\File;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -58,6 +56,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?DateTimeImmutable $createdAt;
 
+
+    #[ORM\Column]
+    private ?int $jwtVersion = 0;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $scheduledDeletionDate = null;
+
     private string $plainPassword;
 
     /**
@@ -89,6 +94,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: Export::class, mappedBy: 'user')]
     private Collection $exports;
+
 
     public function __construct()
     {
@@ -405,6 +411,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getScheduledDeletionDate(): ?\DateTimeInterface
+    {
+        return $this->scheduledDeletionDate;
+    }
+
+    public function setScheduledDeletionDate(?\DateTimeInterface $scheduledDeletionDate): static
+    {
+        $this->scheduledDeletionDate = $scheduledDeletionDate;
+
+        return $this;
+    }
+
+    public function getJwtVersion(): int
+    {
+        return $this->jwtVersion;
+    }
+
+    public function incrementJwtVersion(): void
+    {
+        $this->jwtVersion++;
     }
 
 }

@@ -57,6 +57,19 @@ services:
         networks:
             - nginx-php83-mysql8-node
 
+    # rabbitmq
+    rabbitmq-service:
+        image: rabbitmq:management
+        container_name: rabbitmq-container
+        ports:
+            - "5672:5672"   # RabbitMQ default port
+            - "15672:15672" # Management UI
+        networks:
+            - nginx-php83-mysql8-node
+        environment:
+            RABBITMQ_DEFAULT_USER: user
+            RABBITMQ_DEFAULT_PASS: password
+
     # node
     # node-service:
     #     image: node:latest
