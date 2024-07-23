@@ -167,18 +167,13 @@ class BudgetRepository extends ServiceEntityRepository
             ->andWhere('MONTH(b.monthlyBudgetDate) = :month')
             ->andWhere('YEAR(b.monthlyBudgetDate) = :year')
             ->andWhere('c.type = \'expense\'')
-
-//            ->leftJoin('transactions', 't', 'WITH', 't.category = c.id AND t.user = :user AND t.transactionDate BETWEEN :startDate AND :endDate')
-            // If I do left join like this, I do not need to add extra andWhere methods
             ->andWhere('t.user = :user')
-            ->andWhere('MONTH(t.transactionDate) = :month')
-            ->andWhere('YEAR(t.transactionDate) = :year')
             ->setParameter('user', $user)
             ->setParameter('month', $month)
             ->setParameter('year', $year)
             ->groupBy('b.id')
             ->setMaxResults((int)$amount)
-            ->orderBy('RAND()')
+            ->addOrderBy('RAND()')
             ->getQuery()
             ->getResult();
     }
