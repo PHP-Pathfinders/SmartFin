@@ -138,9 +138,7 @@ class CategoryController extends AbstractController
             new OA\Response(
                 response: 401,
                 description: 'Unauthorized access detected',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/Unauthorized'
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
                 response: 403,
@@ -182,7 +180,34 @@ class CategoryController extends AbstractController
      * - Example url: localhost:8080/api/categories/123
      */
     #[Route('/{id<\d+>}', name: 'api_delete_category', methods: ['DELETE'])]
-    #[OA\Tag(name: 'Categories')]
+    #[OA\Delete(
+        description: "Removes category that is in ownership of logged user",
+        summary: "Deletes specific category based on given id",
+        tags: ['Categories'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful category deletion',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryDeleteSuccess')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Category you selected is either not owned by you or does not exist',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryFailed')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Cannot change default category',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryForbiddenDelete')
+            )
+
+        ]
+    )]
     #[Security(name: 'Bearer')]
     public function delete(int $id, CategoryService $categoryService): JsonResponse
     {

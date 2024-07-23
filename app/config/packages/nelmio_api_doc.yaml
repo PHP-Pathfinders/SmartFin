@@ -232,7 +232,7 @@ nelmio_api_doc:
             - type: object
               properties:
                 message:
-                  example: "Budget not found"
+                  example: "No categories found"
         CategoryQueryError:
           allOf:
             - $ref: '#/components/schemas/InputError'
@@ -249,25 +249,22 @@ nelmio_api_doc:
                       code:
                         example: "integer_type"
         CategoryInputError:
-          type: object
-          properties:
-            success:
-              type: boolean
-              example: false
-            errors:
-              type: array
-              items:
-                type: object
-                properties:
-                  field:
-                    type: string
-                    example: "categoryName"
-                  message:
-                    type: string
-                    example: "Category name must be provided and cannot be blank"
-                  code:
-                    type: string
-                    example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        example: "categoryName"
+                      message:
+                        example: "Category name must be provided and cannot be blank"
+                      code:
+                        example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+
         CategoryInputSuccess:
           type: object
           properties:
@@ -278,23 +275,40 @@ nelmio_api_doc:
               type: string
               example: "New category created"
         CategoryUpdateSuccess:
-          type: object
-          properties:
-            success:
-              type: boolean
-              example: true
-            message:
-              type: string
-              example: "Update successful"
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Update successful"
         CategoryForbidden:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
           type: object
           properties:
-            success:
-              type: boolean
-              example: false
             message:
-              type: string
               example: "You cannot modify default category."
+        CategoryDeleteSuccess:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category deleted with id=1"
+        CategoryForbiddenDelete:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "You cannot delete default category."
+        CategoryFailed:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category not found or does not belong to the user."
         Unauthorized:
           type: object
           properties:
