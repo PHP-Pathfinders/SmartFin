@@ -16,7 +16,22 @@ readonly class BudgetCreateDto
 
         #[PositiveNumber]
         #[Assert\NotBlank(message: 'Monthly budget amount cannot be blank')]
-        public float $monthlyBudgetAmount
+        public float $monthlyBudgetAmount,
+
+        #[IntegerType]
+        #[PositiveNumber]
+        #[Assert\NotBlank(message: 'Year cannot be blank')]
+        public ?string $year = null,
+
+        #[IntegerType]
+        #[PositiveNumber]
+        #[Assert\NotBlank(message: 'Month cannot be blank')]
+        #[Assert\Range(
+            notInRangeMessage: 'Month must be between {{ min }} and {{ max }} ',
+            min: 1,
+            max: 12,
+        )]
+        public ?string $month = null
     )
     {
 

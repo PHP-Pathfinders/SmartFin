@@ -10,11 +10,14 @@ use App\Dto\Transaction\TransactionCreateDto;
 use App\Dto\Transaction\TransactionQueryDto;
 use App\Dto\Transaction\TransactionUpdateDto;
 use App\Service\TransactionService;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
+
 
 #[Route('/api/transactions')]
 class TransactionController extends AbstractController
@@ -25,6 +28,8 @@ class TransactionController extends AbstractController
      * - Example url: localhost:8080/api/transactions?transactionDate=2024-05-01&paymentType=cash&limit=5
      */
     #[Route('', name: 'api_find_transactions',methods: ['GET'])]
+    #[OA\Tag(name: 'Transactions')]
+    #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?TransactionQueryDto $transactionQueryDto,
         TransactionService $transactionService
@@ -47,6 +52,8 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/overview', name: 'api_transactions_overview', methods: ['GET'])]
+    #[OA\Tag(name: 'Overview')]
+    #[Security(name: 'Bearer')]
     public function transactionsOverview(
         TransactionService $transactionService,
         #[MapQueryString] ?OverviewDto $overviewDto
@@ -68,6 +75,8 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/spendings', methods: ['GET'])]
+    #[OA\Tag(name: 'Overview')]
+    #[Security(name: 'Bearer')]
     public function spendingByCategories(
         TransactionService $transactionService,
         #[MapQueryString] ?SpendingsDto $spendingsDto
@@ -99,6 +108,8 @@ class TransactionController extends AbstractController
     }
 
     #[Route('', name: 'api_add_transaction', methods: ['POST'])]
+    #[OA\Tag(name: 'Transactions')]
+    #[Security(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] TransactionCreateDto $transactionCreateDto,
         TransactionService $transactionService
@@ -113,6 +124,8 @@ class TransactionController extends AbstractController
     }
 
     #[Route('', name: 'api_update_transactions', methods: ['PATCH'])]
+    #[OA\Tag(name: 'Transactions')]
+    #[Security(name: 'Bearer')]
     public function update(
         #[MapRequestPayload] TransactionUpdateDto $transactionUpdateDto,
         TransactionService $transactionService,
@@ -126,6 +139,8 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/{id<\d+>}', name: 'api_delete_transaction', methods: ['DELETE'])]
+    #[OA\Tag(name: 'Transactions')]
+    #[Security(name: 'Bearer')]
     public function delete(int $id, TransactionService $transactionService): JsonResponse
     {
         $transactionService->delete($id);
