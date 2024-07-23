@@ -24,7 +24,7 @@ class BudgetController extends AbstractController
 {
     #[Route('', name: 'api_find_budgets', methods: ['GET'])]
     #[OA\Get(
-        description: 'Returns array of budgets in certain date period if no parameters given gives results for July 2024.',
+        description: 'Returns array of budgets in certain date period if no parameters given gives results for current month.',
         summary: "Finds budgets in certain time period for logged user",
         tags: ['Budgets'],
         responses: [

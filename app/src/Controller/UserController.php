@@ -36,12 +36,12 @@ class UserController extends AbstractController
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(property: 'username', type: 'string', example: 'user@gmail.com'),
-                    new OA\Property(property: 'password', type: 'string', example: 'password123')
+                    new OA\Property(property: 'password', type: 'string', example: 'Password#1')
                 ],
                 type: 'object'
             )
         ),
-        tags: ['User']
+        tags: ['Entry Points']
     )]
     #[NSecurity(name: 'Bearer')]
     public function login(): JsonResponse
