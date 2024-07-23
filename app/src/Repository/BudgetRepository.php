@@ -118,7 +118,7 @@ class BudgetRepository extends ServiceEntityRepository
     }
 
 
-    public function update(Budget $budget, BudgetUpdateDto $budgetUpdateDto, User $user, Category $category): void
+    public function update(Budget $budget, BudgetUpdateDto $budgetUpdateDto, User $user, Category $category, string $date): void
     {
         $monthlyBudget = $budgetUpdateDto->monthlyBudgetAmount;
 
@@ -127,6 +127,8 @@ class BudgetRepository extends ServiceEntityRepository
         if ($monthlyBudget) {
             $budget->setMonthlyBudget($monthlyBudget);
         }
+
+        $budget->setMonthlyBudgetDate(new \DateTimeImmutable($date));
 
 
         $this->entityManager->flush();
