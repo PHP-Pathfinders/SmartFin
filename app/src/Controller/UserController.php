@@ -65,7 +65,7 @@ class UserController extends AbstractController
         ]);
     }
     #[Route('/register', name: 'api_register', methods: ['POST'])]
-    #[OA\Tag(name: 'User')]
+    #[OA\Tag(name: 'Entry Points')]
     #[NSecurity(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] RegisterDto $registerDto,
@@ -117,6 +117,7 @@ class UserController extends AbstractController
         ]);
     }
     #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'] )]
+    #[OA\Tag(name: 'User')]
     public function fetchUser(
         int $id,
         UserService $userService
@@ -130,6 +131,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id<\d+>}/change-password', name: 'api_change_password', methods: ['PATCH'] )]
+    #[OA\Tag(name: 'User')]
     public function changePassword(
         int $id,
         #[MapRequestPayload] ChangePasswordDto $changePasswordDto,
@@ -145,6 +147,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id<\d+>}', name: 'api_update_user', methods: ['PATCH'])]
+    #[OA\Tag(name: 'User')]
     public function update(
         int $id,
         UserService $userService,
@@ -167,6 +170,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id<\d+>}/image', name:'api_update_image', methods: ["POST"])]
+    #[OA\Tag(name: 'User')]
     public function updateProfileImage(
         int $id,
         Request $request,
@@ -195,6 +199,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id<\d+>}/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]
+    #[OA\Tag(name: 'User')]
     public function deactivate(
         int $id,
         #[MapRequestPayload] DeactivateAccountDto $deactivateAccountDto,

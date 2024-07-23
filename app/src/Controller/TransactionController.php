@@ -52,7 +52,7 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/overview', name: 'api_transactions_overview', methods: ['GET'])]
-    #[OA\Tag(name: 'Transactions')]
+    #[OA\Tag(name: 'Overview')]
     #[Security(name: 'Bearer')]
     public function transactionsOverview(
         TransactionService $transactionService,
@@ -75,7 +75,7 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/spendings', methods: ['GET'])]
-    #[OA\Tag(name: 'Transactions')]
+    #[OA\Tag(name: 'Overview')]
     #[Security(name: 'Bearer')]
     public function spendingByCategories(
         TransactionService $transactionService,

@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/exports')]
 class ExportController extends AbstractController
@@ -18,6 +19,7 @@ class ExportController extends AbstractController
      * Get a list of all exports made by a user
      */
     #[Route('', name: 'api_export_list', methods: ['GET'])]
+    #[OA\Tag(name: 'Exports')]
     public function search(
         #[MapQueryString] SearchDto $searchDto,
         ExportService $exportService
@@ -40,6 +42,7 @@ class ExportController extends AbstractController
      * Download exported file
      */
     #[Route('/download/{fileName}', name: 'api_export_download', methods: ['GET'])]
+    #[OA\Tag(name: 'Exports')]
     public function downloadFile(
         string $fileName,
         ExportService $exportService

@@ -76,7 +76,7 @@ class BudgetController extends AbstractController
     #[OA\Get(
         description: 'Returns random amount of budgets for logged user',
         summary: "Random budgets",
-        tags: ['Budgets'],
+        tags: ['Overview'],
         responses: [
             new OA\Response(
                 response: 404,

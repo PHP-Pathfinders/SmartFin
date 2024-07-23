@@ -27,7 +27,7 @@ class TransactionTemplateController extends AbstractController
      * - Example url: localhost:8080/api/transaction-templates?paymentType=cash&limit=5
      */
     #[Route('', name: 'api_find_transaction_templates', methods: ['GET'])]
-    #[OA\Tag(name: 'TransactionTemplates')]
+    #[OA\Tag(name: 'Transaction Templates')]
     #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?TransactionTemplateQueryDto $transactionTemplateQueryDto,
@@ -56,7 +56,7 @@ class TransactionTemplateController extends AbstractController
 
 
     #[Route('', name: 'api_add_transaction_template', methods: ['POST'])]
-    #[OA\Tag(name: 'TransactionTemplates')]
+    #[OA\Tag(name: 'Transaction Templates')]
     #[Security(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] TransactionTemplateCreateDto $transactionTemplateCreateDto,
@@ -74,7 +74,7 @@ class TransactionTemplateController extends AbstractController
 
 
     #[Route('', name: 'api_update_transaction_templates', methods: ['PATCH'])]
-    #[OA\Tag(name: 'TransactionTemplates')]
+    #[OA\Tag(name: 'Transaction Templates')]
     #[Security(name: 'Bearer')]
     public function update(
         #[MapRequestPayload] TransactionTemplateUpdateDto $transactionUpdateDto,
@@ -92,7 +92,7 @@ class TransactionTemplateController extends AbstractController
 
 
     #[Route('/{id<\d+>}', name: 'api_delete_transaction_template', methods: ['DELETE'])]
-    #[OA\Tag(name: 'TransactionTemplates')]
+    #[OA\Tag(name: 'Transaction Templates')]
     #[Security(name: 'Bearer')]
     public function delete(int $id, TransactionTemplateService $transactionTemplateService): JsonResponse
     {

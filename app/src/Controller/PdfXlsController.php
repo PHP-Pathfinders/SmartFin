@@ -7,11 +7,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
 #[Route('/api')]
 class PdfXlsController extends AbstractController
 {
     #[Route('/pdf/generator', name: 'api_pdf_generator', methods: ['GET'])]
+    #[OA\Tag(name: 'Generators')]
     public function generatePDF(
         PdfXlsService $pdfXlsService,
     ): Response
@@ -26,6 +28,7 @@ class PdfXlsController extends AbstractController
     }
 
     #[Route('/xls/generator', name: 'api_xls_generator', methods: ['GET'])]
+    #[OA\Tag(name: 'Generators')]
     public function generateXLS(
         PdfXlsService $pdfXlsService
     ) :Response
