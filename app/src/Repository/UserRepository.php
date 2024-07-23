@@ -44,6 +44,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function resetPassword(string $password, User $user): void
     {
         $user->setPassword($password);
+        // Log out user from all devices
+        $user->incrementJwtVersion();
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
@@ -107,6 +109,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function changePassword(string $password, User $user):void
     {
         $user->setPassword($password);
+        // Increment token version in order to invalidate jwt token (Log out from all devices)
+        $user->incrementJwtVersion();
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }

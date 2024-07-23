@@ -74,13 +74,14 @@ Before proceeding with the installation, you need to set up your environment var
     ./bin/console lexik:jwt:generate-keypair
     ```
 
+10. **Consume messages from rabbitMQ (asynchronous mailing)**:
+    ```bash
+    ./bin/console messenger:consume --vv
+    ```
+
 ## Usage
 
-After completing the above steps, the SmartFin application should be up and running. You can access the application via your web browser on `localhost:8080/` or interact with it as required.
-
-## Contributing
-
-We welcome contributions to improve the SmartFin project. If you have any suggestions, bug reports, or feature requests, please create an issue or submit a pull request.
+After completing the above steps, the SmartFin application should be up and running. You can see API docs on `localhost:8080/api/doc`
 
 ---
 
