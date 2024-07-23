@@ -9,7 +9,7 @@ class AuthenticationSuccessListener
     public function onAuthenticationSuccessResponse(AuthenticationSuccessEvent $event)
     {
         $event->setData([
-            'userId'=>$event->getUser()->getId(),
+//            'userId'=>$event->getUser()->getId(),
             'token'=> $event->getData()['token']
         ]);
     }

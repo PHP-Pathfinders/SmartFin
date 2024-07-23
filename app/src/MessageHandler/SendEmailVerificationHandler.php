@@ -29,6 +29,12 @@ final readonly class SendEmailVerificationHandler
                 ->to($user->getEmail())
                 ->subject('Please Confirm your Email')
                 ->htmlTemplate('email/confirmation_email.html.twig')
+                ->context([
+                    'expiresAtMessageKey' => 'email.confirmation.expires_at',
+                    'expiresAtMessageData' => [
+                        '%count%' => 7, // This should match the lifetime in days
+                    ],
+                ])
         );
     }
 }

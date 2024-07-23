@@ -110,7 +110,6 @@ class UserController extends AbstractController
         UserService $userService
     ) :JsonResponse
     {
-//        TODO logout this account from all other devices
         $userService->changePassword($changePasswordDto, $id);
         return $this->json([
             'success' => true,

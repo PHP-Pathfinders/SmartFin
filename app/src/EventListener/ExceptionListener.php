@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ExpiredResetPasswordTokenException;
 use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
 use SymfonyCasts\Bundle\ResetPassword\Exception\TooManyPasswordRequestsException;
+use SymfonyCasts\Bundle\VerifyEmail\Exception\ExpiredSignatureException;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 use Zenstruck\Assert\Not;
 
@@ -64,6 +65,11 @@ final class ExceptionListener
 //        In case of invalid email token
         elseif ($exception instanceof InvalidSignatureException){
             $this->setResponse($event, Response::HTTP_BAD_REQUEST,'Invalid signature');
+        }
+//        In case of expired verification link
+        elseif ($exception instanceof ExpiredSignatureException)
+        {
+            $this->setResponse($event, Response:: HTTP_FORBIDDEN, 'Email verification link has expired');
         }
 //        In case of invalid reset password token
         elseif ($exception instanceof InvalidResetPasswordTokenException){
