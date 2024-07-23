@@ -60,12 +60,17 @@ class BudgetService
             throw new NotFoundHttpException("Invalid category given");
         }
 
-        $date = (new \DateTime())->format('Y-m-d');
+        $month = $budgetCreateDto->month ?? date('m');
+        $year = $budgetCreateDto->year ?? date('Y');
+
+
+        $date = (new \DateTime())->format("$year-$month-d");
+
 
         $potentialExistingBudget = $this->budgetRepository->findByCategoryAndDate($category, $date, $user);
 
         if($potentialExistingBudget){
-            throw new ConflictHttpException('You already have this budget for this month');
+            throw new ConflictHttpException('You already have a budget for this category in given month');
         }
 
         $this->budgetRepository->create($budgetCreateDto, $user, $category, $date);
@@ -75,7 +80,6 @@ class BudgetService
     {
         /** @var User $user */
         $user = $this->security->getUser();
-
 
         $budget = $this->budgetRepository->findByIdAndUser($budgetUpdateDto->id, $user);
 
@@ -92,11 +96,18 @@ class BudgetService
         }
 
 
-        if($category === $currentCategory && (!$budgetUpdateDto->monthlyBudgetAmount || $budgetUpdateDto->monthlyBudgetAmount === $budget->getMonthlyBudget())){
+        if($category === $currentCategory && (!$budgetUpdateDto->monthlyBudgetAmount || $budgetUpdateDto->monthlyBudgetAmount === $budget->getMonthlyBudget()) && ($budgetUpdateDto->year === $budget->getMonthlyBudgetDate()->format('Y') && (int) $budgetUpdateDto->month === (int) $budget->getMonthlyBudgetDate()->format('m'))){
             return 'Nothing to update';
         }
 
-        $potentialSameBudget = $this->budgetRepository->findByCategoryAndDate($category, $budget->getMonthlyBudgetDate()->format('Y-m-d'), $user);
+        $month = $budgetUpdateDto->month ? date($budgetUpdateDto->month) : $budget->getMonthlyBudgetDate()->format('m');
+        $year = $budgetUpdateDto->year ? date($budgetUpdateDto->year) : $budget->getMonthlyBudgetDate()->format('Y');
+
+
+        $date = (new \DateTime())->format("$year-$month-d");
+
+
+        $potentialSameBudget = $this->budgetRepository->findByCategoryAndDate($category, $date, $user);
 
 
 
@@ -105,7 +116,7 @@ class BudgetService
         }
 
 
-        $this->budgetRepository->update($budget, $budgetUpdateDto, $user, $category);
+        $this->budgetRepository->update($budget, $budgetUpdateDto, $user, $category, $date);
 
         return 'Update successful';
 

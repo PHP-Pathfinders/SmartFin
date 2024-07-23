@@ -54,10 +54,14 @@ class BudgetRepository extends ServiceEntityRepository
 
     public function search(?BudgetQueryDto $budgetQueryDto, User $user): array
     {
-        $page = $transactionQueryDto->page ?? '1';
-        $maxResults = $transactionQueryDto->maxResults ?? '200';
-        $dateStart = $budgetQueryDto->dateStart ?? (new \DateTime())->format('Y-m-d');
-        $dateEnd = $budgetQueryDto->dateEnd ?? (new \DateTime())->format('Y-m-d');
+        $page = $budgetQueryDto->page ?? '1';
+        $maxResults = $budgetQueryDto->maxResults ?? '200';
+        $dateStart = $budgetQueryDto->dateStart ?? (new \DateTime('first day of this month'))->format('Y-m-d');
+        $dateEnd = $budgetQueryDto->dateEnd ?? (new \DateTime('last day of this month'))->format('Y-m-d');
+
+        if ($dateStart > $dateEnd) {
+            throw new NotFoundHttpException('Invalid date format');
+        }
 
         $qb = $this->createQueryBuilder('b')
             ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryID, c.categoryName, c.color, COALESCE(SUM(t.moneyAmount), 0) as total, 
@@ -114,7 +118,7 @@ class BudgetRepository extends ServiceEntityRepository
     }
 
 
-    public function update(Budget $budget, BudgetUpdateDto $budgetUpdateDto, User $user, Category $category): void
+    public function update(Budget $budget, BudgetUpdateDto $budgetUpdateDto, User $user, Category $category, string $date): void
     {
         $monthlyBudget = $budgetUpdateDto->monthlyBudgetAmount;
 
@@ -124,6 +128,7 @@ class BudgetRepository extends ServiceEntityRepository
             $budget->setMonthlyBudget($monthlyBudget);
         }
 
+        $budget->setMonthlyBudgetDate(new \DateTimeImmutable($date));
 
 
         $this->entityManager->flush();

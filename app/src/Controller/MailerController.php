@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 
+use OpenApi\Attributes as OA;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
@@ -20,6 +21,7 @@ class MailerController extends AbstractController
      * @throws ExceptionInterface
      */
     #[Route('/forgot-password', name: 'api_forgot_password', methods: ['POST'])]
+    #[OA\Tag(name: 'Mailer')]
     public function resetPassword(
         #[MapRequestPayload] RequestPasswordResetDto $requestPasswordResetDto,
         MailerService                                $mailerService

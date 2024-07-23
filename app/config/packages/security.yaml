@@ -43,6 +43,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/users/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
         - { path: ^/api/users/register, roles: PUBLIC_ACCESS}
         - { path: ^/api/users/verify-email, roles: PUBLIC_ACCESS}
         - { path: ^/api/mailer/forgot-password, roles: PUBLIC_ACCESS}
