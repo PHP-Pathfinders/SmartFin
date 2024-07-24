@@ -70,7 +70,11 @@ class UserController extends AbstractController
     }
 
     #[Route('/logout', name: 'api_logout', methods: ['POST'])]
-    #[OA\Tag(name: 'User')]
+    #[OA\Post(
+        description: 'This is supposed to be a logout but it is not really utilized',
+        summary: 'Logout of account',
+        tags: ['User'],responses: [ new OA\Response(response: 200, description: 'Logged out', content: new OA\JsonContent(ref: '#/components/schemas/Logout'))]
+    )]
     public function logout(): JsonResponse
     {
         // This endpoint doesn't need to do anything server-side
@@ -123,7 +127,26 @@ class UserController extends AbstractController
      * @throws InvalidSignatureException
      */
     #[Route('/verify-email', name: 'api_verify_email', methods: ['GET'])]
-    #[OA\Tag(name: 'User')]
+    #[OA\Get(
+        description: 'Used for verifying email for your account',
+        summary: 'Verify your email',
+        tags: ['User'],
+        responses: [
+            //TODO need more info
+            new OA\Response(
+                response: 200,
+                description: 'Successful account registration done',
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request JSON body data given',
+            ),
+            new OA\Response(
+                response: 409,
+                description: 'Same email already registered on our site',
+            )
+        ]
+    )]
     #[NSecurity(name: 'Bearer')]
     public function verifyEmail(
         #[MapQueryParameter] int $id,
@@ -143,7 +166,32 @@ class UserController extends AbstractController
      * @throws ResetPasswordExceptionInterface
      */
     #[Route('/reset-password', name: 'api_reset_password', methods: ['PATCH'])]
-    #[OA\Tag(name: 'User')]
+    #[OA\Patch(
+        description: 'Used for resetting password for your account',
+        summary: 'Reset password for account',
+        tags: ['User'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful account registration done',
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request JSON body data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserResetInputError')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Invalid token',
+                content: new OA\JsonContent(ref: '#/components/schemas/ResetForbidden')
+            )
+        ]
+    )]
     #[NSecurity(name: 'Bearer')]
     public function resetPassword(
         #[MapRequestPayload] ResetPasswordDto $resetPasswordDto,
@@ -157,7 +205,28 @@ class UserController extends AbstractController
         ]);
     }
     #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'] )]
-    #[OA\Tag(name: 'User')]
+    #[OA\Get(
+        description: 'Provides all details about singular registered user',
+        summary: 'Gives data about single user',
+        tags: ['User'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/User')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'User not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+        ]
+    )]
     public function fetchUser(
         int $id,
         UserService $userService
@@ -186,7 +255,32 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id<\d+>}', name: 'api_update_user', methods: ['PATCH'])]
-    #[OA\Tag(name: 'User')]
+    #[OA\Patch(
+        description: 'Enables to change details about single user',
+        summary: 'Changes data about single user',
+        tags: ['User'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserUpdateSuccess')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'User not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+            ),
+        ]
+    )]
     public function update(
         int $id,
         UserService $userService,

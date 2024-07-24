@@ -585,7 +585,14 @@ nelmio_api_doc:
             - type: object
               properties:
                 message:
-                  example: "No exports found"
+                  example: "Logged out successfully"
+        Logout:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Logged out successfully"
         UserNotFound:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -593,6 +600,50 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "User not found"
+        UserResetInputError:
+            allOf:
+              - $ref: '#/components/schemas/InputError'
+              - type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      properties:
+                        field:
+                          example: "token"
+                        message:
+                          example: "Token must be provided and cannot be blank"
+                        code:
+                          example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+        User:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    fullName:
+                      example: "Jane Doe"
+                    birthday:
+                      example: "1993-06-29T00:00:00+00:00"
+                    avatarFileName:
+                      example: null
+                    email:
+                      example: "admin@gmail.com"
+        UserUpdateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "User updated successfully"
+        ResetForbidden:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Invalid reset password token"
         ExportsUserNotFound:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
