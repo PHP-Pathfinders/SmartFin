@@ -540,6 +540,22 @@ nelmio_api_doc:
                 message:
                   type: string
                   example: "Request payload contains invalid \"json\" data."
+        GeneratorPDFError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  type: string
+                  example: "You can only generate one PDF export every 24 hours."
+        GeneratorXLSError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  type: string
+                  example: "You can only generate one XLSX export every 24 hours."
         ExportInvalidRequest:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -570,6 +586,13 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "No exports found"
+        UserNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "User not found"
         ExportsUserNotFound:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
