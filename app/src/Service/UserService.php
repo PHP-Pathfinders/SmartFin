@@ -180,6 +180,13 @@ readonly class UserService
         $this->userRepository->deactivate($user);
     }
 
+    public function  activate(int $userId): void
+    {
+        $user = $this->checkUser($userId);
+        $this->userRepository->activate($user);
+
+    }
+
     private function checkUser(int $userId): User
     {
         /**

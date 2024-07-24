@@ -123,7 +123,6 @@ class UserController extends AbstractController
         UserService $userService
     ): JsonResponse
     {
-        $this->denyAccessUnlessGranted('USER_STATUS');
         $profileData = $userService->fetchUser($id);
         return $this->json([
             'success' => true,
@@ -215,9 +214,12 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id<\d+>}/activate', name:'api_users_activate', methods: ['PATCH'])]
-    public function activate(): JsonResponse
+    public function activate(
+        int $id,
+        UserService $userService
+    ): JsonResponse
     {
-        $this->denyAccessUnlessGranted('USER_STATUS');
+        $userService->activate($id);
         return $this->json([
             'success'=>'true',
             'message'=> 'User is activated'

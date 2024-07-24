@@ -116,14 +116,27 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Deactivates the user
+     * Deactivates the user and sets scheduled deletion date
      * @param User $user
      * @return void
      */
-    public function deactivate(User $user):void
+    public function deactivate(User $user): void
     {
         $user->setIsActive(false);
         $user->setScheduledDeletionDate();
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Activates the user and clears scheduled deletion date
+     * @param User $user
+     * @return void
+     */
+    public function activate(User $user): void
+    {
+        $user->setIsActive(true);
+        $user->clearScheduledDeletionDate();
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }

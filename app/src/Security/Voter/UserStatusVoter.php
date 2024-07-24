@@ -11,9 +11,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class UserStatusVoter extends Voter
 {
     private const USER_STATUS = 'USER_STATUS';
-    private const ALLOWED_ROUTE_IF_INACTIVE = 'api_users_activate'; #added
+    private const ALLOWED_ROUTE_IF_INACTIVE = 'api_users_activate';
 
-    public function __construct(private readonly RequestStack $requestStack)#added
+    public function __construct(private readonly RequestStack $requestStack)
     {
     }
 
@@ -29,7 +29,7 @@ class UserStatusVoter extends Voter
         if (!$user instanceof UserInterface) {
             return false;
         }
-        //------------ added --------------------------------------------------
+
         // Get the current route
         $request = $this->requestStack->getCurrentRequest();
         $route = $request->attributes->get('_route');
