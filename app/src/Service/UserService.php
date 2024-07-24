@@ -88,16 +88,19 @@ readonly class UserService
 
     public function fetchUser(int $userId) :array
     {
-//        TODO RETURN ID OF USER ENTITY
-        $this->checkUser($userId);
-        /** @var User $user */
+//        $this->checkUser($userId);
         // Search by user id
         $user = $this->userRepository->fetchUser($userId);
+        if (!$user){
+            throw new NotFoundHttpException('User not found');
+        }
         return [
+            'userId' => $user->getId(),
             'fullName' => $user->getFullName(),
             'birthday' => $user->getBirthday(),
             'avatarFileName' => $user->getAvatarFileName(),
-            'email' => $user->getEmail()
+            'email' => $user->getEmail(),
+            'createdAt' => $user->getCreatedAt()
         ];
     }
 
