@@ -15,7 +15,6 @@ readonly class JWTCreatedListener
 
     /**
      * @param JWTCreatedEvent $event
-     *
      * @return void
      */
     public function onJWTCreated(JWTCreatedEvent $event): void
@@ -28,6 +27,7 @@ readonly class JWTCreatedListener
         /** @var User $user */
         $user = $event->getUser();
         $payload['token_version'] = $user->getJwtVersion();
+        $payload['user_id'] = $user->getId();
 
         $event->setData($payload);
 
