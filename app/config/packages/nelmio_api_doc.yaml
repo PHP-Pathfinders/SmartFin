@@ -112,6 +112,13 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "Budget not found"
+        BudgetsNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Budgets not found"
         InputError:
           type: object
           properties:
@@ -133,6 +140,21 @@ nelmio_api_doc:
                         example: "Given date must be in format YYYY-MM-DD"
                       code:
                         example: "69819696-02ac-4a99-9ff0-14e127c4d1bc"
+        YearInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "year"
+                      message:
+                        example: "'da' is not an integer."
+                      code:
+                        example: "integer_type"
         BudgetInputError:
           allOf:
             - $ref: '#/components/schemas/InputError'
@@ -172,7 +194,7 @@ nelmio_api_doc:
             - type: object
               properties:
                 message:
-                  example: "You already have this budget for this month"
+                  example: "'You already have a budget for this category in given month"
         BudgetUpdateSuccess:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
@@ -189,7 +211,7 @@ nelmio_api_doc:
                   example: "Category could not be found"
         BudgetDeleteSuccess:
           allOf:
-            - $ref: '#/components/schemas/FailedAction'
+            - $ref: '#/components/schemas/SuccessfulAction'
             - type: object
               properties:
                 message:
@@ -201,6 +223,31 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "Budget not found or not owned by you"
+        BudgetRandomResult:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    properties:
+                      id:
+                        example: 33
+                      monthlyBudget:
+                        example: 2607.71
+                      monthlyBudgetDate:
+                        example: "2024-07-31T00:00:00+00:00"
+                      categoryId:
+                        example: 12
+                      categoryName:
+                        example: "Other"
+                      color:
+                        example: "#FF9800"
+                      totalSpent:
+                        example: 7868.837
+                      percentageSpent:
+                        example: 301.75276391930083
         Category:
           allOf:
             - $ref: '#/components/schemas/QuerySuccessResponse'

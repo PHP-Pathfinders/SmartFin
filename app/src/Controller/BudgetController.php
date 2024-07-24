@@ -80,14 +80,24 @@ class BudgetController extends AbstractController
         responses: [
             new OA\Response(
                 response: 404,
-                description: 'Budgets not found',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'success', type: 'boolean', example: false),
-                        new OA\Property(property: 'message', type: 'string', example: "Budgets not found")
-                    ]
-                )
+                description: 'No budgets found',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetsNotFound')
             ),
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetRandomResult')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/YearInputError')
+            )
         ]
 
     )]
@@ -170,7 +180,7 @@ class BudgetController extends AbstractController
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Successful budget update',
+                description: 'Successful budget update or nothing to change',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateSuccess')
             ),
             new OA\Response(

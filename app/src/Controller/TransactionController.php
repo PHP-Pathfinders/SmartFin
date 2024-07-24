@@ -52,7 +52,31 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/overview', name: 'api_transactions_overview', methods: ['GET'])]
-    #[OA\Tag(name: 'Overview')]
+    #[OA\Get(
+        description: 'Data used for bar chart for overall monthly incomes and expenses at the overview dashboard',
+        summary: 'Gives a overall view for each month of given year, by default it give view for current year',
+        tags: ['Overview'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No transactions found',
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/YearInputError')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+        ]
+    )]
     #[Security(name: 'Bearer')]
     public function transactionsOverview(
         TransactionService $transactionService,
@@ -75,7 +99,31 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/spendings', methods: ['GET'])]
-    #[OA\Tag(name: 'Overview')]
+    #[OA\Get(
+        description: 'Data used for overall expenses by categories pie chart',
+        summary: 'Returns a list of spendings for certain month and year',
+        tags: ['Overview'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No spendings found',
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/YearInputError')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+        ]
+    )]
     #[Security(name: 'Bearer')]
     public function spendingByCategories(
         TransactionService $transactionService,
