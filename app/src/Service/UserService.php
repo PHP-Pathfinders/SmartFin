@@ -100,6 +100,7 @@ readonly class UserService
             'birthday' => $user->getBirthday(),
             'avatarFileName' => $user->getAvatarFileName(),
             'email' => $user->getEmail(),
+            'isActive' => $user->getIsActive(),
             'createdAt' => $user->getCreatedAt()
         ];
     }

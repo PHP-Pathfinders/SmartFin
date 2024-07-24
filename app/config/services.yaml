@@ -55,3 +55,7 @@ services:
     App\Service\ExportService:
         arguments:
             $exportsDir: '%exports_directory%'
+    App\Security\Voter\UserStatusVoter:
+        arguments:
+            $requestStack: '@request_stack'
+        tags: [ 'security.voter' ]
