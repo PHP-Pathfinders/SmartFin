@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Repository\CategoryRepository;
 use App\Repository\TransactionRepository;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 readonly class TransactionService
@@ -91,7 +92,7 @@ readonly class TransactionService
         }
 
         if($currentCategoryType !== $category->getType()){
-            throw new NotFoundHttpException("Can't change income to expense and vice versa");
+            throw new ConflictHttpException("Can't change income to expense and vice versa");
         }
 
         $transactionName = $transactionUpdateDto->transactionName;

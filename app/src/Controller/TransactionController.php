@@ -28,7 +28,33 @@ class TransactionController extends AbstractController
      * - Example url: localhost:8080/api/transactions?transactionDate=2024-05-01&paymentType=cash&limit=5
      */
     #[Route('', name: 'api_find_transactions',methods: ['GET'])]
-    #[OA\Tag(name: 'Transactions')]
+    #[OA\Get(
+        description: 'Returns array of transactions filtered by different parameters, if no parameters given it returns every transaction',
+        summary: 'Finds transactions by category, payment type, month, transaction name, party name, transaction notes and much more',
+        tags: ['Transactions'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/Transaction')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'No transactions found',
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryInputError')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+        ]
+    )]
     #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?TransactionQueryDto $transactionQueryDto,
@@ -42,7 +68,7 @@ class TransactionController extends AbstractController
             return $this->json([
                 'success' => false,
                 'message' => 'No transactions found'
-            ]);
+            ],404);
         }
 
         return $this->json([
@@ -64,6 +90,7 @@ class TransactionController extends AbstractController
             new OA\Response(
                 response: 404,
                 description: 'No transactions found',
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
             ),
             new OA\Response(
                 response: 422,
@@ -89,7 +116,7 @@ class TransactionController extends AbstractController
             return $this->json([
                 'success' => false,
                 'message' => 'No transactions found'
-            ]);
+            ],404);
         }
 
         return $this->json([
@@ -156,7 +183,38 @@ class TransactionController extends AbstractController
     }
 
     #[Route('', name: 'api_add_transaction', methods: ['POST'])]
-    #[OA\Tag(name: 'Transactions')]
+    #[OA\Post(
+        description: 'Used for creating new transaction with current logged user as its owner',
+        summary: "Creates a income/expense transaction",
+        tags: ['Transactions'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful transaction creation',
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionInputSuccess')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputError')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request',
+                content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Invalid category given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
+            ),
+        ]
+    )]
     #[Security(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] TransactionCreateDto $transactionCreateDto,
@@ -172,7 +230,43 @@ class TransactionController extends AbstractController
     }
 
     #[Route('', name: 'api_update_transactions', methods: ['PATCH'])]
-    #[OA\Tag(name: 'Transactions')]
+    #[OA\Patch(
+        description: "Make changes to any transaction that is in ownership of logged in user",
+        summary: "Makes changes to certain transaction for logged user",
+        tags: ['Transactions'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful transaction update or nothing to change',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateSuccess')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request',
+                content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputError')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Invalid category given',
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
+            ),
+            new OA\Response(
+                response: 409,
+                description: 'Can\'t change income to expense',
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionConflict')
+            )
+        ]
+    )]
     #[Security(name: 'Bearer')]
     public function update(
         #[MapRequestPayload] TransactionUpdateDto $transactionUpdateDto,
@@ -187,7 +281,29 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/{id<\d+>}', name: 'api_delete_transaction', methods: ['DELETE'])]
-    #[OA\Tag(name: 'Transactions')]
+    #[OA\Delete(
+        description: "Removes transaction that is in ownership of logged user",
+        summary: "Deletes specific transaction based on given id",
+        tags: ['Transactions'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful transaction deletion',
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionDeleteSuccess')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Transaction you selected is either not owned by you or does not exist',
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
+            ),
+
+        ]
+    )]
     #[Security(name: 'Bearer')]
     public function delete(int $id, TransactionService $transactionService): JsonResponse
     {

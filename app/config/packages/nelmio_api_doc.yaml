@@ -194,7 +194,7 @@ nelmio_api_doc:
             - type: object
               properties:
                 message:
-                  example: "'You already have a budget for this category in given month"
+                  example: "You already have a budget for this category in given month"
         BudgetUpdateSuccess:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
@@ -337,14 +337,14 @@ nelmio_api_doc:
               example: "You cannot modify default category."
         CategoryDeleteSuccess:
           allOf:
-            - $ref: '#/components/schemas/FailedAction'
+            - $ref: '#/components/schemas/SuccessfulAction'
             - type: object
               properties:
                 message:
                   example: "Category deleted with id=1"
         CategoryForbiddenDelete:
           allOf:
-            - $ref: '#/components/schemas/FailedAction'
+            - $ref: '#/components/schemas/SuccessfulAction'
           type: object
           properties:
             message:
@@ -356,6 +356,72 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "Category not found or does not belong to the user."
+        Transaction:
+          allOf:
+            - $ref: '#/components/schemas/QuerySuccessResponse'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    totalResults:
+                      example: 9
+                    transactions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            example: 23
+                          paymentType:
+                            example: "card"
+                          transactionDate:
+                            example: "2024-05-12T00:00:00+00:00"
+                          moneyAmount:
+                            example: 7328.199
+                          transactionName:
+                            example: "Beatae voluptatem."
+                          partyName:
+                            example: null
+                          transactionNotes:
+                            example: null
+                          categoryID:
+                            example: 12
+                          type:
+                            example: "expense"
+                          categoryName:
+                            example: "Other"
+                          color:
+                            example: "#FF9800"
+        TransactionInputSuccess:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "New transaction created"
+        TransactionConflict:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Can't change income to expense and vice versa"
+        TransactionDeleteSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Transaction with id 1 has been deleted"
+        TransactionNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No transactions found"
         Unauthorized:
           type: object
           properties:

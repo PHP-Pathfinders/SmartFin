@@ -315,7 +315,7 @@ class TransactionRepository extends ServiceEntityRepository
         $transaction = $this->findByIdAndUser($id, $user);
 
         if (!$transaction) {
-            throw new NotFoundHttpException('Transaction not found.');
+            throw new NotFoundHttpException('No transaction found.');
         }
 
         $this->entityManager->remove($transaction);
