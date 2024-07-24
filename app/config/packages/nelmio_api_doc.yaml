@@ -69,29 +69,20 @@ nelmio_api_doc:
                         type: object
                         properties:
                           id:
-                            type: integer
                             example: 2
                           monthlyBudget:
-                            type: number
                             example: 1758.14
                           monthlyBudgetDate:
-                            type: string
-                            format: date-time
                             example: "2024-07-23T00:00:00+00:00"
                           categoryID:
-                            type: integer
                             example: 9
                           categoryName:
-                            type: string
                             example: "Nights out"
                           color:
-                            type: string
                             example: "#607D8B"
                           total:
-                            type: number
                             example: 5876.911
                           percent:
-                            type: number
                             example: 334.2686589236352
         FailedAction:
           type: object
@@ -549,6 +540,94 @@ nelmio_api_doc:
                 message:
                   type: string
                   example: "Request payload contains invalid \"json\" data."
+        ExportInvalidRequest:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  type: string
+                  example: "File extension not found."
+        Export:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    properties:
+                      fileName:
+                        example: "66a0e27ac64573.46940784.xlsx"
+                      fileType:
+                        example: "xlsx"
+                      createdAt:
+                        example: "2024-07-24T11:16:10+00:00"
+        ExportsNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No exports found"
+        ExportsUserNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Wrong user id or user not authenticated"
+        ExportsFileNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "File not found"
+        ExportsInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "userId"
+                      message:
+                        example: "'da' is not an integer."
+                      code:
+                        example: "integer_type"
+        MailerInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "email"
+                      message:
+                        example: "This value is not a valid email address."
+                      code:
+                        example: "bd79c0ab-ddba-46cc-a703-a7a4b08de310"
+        MailerSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "If your email exists in our system, you will receive a password reset email shortly"
+        MailerTooMany:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Too many reset password requests, try again later..."
     security:
       - Bearer: [ ]
   areas: # to filter documented areas
