@@ -66,7 +66,6 @@ readonly class UserService
         $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
 
         $hashedPassword = $this->passwordHasher->hashPassword($user, $resetPasswordDto->password);
-//        TODO add token versioning: if user change password log out from all devices
         $this->userRepository->resetPassword($hashedPassword,$user);
     }
 
@@ -89,6 +88,7 @@ readonly class UserService
 
     public function fetchUser(int $userId) :array
     {
+//        TODO RETURN ID OF USER ENTITY
         $this->checkUser($userId);
         /** @var User $user */
         // Search by user id

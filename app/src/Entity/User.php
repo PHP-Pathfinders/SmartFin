@@ -418,9 +418,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->scheduledDeletionDate;
     }
 
-    public function setScheduledDeletionDate(?\DateTimeInterface $scheduledDeletionDate): static
+    public function setScheduledDeletionDate(): static
     {
-        $this->scheduledDeletionDate = $scheduledDeletionDate;
+        $this->scheduledDeletionDate = (new \DateTime())->modify('+7 days');
 
         return $this;
     }
