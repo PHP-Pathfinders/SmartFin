@@ -30,6 +30,7 @@ class UserController extends AbstractController
 {
     #[Route('/login', name: 'api_login', methods: ['POST'])]
     #[OA\Post(
+        description: 'Used as login entry point to our site, given example should work as a test user account. To use this test user here you will have to try it out, get the token copy and paste it in the Authorize section at the top of this page.',
         summary: 'Login with existing account',
         requestBody: new OA\RequestBody(
             required: true,
@@ -41,9 +42,24 @@ class UserController extends AbstractController
                 type: 'object'
             )
         ),
-        tags: ['Entry Points']
+        tags: ['Entry Points'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful login',
+                content: new OA\JsonContent(ref: '#/components/schemas/LoginSuccess')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access attempt detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedLogin')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request JSON body data given',
+            ),
+        ]
     )]
-    #[NSecurity(name: 'Bearer')]
     public function login(): JsonResponse
     {
         //In case of client didn't send json payload at all
@@ -55,7 +71,6 @@ class UserController extends AbstractController
 
     #[Route('/logout', name: 'api_logout', methods: ['POST'])]
     #[OA\Tag(name: 'User')]
-    #[NSecurity(name: 'Bearer')]
     public function logout(): JsonResponse
     {
         // This endpoint doesn't need to do anything server-side
@@ -65,8 +80,33 @@ class UserController extends AbstractController
         ]);
     }
     #[Route('/register', name: 'api_register', methods: ['POST'])]
-    #[OA\Tag(name: 'Entry Points')]
-    #[NSecurity(name: 'Bearer')]
+    #[OA\Post(
+        description: 'Register new account that will be used on this site',
+        summary: 'Used as register entry point to our site',
+        tags: ['Entry Points'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful account registration done',
+                content: new OA\JsonContent(ref: '#/components/schemas/RegisterSuccess')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request JSON body data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/RegisterInputError')
+            ),
+            new OA\Response(
+                response: 409,
+                description: 'Same email already registered on our site',
+                content: new OA\JsonContent(ref: '#/components/schemas/RegisterEmailConflict')
+            )
+        ]
+    )]
     public function create(
         #[MapRequestPayload] RegisterDto $registerDto,
         UserService                      $userService
