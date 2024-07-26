@@ -213,6 +213,19 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/{id<\d+>}/activate', name:'api_users_activate', methods: ['PATCH'])]
+    public function activate(
+        int $id,
+        UserService $userService
+    ): JsonResponse
+    {
+        $userService->activate($id);
+        return $this->json([
+            'success'=>'true',
+            'message'=> 'User is activated'
+        ]);
+    }
+
     /**
      * This is a fake password reset page, and this route probably does not belong in this class
      * @return Response

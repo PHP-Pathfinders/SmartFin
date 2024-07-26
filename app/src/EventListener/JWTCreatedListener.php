@@ -29,6 +29,8 @@ readonly class JWTCreatedListener
         $payload['token_version'] = $user->getJwtVersion();
         $payload['user_id'] = $user->getId();
 
+        $payload['is_active'] = $user->getIsActive();
+
         $event->setData($payload);
 
         $header = $event->getHeader();

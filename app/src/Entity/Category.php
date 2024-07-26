@@ -33,19 +33,19 @@ class Category
     /**
      * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'category')]
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'category', cascade: ['remove'])]
     private Collection $transactions;
 
     /**
      * @var Collection<int, TransactionTemplate>
      */
-    #[ORM\OneToMany(targetEntity: TransactionTemplate::class, mappedBy: 'category')]
+    #[ORM\OneToMany(targetEntity: TransactionTemplate::class, mappedBy: 'category', cascade: ['remove'])]
     private Collection $transactionTemplates;
 
     /**
      * @var Collection<int, Budget>
      */
-    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'category')]
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'category', cascade: ['remove'])]
     private Collection $budgets;
 
     public function __construct()

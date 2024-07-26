@@ -68,31 +68,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Category>
      */
-    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $categories;
 
     /**
      * @var Collection<int, Budget>
      */
-    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $budgets;
 
     /**
      * @var Collection<int, TransactionTemplate>
      */
-    #[ORM\OneToMany(targetEntity: TransactionTemplate::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: TransactionTemplate::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $transactionTemplates;
 
     /**
      * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $transactions;
 
     /**
      * @var Collection<int, Export>
      */
-    #[ORM\OneToMany(targetEntity: Export::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Export::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $exports;
 
 
@@ -423,6 +423,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->scheduledDeletionDate = (new \DateTime())->modify('+7 days');
 
         return $this;
+    }
+    public function clearScheduledDeletionDate(): void
+    {
+        $this->scheduledDeletionDate = null;
     }
 
     public function getJwtVersion(): int
