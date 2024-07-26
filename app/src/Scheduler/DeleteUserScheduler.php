@@ -10,7 +10,7 @@ use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 #[AsSchedule('DeleteUser')]
-class DeleteUserProvider implements ScheduleProviderInterface
+readonly class DeleteUserScheduler implements ScheduleProviderInterface
 {
     public function __construct(
         private CacheInterface $cache,
@@ -18,12 +18,9 @@ class DeleteUserProvider implements ScheduleProviderInterface
     }
     public function getSchedule(): Schedule
     {
-//        RecurringMessage::cron('@daily', new DeleteUser() );
-//        // ...
         return (new Schedule())
             ->add(
-                // @TODO - Create a Message to schedule
-                 RecurringMessage::every('50 seconds', new DeleteUser()),
+                 RecurringMessage::every('1 minute', new DeleteUser()),
             )
             ->stateful($this->cache)
             ;
