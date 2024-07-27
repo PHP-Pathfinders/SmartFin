@@ -13,7 +13,6 @@ readonly class DeleteUserHandler
     {}
     public function __invoke(DeleteUser $message): void
     {
-        // ... do some work
         $this->userRepository->deleteUsers();
     }
 }

@@ -14,22 +14,23 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // Create admin manually with specific details
-        UserFactory::new([
-            'email' => 'admin@gmail.com',
-            'plainPassword' => 'Password#1',
-            'fullName' => 'Jane Doe',
-            'roles' => ['ROLE_ADMIN']
-        ])->create();
 
         // Create user manually with specific details
         UserFactory::new([
-            'email' => 'user@gmail.com',
+            'email' => 'john@gmail.com',
             'plainPassword' => 'Password#1',
             'fullName' => 'John Doe',
         ])->create();
 
-        UserFactory::createMany(3);
+        // Create another user manually with specific details
+        UserFactory::new([
+            'email' => 'jane@gmail.com',
+            'plainPassword' => 'Password#1',
+            'fullName' => 'Jane Doe',
+//            'roles' => ['ROLE_ADMIN']
+        ])->create();
+
+//        UserFactory::createMany(3);
 
         // Default categories
         $defaultCategories = [
@@ -50,7 +51,7 @@ class AppFixtures extends Fixture
                 'Other' => '#FF9800',          // Orange
             ],
         ];
-        // Iterate over each user and assign default categories
+        // Assign default categories
 
         foreach ($defaultCategories['income'] as $incomeCategoryName => $color) {
             CategoryFactory::new([

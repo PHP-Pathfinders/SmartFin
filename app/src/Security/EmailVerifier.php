@@ -2,15 +2,16 @@
 
 namespace App\Security;
 
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
-class EmailVerifier
+readonly class EmailVerifier
 {
     public function __construct(
         private VerifyEmailHelperInterface $verifyEmailHelper,
@@ -19,10 +20,14 @@ class EmailVerifier
     ) {
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     */
     public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email): void
     {
         $signatureComponents = $this->verifyEmailHelper->generateSignature(
             $verifyEmailRouteName,
+            /** @var User $user */
             $user->getId(),
             $user->getEmail(),
             ['id' => $user->getId()] // add the user's id as an extra query param
@@ -38,15 +43,13 @@ class EmailVerifier
         $this->mailer->send($email);
     }
 
-    /**
-     * @throws InvalidSignatureException
-     */
-    public function handleEmailConfirmation(Request $request, UserInterface $user): void //Changed parameter type from UserInterface to User
+    public function handleEmailConfirmation(Request $request, UserInterface $user): void
     {
 
+        /** @var User $user */
         $this->verifyEmailHelper->validateEmailConfirmationFromRequest($request, $user->getId(), $user->getEmail());
-
         $user->setIsVerified(true);
+        $user->clearScheduledDeletionDate();
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
