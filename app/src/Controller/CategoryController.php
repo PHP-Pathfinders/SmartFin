@@ -54,6 +54,11 @@ class CategoryController extends AbstractController
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]
@@ -116,6 +121,11 @@ class CategoryController extends AbstractController
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]

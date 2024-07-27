@@ -40,6 +40,11 @@ class PdfXlsController extends AbstractController
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]
@@ -81,6 +86,15 @@ class PdfXlsController extends AbstractController
                 description: 'Invalid category given',
                 content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            )
         ]
     )]
     public function generateXLS(

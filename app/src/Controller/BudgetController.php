@@ -51,6 +51,11 @@ class BudgetController extends AbstractController
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]
@@ -105,6 +110,11 @@ class BudgetController extends AbstractController
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
 
         ]
@@ -166,6 +176,11 @@ class BudgetController extends AbstractController
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]
@@ -224,6 +239,11 @@ class BudgetController extends AbstractController
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]
@@ -259,11 +279,16 @@ class BudgetController extends AbstractController
             new OA\Response(
                 response: 404,
                 description: 'Budget you selected is either not owned by you or does not exist',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateFail')
+                content: new OA\JsonContent(ref: '#/components/schemas/BudgetDeleteFail')
             ),
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
 
         ]

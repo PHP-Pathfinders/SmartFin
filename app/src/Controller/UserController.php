@@ -55,6 +55,11 @@ class UserController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedLogin')
             ),
             new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
                 response: 400,
                 description: 'Bad Request JSON body data given',
             ),
@@ -106,6 +111,11 @@ class UserController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
             ),
             new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
                 response: 422,
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/RegisterInputError')
@@ -141,7 +151,7 @@ class UserController extends AbstractController
         description: 'Used for verifying email for your account',
         summary: 'Verify your email',
         tags: ['User'],
-        parameters: [ new OA\Parameter(name: 'token', in: 'query'), new OA\Parameter(name: 'signature', in: 'query')],
+        parameters: [ new OA\Parameter(name: 'token', in: 'query'), new OA\Parameter(name: 'signature', in: 'query'), new OA\Parameter(name: 'expires', in: 'query')],
         responses: [
             new OA\Response(
                 response: 200,
@@ -152,6 +162,11 @@ class UserController extends AbstractController
                 response: 400,
                 description: 'Bad Request JSON body data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/EmailInvalidSig')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             ),
             new OA\Response(
                 response: 500,
@@ -237,6 +252,11 @@ class UserController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
             ),
             new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
                 response: 401,
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
@@ -284,6 +304,11 @@ class UserController extends AbstractController
                 response: 401,
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             ),
             new OA\Response(
                 response: 500,
@@ -334,6 +359,11 @@ class UserController extends AbstractController
                 response: 422,
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/UserPatchError')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             ),
             new OA\Response(
                 response: 500,
@@ -408,6 +438,11 @@ class UserController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
             )
@@ -462,6 +497,11 @@ class UserController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
                 response: 400,
                 description: 'Bad request sent',
                 content: new OA\JsonContent(ref: '#/components/schemas/DeactivateError')
@@ -487,6 +527,42 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id<\d+>}/activate', name:'api_users_activate', methods: ['PATCH'])]
+    #[OA\Patch(
+        description: 'Reactivates user account if he decides not to deactivate and delete it and clears scheduled deletion date',
+        summary: 'Used for reactivating the user account',
+        tags: ['User'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/ActivateSuccess')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'User not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad request sent',
+                content: new OA\JsonContent(ref: '#/components/schemas/DeactivateError')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
+        ]
+    )]
     public function activate(
         int $id,
         UserService $userService

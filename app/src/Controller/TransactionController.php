@@ -29,7 +29,7 @@ class TransactionController extends AbstractController
      */
     #[Route('', name: 'api_find_transactions',methods: ['GET'])]
     #[OA\Get(
-        description: 'Returns array of transactions filtered by different parameters, if no parameters given it returns every transaction',
+        description: 'Returns array of transactions filtered by different parameters, if no parameters given it returns every transaction for logged user',
         summary: 'Finds transactions by category, payment type, month, transaction name, party name, transaction notes and much more',
         tags: ['Transactions'],
         responses: [
@@ -42,6 +42,11 @@ class TransactionController extends AbstractController
                 response: 404,
                 description: 'No transactions found',
                 content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             ),
             new OA\Response(
                 response: 422,
@@ -97,6 +102,11 @@ class TransactionController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
             ),
             new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
                 response: 422,
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/YearInputError')
@@ -106,6 +116,10 @@ class TransactionController extends AbstractController
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -153,6 +167,15 @@ class TransactionController extends AbstractController
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -217,6 +240,15 @@ class TransactionController extends AbstractController
                 description: 'Invalid category given',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
             ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -268,6 +300,15 @@ class TransactionController extends AbstractController
                 response: 409,
                 description: 'Can\'t change income to expense',
                 content: new OA\JsonContent(ref: '#/components/schemas/TransactionConflict')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]
@@ -305,6 +346,15 @@ class TransactionController extends AbstractController
                 description: 'Transaction you selected is either not owned by you or does not exist',
                 content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            )
 
         ]
     )]

@@ -737,6 +737,20 @@ nelmio_api_doc:
           properties:
             message:
               example: "Incorrect password"
+        ActivateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "User is activated"
+        AccessForbidden:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Access Denied."
         ExportsUserNotFound:
           allOf:
             - $ref: '#/components/schemas/FailedAction'

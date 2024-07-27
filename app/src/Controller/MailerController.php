@@ -28,7 +28,7 @@ class MailerController extends AbstractController
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Successful reset password request request',
+                description: 'Successful reset password request',
                 content: new OA\JsonContent(ref: '#/components/schemas/MailerSuccess')
             ),
             new OA\Response(
@@ -54,6 +54,11 @@ class MailerController extends AbstractController
             new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]

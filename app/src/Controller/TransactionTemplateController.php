@@ -28,7 +28,7 @@ class TransactionTemplateController extends AbstractController
      */
     #[Route('', name: 'api_find_transaction_templates', methods: ['GET'])]
     #[OA\Get(
-        description: 'Returns array of transaction templates filtered by different parameters, if no parameters given it returns every transaction template',
+        description: 'Returns array of transaction templates filtered by different parameters, if no parameters given it returns every transaction template for logged user',
         summary: 'Finds transaction templates by category, payment type, transaction name, party name and transaction notes',
         tags: ['Transaction Templates'],
         responses: [
@@ -51,6 +51,11 @@ class TransactionTemplateController extends AbstractController
                 response: 401,
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             ),
             new OA\Response(
                 response: 500,
@@ -117,6 +122,11 @@ class TransactionTemplateController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
             ),
             new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
             )
@@ -170,6 +180,11 @@ class TransactionTemplateController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
             ),
             new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
             )
@@ -211,6 +226,11 @@ class TransactionTemplateController extends AbstractController
                 response: 404,
                 description: 'Transaction template you selected is either not owned by you or does not exist',
                 content: new OA\JsonContent(ref: '#/components/schemas/TemplateDeletionError')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             ),
             new OA\Response(
                 response: 500,
