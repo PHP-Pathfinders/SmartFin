@@ -30,6 +30,7 @@ WORKDIR /var/www/project
 # Copy Supervisor configuration files
 COPY php/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY php/supervisor/messenger-worker.conf /etc/supervisor/conf.d/messenger-worker.conf
+COPY php/supervisor/delete-user-scheduler.conf /etc/supervisor/conf.d/delete-user-scheduler.conf
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 

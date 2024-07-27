@@ -5,16 +5,46 @@ namespace App\EventListener;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class RequestListener
 {
+
+    public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker)
+    {
+    }
+
+    #[AsEventListener(event: KernelEvents::REQUEST)]
+    public function onKernelRequest(RequestEvent $event): void
+    {
+        $this->authorizeUserStatus($event);
+        $this->trimRequestInputs($event);
+    }
+
+    /**
+     * For all ^/api routes that require role: IS_AUTHENTICATED_FULLY add also custom voter to check if
+     * account is active or not (if not active /api/users/activate will be only route available (See voter setup!))
+     * @param RequestEvent $event
+     * @return void
+     */
+    private function authorizeUserStatus(RequestEvent $event): void
+    {
+        if (
+            $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')
+            && !$this->authorizationChecker->isGranted('USER_STATUS')
+        )
+        {
+            throw new AccessDeniedException('Access Denied.');
+        }
+    }
+
     /**
      * On each request all inputs from query params and json payload are trimmed
      * @param RequestEvent $event
      * @return void
      */
-    #[AsEventListener(event: KernelEvents::REQUEST)]
-    public function onKernelRequest(RequestEvent $event): void
+    private function trimRequestInputs(RequestEvent $event): void
     {
         $request = $event->getRequest();
 //         Trim query parameters
@@ -39,6 +69,7 @@ final class RequestListener
             }
         }
     }
+
     private function trimArray(array $data): array
     {
         return array_map(function ($item) {

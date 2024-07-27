@@ -73,6 +73,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setFullName($fullName);
         $user->setEmail($email);
         $user->setPassword($password);
+        $user->setScheduledDeletionDate();
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
@@ -116,16 +117,56 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Deactivates the user
+     * Deactivates the user and sets scheduled deletion date
      * @param User $user
      * @return void
      */
-    public function deactivate(User $user):void
+    public function deactivate(User $user): void
     {
         $user->setIsActive(false);
         $user->setScheduledDeletionDate();
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Activates the user and clears scheduled deletion date
+     * @param User $user
+     * @return void
+     */
+    public function activate(User $user): void
+    {
+        $user->setIsActive(true);
+        $user->clearScheduledDeletionDate();
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    public function deleteUsers(): void
+    {
+        $userIds = $this->getUsersScheduledForDeletion();
+
+        if (!empty($userIds)) {
+            $entityManager = $this->getEntityManager();
+            foreach ($userIds as $userId) {
+                $user = $this->find($userId['id']);
+                if ($user) {
+                    $entityManager->remove($user);
+                }
+            }
+            $entityManager->flush();
+        }
+    }
+
+    private function getUsersScheduledForDeletion(): array
+    {
+        $now = new \DateTime();
+        return $this->createQueryBuilder('u')
+            ->select('u.id')
+            ->where('u.scheduledDeletionDate < :now')
+            ->setParameter('now', $now)
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -135,7 +176,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      */
     private function isEmailAvailable(string $email): bool
     {
-//        Checking if email exist in db
+//        Checking if email exists in db
         $isEmailTaken = (bool) $this->createQueryBuilder('u')
             ->select('count(u.id)')
             ->where('u.email = :email')
