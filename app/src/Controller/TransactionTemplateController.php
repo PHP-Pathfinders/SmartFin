@@ -52,6 +52,10 @@ class TransactionTemplateController extends AbstractController
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -112,6 +116,10 @@ class TransactionTemplateController extends AbstractController
                 description: 'Invalid category given',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -161,6 +169,10 @@ class TransactionTemplateController extends AbstractController
                 description: 'Invalid category given or you do not have ownership of the template',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -200,6 +212,10 @@ class TransactionTemplateController extends AbstractController
                 description: 'Transaction template you selected is either not owned by you or does not exist',
                 content: new OA\JsonContent(ref: '#/components/schemas/TemplateDeletionError')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
 
         ]
     )]

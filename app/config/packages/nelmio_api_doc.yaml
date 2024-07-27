@@ -585,7 +585,7 @@ nelmio_api_doc:
             - type: object
               properties:
                 message:
-                  example: "Logged out successfully"
+                  example: "No exports found"
         Logout:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
@@ -637,6 +637,42 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "User updated successfully"
+        EmailVerifySuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Your email address has been verified"
+        EmailInvalidSig:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Invalid signature"
+        ResetSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Your password has been reset successfully"
+        ResetInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "token"
+                      message:
+                        example: "Token must be provided and cannot be blank"
+                      code:
+                        example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
         ResetForbidden:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -644,6 +680,63 @@ nelmio_api_doc:
           properties:
             message:
               example: "Invalid reset password token"
+        UserPatchError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "birthday"
+                      message:
+                        example: "The birthday must be a valid date in the format YYYY-MM-DD."
+                      code:
+                        example: "69819696-02ac-4a99-9ff0-14e127c4d1bc"
+        PassChangeSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Your password has been changed successfully"
+        PassChangeError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Incorrect old password"
+        ImageSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Profile image is updated successfully"
+        ImageError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Form is not submitted or not valid. Image can be only jpg, jpeg or png"
+        DeactivateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Your account has been deactivated successfully"
+        DeactivateError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Incorrect password"
         ExportsUserNotFound:
           allOf:
             - $ref: '#/components/schemas/FailedAction'

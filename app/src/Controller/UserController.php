@@ -58,6 +58,10 @@ class UserController extends AbstractController
                 response: 400,
                 description: 'Bad Request JSON body data given',
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     public function login(): JsonResponse
@@ -73,8 +77,9 @@ class UserController extends AbstractController
     #[OA\Post(
         description: 'This is supposed to be a logout but it is not really utilized',
         summary: 'Logout of account',
-        tags: ['User'],responses: [ new OA\Response(response: 200, description: 'Logged out', content: new OA\JsonContent(ref: '#/components/schemas/Logout'))]
-    )]
+        tags: ['User'], responses: [
+        new OA\Response(response: 200, description: 'Logged out', content: new OA\JsonContent(ref: '#/components/schemas/Logout')),
+        new OA\Response(response: 401, description: 'Unauthorized access detected', content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')),])]
     public function logout(): JsonResponse
     {
         // This endpoint doesn't need to do anything server-side
@@ -83,6 +88,7 @@ class UserController extends AbstractController
             'message' => 'Logged out successfully',
         ]);
     }
+
     #[Route('/register', name: 'api_register', methods: ['POST'])]
     #[OA\Post(
         description: 'Register new account that will be used on this site',
@@ -108,6 +114,10 @@ class UserController extends AbstractController
                 response: 409,
                 description: 'Same email already registered on our site',
                 content: new OA\JsonContent(ref: '#/components/schemas/RegisterEmailConflict')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
         ]
     )]
@@ -131,30 +141,31 @@ class UserController extends AbstractController
         description: 'Used for verifying email for your account',
         summary: 'Verify your email',
         tags: ['User'],
+        parameters: [ new OA\Parameter(name: 'token', in: 'query'), new OA\Parameter(name: 'signature', in: 'query')],
         responses: [
-            //TODO need more info
             new OA\Response(
                 response: 200,
-                description: 'Successful account registration done',
+                description: 'Successful account email verification done',
+                content: new OA\JsonContent(ref: '#/components/schemas/EmailVerifySuccess')
             ),
             new OA\Response(
                 response: 400,
                 description: 'Bad Request JSON body data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/EmailInvalidSig')
             ),
             new OA\Response(
-                response: 409,
-                description: 'Same email already registered on our site',
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
         ]
     )]
-    #[NSecurity(name: 'Bearer')]
     public function verifyEmail(
         #[MapQueryParameter] int $id,
-        UserService $userService,
-        Request $request
+        UserService              $userService,
+        Request                  $request
     ): JsonResponse
     {
-        $userService->verifyEmail($id,$request);
+        $userService->verifyEmail($id, $request);
 
         return $this->json([
             'success' => true,
@@ -167,13 +178,14 @@ class UserController extends AbstractController
      */
     #[Route('/reset-password', name: 'api_reset_password', methods: ['PATCH'])]
     #[OA\Patch(
-        description: 'Used for resetting password for your account',
-        summary: 'Reset password for account',
+        description: 'Used for resetting password of your account',
+        summary: 'Reset password for certain account',
         tags: ['User'],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Successful account registration done',
+                content: new OA\JsonContent(ref: '#/components/schemas/ResetSuccess')
             ),
             new OA\Response(
                 response: 400,
@@ -189,13 +201,16 @@ class UserController extends AbstractController
                 response: 403,
                 description: 'Invalid token',
                 content: new OA\JsonContent(ref: '#/components/schemas/ResetForbidden')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
         ]
     )]
-    #[NSecurity(name: 'Bearer')]
     public function resetPassword(
         #[MapRequestPayload] ResetPasswordDto $resetPasswordDto,
-        UserService $userService
+        UserService                           $userService
     ): JsonResponse
     {
         $userService->resetPassword($resetPasswordDto);
@@ -204,7 +219,8 @@ class UserController extends AbstractController
             'message' => 'Your password has been reset successfully'
         ]);
     }
-    #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'] )]
+
+    #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'])]
     #[OA\Get(
         description: 'Provides all details about singular registered user',
         summary: 'Gives data about single user',
@@ -225,10 +241,14 @@ class UserController extends AbstractController
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     public function fetchUser(
-        int $id,
+        int         $id,
         UserService $userService
     ): JsonResponse
     {
@@ -239,13 +259,43 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id<\d+>}/change-password', name: 'api_change_password', methods: ['PATCH'] )]
-    #[OA\Tag(name: 'User')]
+    #[Route('/{id<\d+>}/change-password', name: 'api_change_password', methods: ['PATCH'])]
+    #[OA\Patch(
+        description: 'Provides a password change functionality for user\'s account',
+        summary: 'Used for changing password for user account',
+        tags: ['User'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/PassChangeSuccess')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'User not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad request sent',
+                content: new OA\JsonContent(ref: '#/components/schemas/PassChangeError')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
+        ]
+    )]
     public function changePassword(
-        int $id,
+        int                                    $id,
         #[MapRequestPayload] ChangePasswordDto $changePasswordDto,
-        UserService $userService
-    ) :JsonResponse
+        UserService                            $userService
+    ): JsonResponse
     {
         $userService->changePassword($changePasswordDto, $id);
         return $this->json([
@@ -276,18 +326,28 @@ class UserController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
+                response: 400,
+                description: 'Bad Request JSON body data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
+            ),
+            new OA\Response(
                 response: 422,
                 description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserPatchError')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     public function update(
-        int $id,
-        UserService $userService,
+        int                                $id,
+        UserService                        $userService,
         #[MapRequestPayload] UpdateDataDto $updateDataDto
     ): JsonResponse
     {
-        if(!$updateDataDto->fullName && !$updateDataDto->birthday){
+        if (!$updateDataDto->fullName && !$updateDataDto->birthday) {
             return $this->json([
                 'success' => false,
                 'message' => 'Nothing to update'
@@ -302,14 +362,63 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id<\d+>}/image', name:'api_update_image', methods: ["POST"])]
-    #[OA\Tag(name: 'User')]
+    #[Route('/{id<\d+>}/image', name: 'api_update_image', methods: ["POST"])]
+    #[OA\Post(
+        description: 'Gives user freedom to change his avatar picture with appropriate and valid one',
+        summary: 'Used for changing profile avatar picture for user account',
+        requestBody: new OA\RequestBody(
+            description: 'Profile image file',
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    required: ['avatar'],
+                    properties: [
+                        new OA\Property(
+                            property: 'avatar',
+                            description: 'Avatar image file',
+                            type: 'string',
+                            format: 'binary'
+                        )
+                    ],
+                    type: 'object'
+                )
+            )
+        ),
+        tags: ['User'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/ImageSuccess')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'User not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad request sent',
+                content: new OA\JsonContent(ref: '#/components/schemas/ImageError')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
+        ]
+    )]
     public function updateProfileImage(
-        int $id,
-        Request $request,
+        int         $id,
+        Request     $request,
         UserService $userService,
-        Security $security,
-    ) :JsonResponse
+        Security    $security,
+    ): JsonResponse
     {
         /** @var User $user */
         $user = $security->getUser();
@@ -317,9 +426,9 @@ class UserController extends AbstractController
             throw new NotFoundHttpException('User not found');
         }
         $form = $this->createForm(UserType::class, $user);
-        $isUploaded = $userService->updateProfileImage($request,$form,$user,$id);
+        $isUploaded = $userService->updateProfileImage($request, $form, $user, $id);
 
-        if($isUploaded) {
+        if ($isUploaded) {
             return $this->json([
                 'success' => true,
                 'message' => 'Profile image is updated successfully'
@@ -331,13 +440,43 @@ class UserController extends AbstractController
         ], Response::HTTP_BAD_REQUEST);
     }
 
-    #[Route('/{id<\d+>}/deactivate', name: 'api_deactivate', methods: ['PATCH'] )]
-    #[OA\Tag(name: 'User')]
+    #[Route('/{id<\d+>}/deactivate', name: 'api_deactivate', methods: ['PATCH'])]
+    #[OA\Patch(
+        description: 'Deactivates user account after which will his access to site be limited and also will have a time period of 7 days to re-activate it',
+        summary: 'Used for deactivating the user account',
+        tags: ['User'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/DeactivateSuccess')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'User not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad request sent',
+                content: new OA\JsonContent(ref: '#/components/schemas/DeactivateError')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
+        ]
+    )]
     public function deactivate(
-        int $id,
+        int                                       $id,
         #[MapRequestPayload] DeactivateAccountDto $deactivateAccountDto,
-        UserService $userService
-    ) :JsonResponse
+        UserService                               $userService
+    ): JsonResponse
     {
         $password = $deactivateAccountDto->password;
         $userService->deactivate($password, $id);
@@ -354,7 +493,7 @@ class UserController extends AbstractController
     #[Route('/reset-password-page', name: 'app_reset_password_page', methods: ['GET'])]
     #[OA\Tag(name: 'User')]
     #[NSecurity(name: 'Bearer')]
-    public function resetPasswordPage():Response
+    public function resetPasswordPage(): Response
     {
         return $this->render('reset-password/reset_password.html.twig');
     }

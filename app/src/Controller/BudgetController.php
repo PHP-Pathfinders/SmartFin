@@ -47,6 +47,10 @@ class BudgetController extends AbstractController
                 response: 401,
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
         ]
     )]
@@ -97,7 +101,12 @@ class BudgetController extends AbstractController
                 response: 422,
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/YearInputError')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
+
         ]
 
     )]
@@ -153,6 +162,10 @@ class BudgetController extends AbstractController
                 response: 409,
                 description: 'Same budget already exists in same month',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetConflict')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
         ]
     )]
@@ -208,6 +221,10 @@ class BudgetController extends AbstractController
                 description: 'Budget you selected is either not owned by you or does not exist or invalid category was given',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateFail')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     public function update(
@@ -244,6 +261,10 @@ class BudgetController extends AbstractController
                 description: 'Budget you selected is either not owned by you or does not exist',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateFail')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
 
         ]
     )]

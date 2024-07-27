@@ -34,9 +34,13 @@ class PdfXlsController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'Invalid category given',
+                description: 'User not found',
                 content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     public function generatePDF(
@@ -69,7 +73,7 @@ class PdfXlsController extends AbstractController
             ),
             new OA\Response(
                 response: 401,
-                description: 'Unauthorized access detected',
+                description: 'User not found',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(

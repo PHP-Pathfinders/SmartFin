@@ -97,6 +97,10 @@ class ExportController extends AbstractController
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     public function downloadFile(

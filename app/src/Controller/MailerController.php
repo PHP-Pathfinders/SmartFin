@@ -51,6 +51,10 @@ class MailerController extends AbstractController
                 description: 'Too many requests',
                 content: new OA\JsonContent(ref: '#/components/schemas/MailerTooMany')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     public function resetPassword(

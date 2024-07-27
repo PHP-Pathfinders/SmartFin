@@ -50,6 +50,10 @@ class CategoryController extends AbstractController
                 response: 422,
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryQueryError')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
         ]
     )]
@@ -108,6 +112,10 @@ class CategoryController extends AbstractController
             new OA\Response(
                 response: 409,
                 description: 'You already have a category with the given name for that type.'
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
         ]
     )]
@@ -160,6 +168,10 @@ class CategoryController extends AbstractController
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryInputError')
             ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -204,6 +216,10 @@ class CategoryController extends AbstractController
                 response: 403,
                 description: 'Cannot delete default category',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryForbiddenDelete')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
             )
 
         ]
