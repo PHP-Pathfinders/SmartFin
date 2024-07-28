@@ -50,6 +50,15 @@ class CategoryController extends AbstractController
                 response: 422,
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryQueryError')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
             )
         ]
     )]
@@ -93,22 +102,31 @@ class CategoryController extends AbstractController
             new OA\Response(
                 response: 422,
                 description: 'Invalid input data given',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/CategoryInputError'
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryInputError')
             ),
             new OA\Response(
                 response: 401,
                 description: 'Unauthorized access detected',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/Unauthorized'
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
                 response: 400,
                 description: 'Bad Request',
                 content: new OA\JsonContent(ref: '#/components/schemas/InvalidRequest')
             ),
+            new OA\Response(
+                response: 409,
+                description: 'You already have a category with the given name for that type.'
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -138,9 +156,7 @@ class CategoryController extends AbstractController
             new OA\Response(
                 response: 401,
                 description: 'Unauthorized access detected',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/Unauthorized'
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
                 response: 403,
@@ -155,13 +171,17 @@ class CategoryController extends AbstractController
             new OA\Response(
                 response: 404,
                 description: 'Category you selected is either not owned by you or does not exist',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'success', type: 'boolean', example: false),
-                        new OA\Property(property: 'message', type: 'string', example: "Category not found or does not belongs to you")
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryFailed')
             ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryInputError')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
         ]
     )]
     #[Security(name: 'Bearer')]
@@ -182,7 +202,38 @@ class CategoryController extends AbstractController
      * - Example url: localhost:8080/api/categories/123
      */
     #[Route('/{id<\d+>}', name: 'api_delete_category', methods: ['DELETE'])]
-    #[OA\Tag(name: 'Categories')]
+    #[OA\Delete(
+        description: "Removes category that is in ownership of logged user",
+        summary: "Deletes specific category based on given id",
+        tags: ['Categories'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful category deletion',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryDeleteSuccess')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Category you selected is either not owned by you or does not exist',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryFailed')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Cannot delete default category',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryForbiddenDelete')
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
+
+        ]
+    )]
     #[Security(name: 'Bearer')]
     public function delete(int $id, CategoryService $categoryService): JsonResponse
     {

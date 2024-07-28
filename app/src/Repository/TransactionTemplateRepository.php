@@ -55,7 +55,7 @@ class TransactionTemplateRepository extends ServiceEntityRepository
             ->setParameter('user', $user);
 
         $qb = $this->createQueryBuilder('tt')
-            ->select('tt.id, tt.transactionName, tt.paymentType, tt.moneyAmount, tt.partyName, tt.transactionNotes, c.type, c.categoryName, c.color')
+            ->select('tt.id, tt.transactionName, tt.paymentType, tt.moneyAmount, tt.partyName, tt.transactionNotes,c.id as CategoryID, c.type, c.categoryName, c.color')
             ->leftJoin('tt.category', 'c')
             ->leftJoin('c.user', 'u')
             ->andWhere('tt.user = :user')
