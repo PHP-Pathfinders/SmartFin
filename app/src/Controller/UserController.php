@@ -36,7 +36,7 @@ class UserController extends AbstractController
             required: true,
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'username', type: 'string', example: 'user@gmail.com'),
+                    new OA\Property(property: 'username', type: 'string', example: 'jane@gmail.com'),
                     new OA\Property(property: 'password', type: 'string', example: 'Password#1')
                 ],
                 type: 'object'

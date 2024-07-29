@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Dto\Category\CategoryQueryDto;
 use App\Dto\Category\CategoryUpdateDto;
+use App\Dto\Transaction\DashboardDto;
 use App\Dto\Transaction\OverviewDto;
 use App\Dto\Transaction\SpendingsDto;
 use App\Dto\Transaction\TransactionCreateDto;
@@ -13,6 +14,7 @@ use App\Service\TransactionService;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -95,6 +97,7 @@ class TransactionController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/OverviewSuccess')
             ),
             new OA\Response(
                 response: 404,
@@ -152,6 +155,7 @@ class TransactionController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Successful response',
+                content: new OA\JsonContent(ref: '#/components/schemas/SpendingsSuccess')
             ),
             new OA\Response(
                 response: 404,
@@ -209,7 +213,33 @@ class TransactionController extends AbstractController
         );
     }
 
-    #[Route('', name: 'api_add_transaction', methods: ['POST'])]
+    #[Route('/dashboard', methods: ['GET'])]
+    #[Security(name: 'Bearer')]
+    public function dashboard(
+        TransactionService $transactionService,
+        #[MapQueryString] ?DashboardDto $dashboardDto
+    ): JsonResponse
+    {
+        $month = $dashboardDto->month ?? date('m');
+        $year = $dashboardDto->year ?? date('Y');
+        $data = $transactionService->fetchDashboard($month, $year);
+
+
+        if (empty($data)){
+            return $this->json([
+                'success' => false,
+                'message' => 'No data found'
+            ],Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
+
+    #[Route(name: 'api_add_transaction', methods: ['POST'])]
     #[OA\Post(
         description: 'Used for creating new transaction with current logged user as its owner',
         summary: "Creates a income/expense transaction",

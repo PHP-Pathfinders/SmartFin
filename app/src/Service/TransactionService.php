@@ -51,6 +51,14 @@ readonly class TransactionService
         return $this->transactionRepository->spendingByCategories($month, $year, $user);
     }
 
+    public function fetchDashboard(string $month, string $year): array
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        return $this->transactionRepository->fetchDashboard($user, $year, $month);
+
+    }
+
     public function create(TransactionCreateDto $transactionCreateDto): void
     {
 

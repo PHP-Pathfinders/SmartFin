@@ -9,9 +9,11 @@ use App\Entity\Category;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -22,7 +24,7 @@ class TransactionRepository extends ServiceEntityRepository
     public function __construct(
         ManagerRegistry                         $registry,
         private readonly EntityManagerInterface $entityManager,
-        private readonly PaginatorInterface $paginator
+        private readonly PaginatorInterface     $paginator
     )
     {
         parent::__construct($registry, Transaction::class);
@@ -51,7 +53,7 @@ class TransactionRepository extends ServiceEntityRepository
         $orderBy = $transactionQueryDto->orderBy ?? null;
         $sortBy = $transactionQueryDto->sortBy ?? null;
 
-        if ( (!$dateStart && $dateEnd) || $dateStart > $dateEnd ) {
+        if ((!$dateStart && $dateEnd) || $dateStart > $dateEnd) {
             throw new NotFoundHttpException('Invalid date format');
         }
 
@@ -164,7 +166,7 @@ class TransactionRepository extends ServiceEntityRepository
             ->where('t.user = :user OR c.user IS NULL')
             ->andWhere('YEAR(t.transactionDate) = :year')
             ->setParameter('user', $user)
-            ->setParameter('year',$year)
+            ->setParameter('year', $year)
             ->groupBy('year, month')
             ->orderBy('year', 'ASC')
             ->addOrderBy('month', 'ASC');
@@ -218,6 +220,45 @@ class TransactionRepository extends ServiceEntityRepository
         }
 
         return $results;
+    }
+
+    public function fetchDashboard(User $user, string $year, string $month): array
+    {
+        if ($month == 1) {
+            $previousMonth = 12;
+            $previousYear = $year - 1;
+        } else {
+            $previousMonth = $month - 1;
+            $previousYear = $year;
+        }
+
+
+        $dashboardData = $this->createQueryBuilder('t')
+            ->select('
+            MONTH(t.transactionDate) AS month, YEAR(t.transactionDate) AS year, 
+            SUM(CASE WHEN c.type = \'income\' THEN t.moneyAmount ELSE 0 END) AS totalIncome, 
+            SUM(CASE WHEN c.type = \'expense\' THEN t.moneyAmount ELSE 0 END) AS totalExpense,
+            (SUM(CASE WHEN c.type = \'income\' THEN t.moneyAmount ELSE 0 END)) - (SUM(CASE WHEN c.type = \'expense\' THEN t.moneyAmount ELSE 0 END)) AS savings
+            ')
+            ->leftJoin('t.category', 'c')
+            ->where('t.user = :user')
+            ->andWhere('YEAR(t.transactionDate) = :year AND MONTH(t.transactionDate) = :month')
+            ->setParameter('user', $user)
+            ->setParameter('year', $year)
+            ->setParameter('month', $month)
+            ->groupBy('year, month')
+            ->orderBy('year', 'ASC')
+            ->addOrderBy('month', 'ASC');
+
+        $results['current'] = $dashboardData->getQuery()->getResult();
+        $results['previous'] = $dashboardData->where('t.user = :user')
+            ->andWhere('YEAR(t.transactionDate) = :year AND MONTH(t.transactionDate) = :month')
+            ->setParameter('user', $user)
+            ->setParameter('year', $previousYear)
+            ->setParameter('month', $previousMonth)
+            ->getQuery()
+            ->getResult();
+        return  $results;
     }
 
     /**
@@ -342,7 +383,7 @@ class TransactionRepository extends ServiceEntityRepository
             'c.categoryName' => $categoryName,
             'c.type' => $type,
             't.moneyAmount' => $moneyAmount,
-            't.paymentType' => $paymentType ,
+            't.paymentType' => $paymentType,
             't.transactionName' => $transactionName,
             't.partyName' => $partyName,
             't.transactionNotes' => $transactionNotes,
@@ -355,7 +396,7 @@ class TransactionRepository extends ServiceEntityRepository
 
         // If only one or more category fields are true, join category
         if ($categoryName || $type || $color) {
-            $transactions->leftJoin('t.category','c');
+            $transactions->leftJoin('t.category', 'c');
         }
         // Add separate day, month, and year fields if $transactionDate is true
 
@@ -376,7 +417,7 @@ class TransactionRepository extends ServiceEntityRepository
 
         $transactions->andWhere('t.user = :user')
             ->setParameter('user', $user)
-            ->orderBy('t.transactionDate','DESC');
+            ->orderBy('t.transactionDate', 'DESC');
 
         return $transactions->getQuery()->getResult();
 

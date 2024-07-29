@@ -480,6 +480,49 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "Transaction template with id 13 successfully deleted"
+        SpendingsSuccess:
+          type: object
+          properties:
+            success:
+              example: true
+            month:
+              example: 7
+            year:
+              example: 2024
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  categoryName:
+                    example: Shopping
+                  totalExpense:
+                    example: 897.667
+                  percentage:
+                    example: 100
+        OverviewSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  example:
+                    - month: 1
+                      year: 2024
+                      totalIncome: 6014.846
+                      totalExpense: 6378.543
+                    - month: 2
+                      year: 2024
+                      totalIncome: 0
+                      totalExpense: 6169.177
+                    - month: 3
+                      year: 2024
+                      totalIncome: 22349.090
+                      totalExpense: 22993.34
+                    - month: 4
+                      year: 2024
+                      totalIncome: 0
+                      totalExpense: 5081.696
         LoginSuccess:
           type: object
           properties:
