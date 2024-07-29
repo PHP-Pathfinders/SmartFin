@@ -7,11 +7,9 @@ use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\RegisterDto;
 use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
-use App\Form\UserType;
 use App\Message\SendEmailVerification;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -19,9 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -86,7 +82,7 @@ readonly class UserService
         $this->bus->dispatch(new SendEmailVerification($email));
     }
 
-    public function fetchUser(int $userId) :array
+    public function fetch(int $userId) :array
     {
 //        $this->checkUser($userId);
         // Search by user id

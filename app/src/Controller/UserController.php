@@ -267,12 +267,12 @@ class UserController extends AbstractController
             )
         ]
     )]
-    public function fetchUser(
+    public function fetch(
         int         $id,
         UserService $userService
     ): JsonResponse
     {
-        $profileData = $userService->fetchUser($id);
+        $profileData = $userService->fetch($id);
         return $this->json([
             'success' => true,
             'data' => $profileData
