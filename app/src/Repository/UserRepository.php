@@ -39,15 +39,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * Reset password
      * @param string $password
      * @param User $user
-     * @return void
+     * @return User
      */
-    public function resetPassword(string $password, User $user): void
+    public function resetPassword(string $password, User $user): User
     {
         $user->setPassword($password);
         // Log out user from all devices
         $user->incrementJwtVersion();
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
 
@@ -62,9 +63,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param string $email
      * @param string $password
      * @param User $user
-     * @return void
+     * @return User
      */
-    public function register(string $fullName, string $email, string $password,User $user):void
+    public function register(string $fullName, string $email, string $password,User $user): User
     {
         $isEmailAvailable = $this->isEmailAvailable($email);
         if (!$isEmailAvailable) {
@@ -76,6 +77,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setScheduledDeletionDate();
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
     public function update(UpdateDataDto $updateDataDto, User $user):void

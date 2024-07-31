@@ -35,8 +35,5 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN curl -sS https://get.symfony.com/cli/installer | bash
 
-# Ensure supervisor directories exist
-RUN mkdir -p /var/log/supervisor /var/run/supervisor
-
 # Command to run Supervisor
 CMD ["/usr/bin/supervisord","-n", "-c", "/etc/supervisor/supervisord.conf"]

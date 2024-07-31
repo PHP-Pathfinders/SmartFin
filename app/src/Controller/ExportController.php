@@ -18,7 +18,7 @@ class ExportController extends AbstractController
     /**
      * Get a list of all exports made by a user
      */
-    #[Route('', name: 'api_export_list', methods: ['GET'])]
+    #[Route(name: 'api_export_list', methods: ['GET'])]
     #[OA\Get(
         description: 'Gives a list of all pdf and xls files that are associated with user',
         summary: 'Get a list of all exports made by a user',

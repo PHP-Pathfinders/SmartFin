@@ -51,24 +51,27 @@ readonly class UserService
     }
 
     /**
+     * @param ResetPasswordDto $resetPasswordDto
+     * @return User
      * @throws ResetPasswordExceptionInterface
      */
-    public function resetPassword(ResetPasswordDto $resetPasswordDto):void
+    public function resetPassword(ResetPasswordDto $resetPasswordDto): User
     {
         $token = $resetPasswordDto->token;
         // This will throw an error if the token is invalid
         /** @var  User $user */
-
         $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
 
         $hashedPassword = $this->passwordHasher->hashPassword($user, $resetPasswordDto->password);
-        $this->userRepository->resetPassword($hashedPassword,$user);
+        return $this->userRepository->resetPassword($hashedPassword,$user);
     }
 
     /**
+     * @param RegisterDto $registerDto
+     * @return User
      * @throws ExceptionInterface
      */
-    public function register(RegisterDto $registerDto):void
+    public function register(RegisterDto $registerDto): User
     {
         $fullName = $registerDto->fullName;
         $email = $registerDto->email;
@@ -77,9 +80,9 @@ readonly class UserService
 //        Make new instance of user and hash password
         $user = new User();
         $hashedPassword = $this->passwordHasher->hashPassword($user,$plainPassword);
-        $this->userRepository->register($fullName,$email,$hashedPassword,$user);
-
+        $user = $this->userRepository->register($fullName,$email,$hashedPassword,$user);
         $this->bus->dispatch(new SendEmailVerification($email));
+        return $user;
     }
 
     public function fetch(int $userId) :array

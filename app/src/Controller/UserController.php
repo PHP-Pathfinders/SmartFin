@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 use OpenApi\Attributes as OA;
@@ -137,10 +138,10 @@ class UserController extends AbstractController
     ): JsonResponse
     {
 //        TODO return user object
-        $userService->register($registerDto);
+        $user = $userService->register($registerDto);
         return $this->json([
             'success' => true,
-            'message' => 'User registered successfully'
+            'data' => $user
         ]);
     }
 
@@ -229,11 +230,14 @@ class UserController extends AbstractController
         UserService                           $userService
     ): JsonResponse
     {
-        $userService->resetPassword($resetPasswordDto);
-//        TODO return user object
+        $user = $userService->resetPassword($resetPasswordDto);
         return $this->json([
             'success' => true,
-            'message' => 'Your password has been reset successfully'
+            'data' => $user
+         ],Response::HTTP_OK,[],[
+             ObjectNormalizer::CIRCULAR_REFERENCE_HANDLER => function ($object) {
+                return $object;//TODO fix Circular Reference problem
+             }
         ]);
     }
 
