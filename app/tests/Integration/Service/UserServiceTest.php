@@ -2,17 +2,28 @@
 
 namespace App\Tests\Integration\Service;
 
+use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\RegisterDto;
+use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\String\UnicodeString;
+use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 class UserServiceTest extends KernelTestCase
 {
@@ -21,6 +32,8 @@ class UserServiceTest extends KernelTestCase
     private UserRepository $userRepository;
     private TokenStorageInterface $tokenStorage;
     private int $userId = 1;
+    private UserPasswordHasherInterface  $passwordHasher;
+    private ResetPasswordHelperInterface $resetPasswordHelper;
     protected function setUp(): void
     {
         self::bootKernel();
@@ -29,6 +42,8 @@ class UserServiceTest extends KernelTestCase
         $this->userRepository = $container->get(UserRepository::class);
         $this->tokenStorage = $container->get(TokenStorageInterface::class);
         $this->userService = $container->get(UserService::class);
+        $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
+        $this->resetPasswordHelper = $container->get(ResetPasswordHelperInterface::class);
     }
 
     private function mockLogin(): User
@@ -122,50 +137,90 @@ class UserServiceTest extends KernelTestCase
 
     public function testUpdateProfileImage(): void
     {
-//        TODO Finish off this test
         $user = $this->mockLogin();
-        // Mock a file upload
-        $tempFile = tmpfile();
-        $metaData = stream_get_meta_data($tempFile);
-        $tempFilePath = $metaData['uri'];
-        fwrite($tempFile, 'dummy image content');
-        $uploadedFile = new UploadedFile(
-            $tempFilePath,
-            'avatar.jpg',
-            'image/jpeg',
-            null,
-            true
-        );
+        $form = $this->createMock(FormInterface::class);
+        $slugger = $this->createMock(SluggerInterface::class);
+        // Mock the SluggerInterface to return a safe filename
+
+        $slugger->method('slug')->willReturn(new UnicodeString('safe-filename'));
+        // Mock the form submission and validation
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $avatarFile = $this->createMock(UploadedFile::class);
+        $avatarFile->method('getClientOriginalName')->willReturn('avatar.png');
+        $avatarFile->method('guessExtension')->willReturn('png');
+        // Create a mock File object to return from the move method
+        $mockFile = $this->createMock(File::class);
+        $avatarFile->method('move')->willReturn($mockFile);
+
+        // Mock the form's getData to return the UploadedFile
+        $form->method('get')->willReturnSelf();
+        $form->method('getData')->willReturn($avatarFile);
 
         // Create a mock request
-        $request = new Request([], [], [], [], ['avatar' => $uploadedFile]);
+        $request = new Request();
 
-        // Mock form handling
-        $this->form->expects($this->once())
-            ->method('handleRequest')
-            ->with($request);
-
-        $this->form->expects($this->once())
-            ->method('isSubmitted')
-            ->willReturn(true);
-
-        $this->form->expects($this->once())
-            ->method('isValid')
-            ->willReturn(true);
-
-        $this->form->expects($this->once())
-            ->method('get')
-            ->with('avatar')
-            ->willReturn($this->createConfiguredMock(FormInterface::class, ['getData' => $uploadedFile]));
-
-        // Call the method to test
-        $result = $this->userService->updateProfileImage($request, $this->form, $user, $user->getId());
-
-        // Assert that the profile image was updated
+        // Call the method and assert the result
+        $result = $this->userService->updateProfileImage($request, $form, $user, $user->getId());
         $this->assertTrue($result);
-
-        // Clean up temporary file
-        fclose($tempFile);
     }
+    public function testUpdateProfileImageInvalidForm(): void
+    {
+        $user = $this->mockLogin();
+        $form = $this->createMock(FormInterface::class);
+        $request = new Request();
 
+        // Simulate form not being submitted
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(false);
+
+        $result = $this->userService->updateProfileImage($request, $form, $user, $user->getId());
+        $this->assertFalse($result);
+    }
+    public function testChangePasswordSuccess(): void
+    {
+        $user = $this->mockLogin();
+        $changePasswordDto = new ChangePasswordDto('Password#1','NewPassword#1','NewPassword#1');
+        $this->userService->changePassword($changePasswordDto,1);
+        $this->assertTrue($this->passwordHasher->isPasswordValid($user, 'NewPassword#1'));
+    }
+    public function testChangePasswordIncorrectOldPassword(): void
+    {
+        $this->mockLogin();
+        $changePasswordDto = new ChangePasswordDto('IncorrectPass','NewPassword#1','NewPassword#1');
+        $this->expectException(BadRequestException::class);
+        $this->userService->changePassword($changePasswordDto,1);
+    }
+    public function testResetPasswordSuccess(): void
+    {
+        // Generate a real reset token
+        $resetToken = $this->resetPasswordHelper->generateResetToken($this->userRepository->find(1));
+        $resetPasswordDto = new ResetPasswordDto($resetToken->getToken(),'NewPassword#1','NewPassword#1');
+        $this->userService->resetPassword($resetPasswordDto);
+        $this->assertTrue($this->passwordHasher->isPasswordValid($this->userRepository->find(1), 'NewPassword#1'));
+    }
+    public function testResetPasswordBadToken(): void
+    {
+        $resetToken = 'BadToken';
+        $resetPasswordDto = new ResetPasswordDto($resetToken,'NewPassword#1','NewPassword#1');
+        $this->expectException(InvalidResetPasswordTokenException::class);
+        $this->userService->resetPassword($resetPasswordDto);
+        $this->assertTrue($this->passwordHasher->isPasswordValid($this->userRepository->find(1), 'NewPassword#1'));
+    }
+    public function testDeactivateAndActivate(): void
+    {
+        $user = $this->mockLogin();
+        $this->userService->deactivate('Password#1',1);
+        $this->assertFalse($user->getIsActive());
+        $this->userService->activate(1);
+        // Reload user
+        $user = $this->userRepository->find(1);
+        $this->assertTrue($user->getIsActive());
+    }
+    public function testDeactivateWrongPassword(): void
+    {
+        $user = $this->mockLogin();
+        $this->expectException(BadRequestException::class);
+        $this->userService->deactivate('WrongPassword',1);
+    }
 }
