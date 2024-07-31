@@ -9,6 +9,7 @@ use App\Dto\Transaction\TransactionUpdateDto;
 use App\Entity\Category;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
+use App\Repository\DashboardRepository;
 use App\Repository\TransactionRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -20,6 +21,7 @@ readonly class TransactionService
         private Security              $security,
         private TransactionRepository $transactionRepository,
         private CategoryRepository    $categoryRepository,
+        private DashboardRepository   $dashboardRepository
     )
     {
     }
@@ -39,7 +41,7 @@ readonly class TransactionService
          * @var User $user
          */
         $user = $this->security->getUser();
-        return $this->transactionRepository->transactionOverview($user,$year);
+        return $this->transactionRepository->transactionOverview($user, $year);
     }
 
     public function spendingByCategories(string $month, string $year): array
@@ -51,13 +53,6 @@ readonly class TransactionService
         return $this->transactionRepository->spendingByCategories($month, $year, $user);
     }
 
-    public function fetchDashboard(string $month, string $year): array
-    {
-        /** @var User $user */
-        $user = $this->security->getUser();
-        return $this->transactionRepository->fetchDashboard($user, $year, $month);
-
-    }
 
     public function create(TransactionCreateDto $transactionCreateDto): void
     {
@@ -71,6 +66,12 @@ readonly class TransactionService
         if (!$category) {
             throw new NotFoundHttpException("Invalid category given");
         }
+
+//        $dashboard = $this->dashboardRepository->findByDateAndUser($user, $transactionCreateDto->transactionDate);
+
+
+//        $prevDashboard = $this->dashboardRepository->findByDateAndUser($user,(new \DateTime($transactionCreateDto->transactionDate))->modify('last day of previous month')->format('Y-m-d'));
+
 
         $this->transactionRepository->create($transactionCreateDto, $user, $category);
 
@@ -93,13 +94,13 @@ readonly class TransactionService
         $currentCategory = $transaction->getCategory();
         $currentCategoryType = $currentCategory->getType();
 
-        $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : $currentCategory ;
+        $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : $currentCategory;
 
         if (!$category) {
             throw new NotFoundHttpException("Category could not be found");
         }
 
-        if($currentCategoryType !== $category->getType()){
+        if ($currentCategoryType !== $category->getType()) {
             throw new ConflictHttpException("Can't change income to expense and vice versa");
         }
 

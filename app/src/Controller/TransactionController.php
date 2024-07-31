@@ -213,30 +213,7 @@ class TransactionController extends AbstractController
         );
     }
 
-    #[Route('/dashboard', methods: ['GET'])]
-    #[Security(name: 'Bearer')]
-    public function dashboard(
-        TransactionService $transactionService,
-        #[MapQueryString] ?DashboardDto $dashboardDto
-    ): JsonResponse
-    {
-        $month = $dashboardDto->month ?? date('m');
-        $year = $dashboardDto->year ?? date('Y');
-        $data = $transactionService->fetchDashboard($month, $year);
 
-
-        if (empty($data)){
-            return $this->json([
-                'success' => false,
-                'message' => 'No data found'
-            ],Response::HTTP_NOT_FOUND);
-        }
-
-        return $this->json([
-            'success' => true,
-            'data' => $data
-        ]);
-    }
 
 
     #[Route(name: 'api_add_transaction', methods: ['POST'])]
