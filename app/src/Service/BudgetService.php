@@ -6,6 +6,7 @@ use App\Dto\Budget\BudgetCreateDto;
 use App\Dto\Budget\BudgetQueryDto;
 use App\Dto\Budget\BudgetUpdateDto;
 use App\Dto\Budget\RandomDto;
+use App\Entity\Budget;
 use App\Entity\User;
 use App\Repository\BudgetRepository;
 use App\Repository\CategoryRepository;
@@ -49,7 +50,7 @@ class BudgetService
         return $this->budgetRepository->search($budgetQueryDto, $user);
     }
 
-    public function create(BudgetCreateDto $budgetCreateDto): void
+    public function create(BudgetCreateDto $budgetCreateDto): Budget
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -73,7 +74,16 @@ class BudgetService
             throw new ConflictHttpException('You already have a budget for this category in given month');
         }
 
-        $this->budgetRepository->create($budgetCreateDto, $user, $category, $date);
+        $newBudget = new Budget();
+        $newBudget->setMonthlyBudget($budgetCreateDto->monthlyBudgetAmount);
+        $newBudget->setCategory($category);
+        $newBudget->setUser($user);
+        $newBudget->setMonthlyBudgetDate(new \DateTimeImmutable($date));
+
+
+        $this->budgetRepository->create($newBudget);
+
+        return $newBudget;
     }
 
     public function update(BudgetUpdateDto $budgetUpdateDto): string
@@ -127,7 +137,14 @@ class BudgetService
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        $this->budgetRepository->delete($id, $user);
+
+        $budget = $this->budgetRepository->findByIdAndUser($id, $user);
+
+        if (!$budget) {
+            throw new NotFoundHttpException('Budget not found or not owned by you');
+        }
+
+        $this->budgetRepository->delete($budget);
 
     }
 

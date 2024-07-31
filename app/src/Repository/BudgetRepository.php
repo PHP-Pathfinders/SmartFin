@@ -102,19 +102,10 @@ class BudgetRepository extends ServiceEntityRepository
 
     }
 
-    public function create(BudgetCreateDto $budgetCreateDto, User $user, Category $category, string $date): void
+    public function create(Budget $newBudget): void
     {
-        $monthlyBudget = $budgetCreateDto->monthlyBudgetAmount;
-
-        $newBudget = new Budget();
-        $newBudget->setMonthlyBudget($monthlyBudget);
-        $newBudget->setCategory($category);
-        $newBudget->setUser($user);
-        $newBudget->setMonthlyBudgetDate(new \DateTimeImmutable($date));
-
         $this->entityManager->persist($newBudget);
         $this->entityManager->flush();
-
     }
 
 
@@ -135,18 +126,10 @@ class BudgetRepository extends ServiceEntityRepository
 
     }
 
-    public function delete(int $id, User $user): void
+    public function delete(Budget $budget): void
     {
-        $budget = $this->findByIdAndUser($id, $user);
-
-
-        if (!$budget) {
-            throw new NotFoundHttpException('Budget not found or not owned by you');
-        }
-
         $this->entityManager->remove($budget);
         $this->entityManager->flush();
-
     }
 
     /**
