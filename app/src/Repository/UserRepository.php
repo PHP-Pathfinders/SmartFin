@@ -64,7 +64,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param User $user
      * @return void
      */
-    public function create(string $fullName, string $email, string $password,User $user):void
+    public function register(string $fullName, string $email, string $password,User $user):void
     {
         $isEmailAvailable = $this->isEmailAvailable($email);
         if (!$isEmailAvailable) {

@@ -68,7 +68,7 @@ readonly class UserService
     /**
      * @throws ExceptionInterface
      */
-    public function create(RegisterDto $registerDto):void
+    public function register(RegisterDto $registerDto):void
     {
         $fullName = $registerDto->fullName;
         $email = $registerDto->email;
@@ -77,7 +77,7 @@ readonly class UserService
 //        Make new instance of user and hash password
         $user = new User();
         $hashedPassword = $this->passwordHasher->hashPassword($user,$plainPassword);
-        $this->userRepository->create($fullName,$email,$hashedPassword,$user);
+        $this->userRepository->register($fullName,$email,$hashedPassword,$user);
 
         $this->bus->dispatch(new SendEmailVerification($email));
     }

@@ -131,12 +131,13 @@ class UserController extends AbstractController
             )
         ]
     )]
-    public function create(
+    public function register(
         #[MapRequestPayload] RegisterDto $registerDto,
         UserService                      $userService
     ): JsonResponse
     {
-        $userService->create($registerDto);
+//        TODO return user object
+        $userService->register($registerDto);
         return $this->json([
             'success' => true,
             'message' => 'User registered successfully'
@@ -229,6 +230,7 @@ class UserController extends AbstractController
     ): JsonResponse
     {
         $userService->resetPassword($resetPasswordDto);
+//        TODO return user object
         return $this->json([
             'success' => true,
             'message' => 'Your password has been reset successfully'
@@ -323,6 +325,7 @@ class UserController extends AbstractController
     ): JsonResponse
     {
         $userService->changePassword($changePasswordDto, $id);
+//        TODO return user object
         return $this->json([
             'success' => true,
             'message' => 'Your password has been changed successfully'
@@ -385,7 +388,7 @@ class UserController extends AbstractController
         }
 
         $userService->update($updateDataDto, $id);
-
+//        TODO return user object
         return $this->json([
             'success' => true,
             'message' => 'User updated successfully'
@@ -463,6 +466,7 @@ class UserController extends AbstractController
         $form = $this->createForm(UserType::class, $user);
         $isUploaded = $userService->updateProfileImage($request, $form, $user, $id);
 
+//        TODO return user object
         if ($isUploaded) {
             return $this->json([
                 'success' => true,
@@ -518,6 +522,7 @@ class UserController extends AbstractController
         UserService                               $userService
     ): JsonResponse
     {
+//        TODO return user object
         $password = $deactivateAccountDto->password;
         $userService->deactivate($password, $id);
         return $this->json([
@@ -568,6 +573,7 @@ class UserController extends AbstractController
         UserService $userService
     ): JsonResponse
     {
+//        TODO return user object
         $userService->activate($id);
         return $this->json([
             'success'=>'true',

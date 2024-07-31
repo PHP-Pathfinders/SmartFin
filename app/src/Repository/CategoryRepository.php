@@ -29,23 +29,25 @@ class CategoryRepository extends ServiceEntityRepository
 
     /**
      * Find categories by their type (Income or Expense)
-     * @param string $type
+     * @param string|null $type
      * @param int $page
      * @param int $maxResults
      * @param User $user
      * @return array
      */
-    public function search(string $type,int $page,int $maxResults,User $user): array
+    public function search(?string $type,int $page,int $maxResults,User $user): array
     {
         // Get paginated results
         $queryBuilder = $this->createQueryBuilder('c')
             ->select('c.id, c.categoryName, c.type, c.color')
-            ->where('c.type = :type')
             ->andWhere('c.user = :user OR c.user IS NULL')
-            ->setParameter('type', $type)
             ->setParameter('user', $user)
             ->orderBy('c.categoryName', 'ASC');
 
+        if ($type){
+            $queryBuilder->andWhere('c.type = :type')
+                ->setParameter('type', $type);
+        }
         $pagination = $this->paginator->paginate(
             $queryBuilder,
             $page,

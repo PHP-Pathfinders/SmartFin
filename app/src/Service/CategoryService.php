@@ -19,9 +19,9 @@ readonly class CategoryService
     {
         // Check if no query params is passed and if not, go for default values
         if (null === $categoryQueryDto) {
-            $type = 'income';
+            $type = null;
             $page = 1;
-            $maxResults = 10;
+            $maxResults = 200;
         } else {
             $type = $categoryQueryDto->type;
             $page = $categoryQueryDto->page;
