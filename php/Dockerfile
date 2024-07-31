@@ -28,9 +28,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /var/www/project
 
 # Copy Supervisor configuration files
-COPY php/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
-COPY php/supervisor/messenger-worker.conf /etc/supervisor/conf.d/messenger-worker.conf
-COPY php/supervisor/delete-user-scheduler.conf /etc/supervisor/conf.d/delete-user-scheduler.conf
+COPY php/supervisor/ /etc/supervisor/conf.d/
+
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -40,4 +39,4 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash
 RUN mkdir -p /var/log/supervisor /var/run/supervisor
 
 # Command to run Supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["/usr/bin/supervisord","-n", "-c", "/etc/supervisor/supervisord.conf"]

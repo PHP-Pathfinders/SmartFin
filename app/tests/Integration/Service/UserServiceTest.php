@@ -9,6 +9,7 @@ use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserService;
+use App\Tests\Mock;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
@@ -44,22 +45,17 @@ class UserServiceTest extends KernelTestCase
         $this->userService = $container->get(UserService::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
         $this->resetPasswordHelper = $container->get(ResetPasswordHelperInterface::class);
-    }
 
-    private function mockLogin(): User
-    {
-        // Fetch user from the database
-        $user = $this->userRepository->find($this->userId);
-        // Simulate logged-in user
-        $token = new UsernamePasswordToken($user, 'password', ['ROLE_USER']);
-        $this->tokenStorage->setToken($token);
-        return $user;
+        // Instantiate Mock
+        $userRepository = $container->get(UserRepository::class);
+        $tokenStorage = $container->get(TokenStorageInterface::class);
+        $this->mock = new Mock($userRepository, $tokenStorage);
     }
 
     public function testFetchUserSuccess(): void
     {
 
-        $user = $this->mockLogin();
+        $user = $this->mock->login();
         $result = $this->userService->fetch($this->userId);
 
         $this->assertSame([
@@ -78,7 +74,7 @@ class UserServiceTest extends KernelTestCase
         $userId = 999; // ID that does not exist in a test database
 
         // Simulate logged-in user
-        $this->mockLogin();
+        $this->mock->login();
 
         // Expecting NotFoundHttpException to be thrown
         $this->expectException(NotFoundHttpException::class);
@@ -116,7 +112,7 @@ class UserServiceTest extends KernelTestCase
 
     public function testUpdateSuccess(): void
     {
-        $user = $this->mockLogin();
+        $user = $this->mock->login();
         $updateDataDto = new UpdateDataDto('Gary Doe','2000-01-01');
         $this->userRepository->update($updateDataDto,$user);
         $updatedUser = $this->userRepository->find($user->getId());
@@ -126,7 +122,7 @@ class UserServiceTest extends KernelTestCase
     }
     public function testUpdateJustBirthDay(): void
     {
-        $user = $this->mockLogin();
+        $user = $this->mock->login();
         $updateDataDto = new UpdateDataDto(null,'2000-01-01');
         $this->userRepository->update($updateDataDto,$user);
         $updatedUser = $this->userRepository->find($user->getId());
@@ -137,7 +133,7 @@ class UserServiceTest extends KernelTestCase
 
     public function testUpdateProfileImage(): void
     {
-        $user = $this->mockLogin();
+        $user = $this->mock->login();
         $form = $this->createMock(FormInterface::class);
         $slugger = $this->createMock(SluggerInterface::class);
         // Mock the SluggerInterface to return a safe filename
@@ -166,7 +162,7 @@ class UserServiceTest extends KernelTestCase
     }
     public function testUpdateProfileImageInvalidForm(): void
     {
-        $user = $this->mockLogin();
+        $user = $this->mock->login();
         $form = $this->createMock(FormInterface::class);
         $request = new Request();
 
@@ -179,14 +175,14 @@ class UserServiceTest extends KernelTestCase
     }
     public function testChangePasswordSuccess(): void
     {
-        $user = $this->mockLogin();
+        $user = $this->mock->login();
         $changePasswordDto = new ChangePasswordDto('Password#1','NewPassword#1','NewPassword#1');
         $this->userService->changePassword($changePasswordDto,1);
         $this->assertTrue($this->passwordHasher->isPasswordValid($user, 'NewPassword#1'));
     }
     public function testChangePasswordIncorrectOldPassword(): void
     {
-        $this->mockLogin();
+        $user = $this->mock->login();
         $changePasswordDto = new ChangePasswordDto('IncorrectPass','NewPassword#1','NewPassword#1');
         $this->expectException(BadRequestException::class);
         $this->userService->changePassword($changePasswordDto,1);
@@ -209,7 +205,7 @@ class UserServiceTest extends KernelTestCase
     }
     public function testDeactivateAndActivate(): void
     {
-        $user = $this->mockLogin();
+        $user = $this->mock->login();
         $this->userService->deactivate('Password#1',1);
         $this->assertFalse($user->getIsActive());
         $this->userService->activate(1);
@@ -219,7 +215,7 @@ class UserServiceTest extends KernelTestCase
     }
     public function testDeactivateWrongPassword(): void
     {
-        $user = $this->mockLogin();
+        $this->mock->login();
         $this->expectException(BadRequestException::class);
         $this->userService->deactivate('WrongPassword',1);
     }

@@ -84,7 +84,6 @@ readonly class UserService
 
     public function fetch(int $userId) :array
     {
-//        $this->checkUser($userId);
         // Search by user id
         $user = $this->userRepository->fetchUser($userId);
         if (!$user){
