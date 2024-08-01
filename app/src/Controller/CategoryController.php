@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[Route('/api/categories', name: 'api_categories')]
 class CategoryController extends AbstractController
@@ -135,12 +136,16 @@ class CategoryController extends AbstractController
         CategoryService                        $categoryService
     ): JsonResponse
     {
-//        TODO return Category object
-        $categoryService->create($categoryCreateDto);
+        $category = $categoryService->create($categoryCreateDto);
         return $this->json([
             'success' => true,
-            'message' => 'New category created'
-        ]);
+            'message' => 'New category created',
+            'data' => $category
+        ],
+        context:[
+                ObjectNormalizer::GROUPS => ['category']
+            ]
+        );
     }
 
     #[Route(name: 'api_update_category', methods: ['PATCH'])]
@@ -191,12 +196,24 @@ class CategoryController extends AbstractController
         CategoryService                        $categoryService,
     ): JsonResponse
     {
-//        TODO return category object
-        $message = $categoryService->update($categoryUpdateDto);
-        return $this->json([
-            'success' => true,
-            'message' => $message
-        ]);
+        $dataArr = $categoryService->update($categoryUpdateDto);
+        if (isset($dataArr['category'])) {
+            return $this->json(
+                [
+                    'success' => true,
+                    'message' => $dataArr['message'],
+                    'data' => $dataArr['category']
+                ], context: [
+                ObjectNormalizer::GROUPS => ['category']
+            ]
+            );
+        }
+        return $this->json(
+            [
+                'success' => true,
+                'message' => $dataArr['message']
+            ]
+        );
     }
 
     /**

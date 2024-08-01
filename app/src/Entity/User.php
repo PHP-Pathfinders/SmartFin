@@ -12,6 +12,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[AllowDynamicProperties] #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`users`')]
@@ -21,15 +24,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('user')]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups('user')]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups('user')]
     private array $roles = [];
 
     /**
@@ -39,21 +45,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 80)]
+    #[Groups('user')]
     private ?string $fullName = null;
-
     #[ORM\Column(options: ['default' => false])]
+    #[Groups('user')]
     private ?bool $isVerified = false;
 
     #[ORM\Column(options: ['default' => true])]
+    #[Groups('user')]
     private ?bool $isActive = true;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
+    #[Groups('user')]
     private ?DateTimeInterface $birthday = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups('user')]
     private ?string $avatarFileName = null;
 
     #[ORM\Column]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
+    #[Groups('user')]
     private ?DateTimeImmutable $createdAt;
 
 
@@ -61,6 +74,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $jwtVersion = 0;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
+    #[Groups('user')]
     private ?\DateTimeInterface $scheduledDeletionDate = null;
 
     private string $plainPassword;

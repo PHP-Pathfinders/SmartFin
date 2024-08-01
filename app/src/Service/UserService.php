@@ -103,10 +103,10 @@ readonly class UserService
         ];
     }
 
-    public function update(UpdateDataDto $updateDataDto, int $userId): void
+    public function update(UpdateDataDto $updateDataDto, int $userId): User
     {
         $user = $this->checkUser($userId);
-        $this->userRepository->update($updateDataDto,$user);
+        return $this->userRepository->update($updateDataDto,$user);
     }
 
     public function updateProfileImage(
@@ -114,7 +114,7 @@ readonly class UserService
         FormInterface $form,
         User $user,
         int $userId
-    ):bool
+    ): array
     {
         $this->checkUser($userId);
         $form->handleRequest($request);
@@ -129,16 +129,15 @@ readonly class UserService
                 $this->deleteAvatarIfExists($user);
                 // Move the new image to the directory where avatars are stored
                 $avatarFile->move($this->avatarDirectory, $newFileName);
-                $this->userRepository->updateProfileImage($newFileName,$user);
-                return true;
+                $user = $this->userRepository->updateProfileImage($newFileName,$user);
+                return ['user'=>$user,'success'=>true];
             }
             // If avatarFile is null, delete profile image and set avatarFileName to null
             $this->deleteAvatarIfExists($user);
-            $this->userRepository->updateProfileImage(null,$user);
-            return true;
-
+            $user = $this->userRepository->updateProfileImage(null,$user);
+            return ['user'=>$user,'success'=>true];
         }
-        return false;
+        return ['success'=>false];
     }
 
     private function deleteAvatarIfExists(User $user):void
@@ -152,7 +151,7 @@ readonly class UserService
             }
         }
     }
-    public function changePassword(ChangePasswordDto $changePasswordDto, int $userId) :void
+    public function changePassword(ChangePasswordDto $changePasswordDto, int $userId): User
     {
         $user = $this->checkUser($userId);
         $oldPassword = $changePasswordDto->oldPassword;
@@ -164,10 +163,10 @@ readonly class UserService
         $newPassword = $changePasswordDto->newPassword;
         $hashedPassword = $this->passwordHasher->hashPassword($user,$newPassword);
 
-        $this->userRepository->changePassword($hashedPassword, $user);
+        return $this->userRepository->changePassword($hashedPassword, $user);
     }
 
-    public function deactivate(string $password, int $userId) :void
+    public function deactivate(string $password, int $userId): User
     {
         $user = $this->checkUser($userId);
 
@@ -175,14 +174,13 @@ readonly class UserService
         if(!$isPasswordValid){
             throw new BadRequestException('Incorrect password');
         }
-        $this->userRepository->deactivate($user);
+        return $this->userRepository->deactivate($user);
     }
 
-    public function  activate(int $userId): void
+    public function  activate(int $userId): User
     {
         $user = $this->checkUser($userId);
-        $this->userRepository->activate($user);
-
+        return $this->userRepository->activate($user);
     }
 
     private function checkUser(int $userId): User

@@ -77,7 +77,7 @@ class CategoryRepository extends ServiceEntityRepository
      * @param User $user
      * @return void
      */
-    public function create(CategoryCreateDto $categoryCreateDto,User $user):void
+    public function create(CategoryCreateDto $categoryCreateDto,User $user): Category
     {
         $categoryName = $categoryCreateDto->categoryName;
         $type = $categoryCreateDto->type;
@@ -97,9 +97,10 @@ class CategoryRepository extends ServiceEntityRepository
 
         $this->entityManager->persist($newCategory);
         $this->entityManager->flush();
+        return $newCategory;
     }
 
-    public function update(int $id, ?string $categoryName, ?string $color,User $user):void
+    public function update(int $id, ?string $categoryName, ?string $color,User $user): Category
     {
         $category = $this->findByIdAndUser($id,$user);
 
@@ -121,6 +122,7 @@ class CategoryRepository extends ServiceEntityRepository
             $category->setColor($color);
         }
         $this->entityManager->flush();
+        return $category;
     }
 
     /**
