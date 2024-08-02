@@ -9,6 +9,8 @@ use App\Entity\Category;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 readonly class CategoryService
 {
@@ -55,10 +57,18 @@ readonly class CategoryService
         return ['message'=>'Update successful', 'category'=>$category];
     }
 
-    public function delete(int $id):void
+    public function delete(int $id): void
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        $this->categoryRepository->delete($id,$user);
+        $category = $this->categoryRepository->findByIdAndUser($id,$user);
+
+        if (!$category) {
+            throw new NotFoundHttpException('Category not found or does not belong to the user.');
+        }
+        if ($category->getUser() === null) {
+            throw new AccessDeniedHttpException('You cannot delete default category.');
+        }
+        $this->categoryRepository->delete($category);
     }
 }

@@ -130,12 +130,6 @@ class TransactionController extends AbstractController
     {
         $year = $overviewDto->year ?? date('Y');
         $data = $transactionService->transactionOverview((int) $year);
-        if (empty($data)){
-            return $this->json([
-                'success' => false,
-                'message' => 'No transactions found'
-            ],404);
-        }
 
         return $this->json([
             'success' => true,

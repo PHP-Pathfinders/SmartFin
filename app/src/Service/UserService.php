@@ -93,7 +93,7 @@ readonly class UserService
             throw new NotFoundHttpException('User not found');
         }
         return [
-            'userId' => $user->getId(),
+            'id' => $user->getId(),
             'fullName' => $user->getFullName(),
             'birthday' => $user->getBirthday(),
             'avatarFileName' => $user->getAvatarFileName(),

@@ -127,20 +127,11 @@ class CategoryRepository extends ServiceEntityRepository
 
     /**
      * Delete selected category
-     * @param int $id
-     * @param User $user
+     * @param Category $category
      * @return void
      */
-    public function delete(int $id,User $user):void
+    public function delete(Category $category): void
     {
-        $category = $this->findByIdAndUser($id,$user);
-
-        if (!$category) {
-            throw new NotFoundHttpException('Category not found or does not belong to the user.');
-        }
-        if ($category->getUser() === null) {
-            throw new AccessDeniedHttpException('You cannot delete default category.');
-        }
         $this->entityManager->remove($category);
         $this->entityManager->flush();
     }

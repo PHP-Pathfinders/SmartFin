@@ -166,8 +166,8 @@ class BudgetRepository extends ServiceEntityRepository
             SUM(t.moneyAmount) as totalSpent,
             (SUM(t.moneyAmount) / b.monthlyBudget) * 100 AS percentageSpent
             ')
-            ->leftJoin('b.category', 'c')
-            ->leftJoin('c.transactions', 't')
+            ->innerJoin('b.category', 'c')
+            ->innerJoin('c.transactions', 't')
             ->andWhere('b.user = :user')
             ->andWhere('MONTH(b.monthlyBudgetDate) = :month')
             ->andWhere('YEAR(b.monthlyBudgetDate) = :year')

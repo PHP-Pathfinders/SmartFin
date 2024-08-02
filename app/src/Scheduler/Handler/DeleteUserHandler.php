@@ -13,6 +13,7 @@ readonly class DeleteUserHandler
     {}
     public function __invoke(DeleteUser $message): void
     {
-        $this->userRepository->deleteUsers();
+        $userIds = $this->userRepository->getUsersScheduledForDeletion();
+        $this->userRepository->deleteUsers($userIds);
     }
 }

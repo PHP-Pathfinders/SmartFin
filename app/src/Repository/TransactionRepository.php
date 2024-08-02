@@ -160,8 +160,9 @@ class TransactionRepository extends ServiceEntityRepository
             MONTH(t.transactionDate) AS month, YEAR(t.transactionDate) AS year, 
             SUM(CASE WHEN c.type = \'income\' THEN t.moneyAmount ELSE 0 END) AS totalIncome, 
             SUM(CASE WHEN c.type = \'expense\' THEN t.moneyAmount ELSE 0 END) AS totalExpense')
-            ->leftJoin('t.category', 'c')
-            ->where('t.user = :user OR c.user IS NULL')
+            ->innerJoin('t.category', 'c')
+            ->where('t.user = :user')
+            ->andWhere('c.user = :user OR c.user IS NULL')
             ->andWhere('YEAR(t.transactionDate) = :year')
             ->setParameter('user', $user)
             ->setParameter('year',$year)

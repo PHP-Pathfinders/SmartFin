@@ -16,11 +16,11 @@ security:
             security: false
 #     -----------   This was added in order for jwt auth to work ---------
         login:
-            pattern: ^/api/users/login
+            pattern: ^/api/login
             stateless: true
             user_checker: App\Security\UserChecker #Custom user checker
             json_login:
-                check_path: /api/users/login
+                check_path: /api/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
