@@ -30,46 +30,47 @@ use OpenApi\Attributes as OA;
 class UserController extends AbstractController
 {
     #[Route('/login', name: 'api_login', methods: ['POST'])]
-    #[OA\Post(
-        description: 'Used as login entry point to our site, given example should work as a test user account. To use this test user here you will have to try it out, get the token copy and paste it in the Authorize section at the top of this page.',
-        summary: 'Login with existing account',
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(property: 'username', type: 'string', example: 'jane@gmail.com'),
-                    new OA\Property(property: 'password', type: 'string', example: 'Password#1')
-                ],
-                type: 'object'
-            )
-        ),
-        tags: ['Entry Points'],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: 'Successful login',
-                content: new OA\JsonContent(ref: '#/components/schemas/LoginSuccess')
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'Unauthorized access attempt detected',
-                content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedLogin')
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'Forbidden access',
-                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
-            ),
-            new OA\Response(
-                response: 400,
-                description: 'Bad Request JSON body data given',
-            ),
-            new OA\Response(
-                response: 500,
-                description: 'Internal server error(something went really bad)',
-            )
-        ]
-    )]
+    //TODO find out why this does not implements successfully
+//    #[OA\Post(
+//        description: 'Used as login entry point to our site, given example should work as a test user account. To use this test user here you will have to try it out, get the token copy and paste it in the Authorize section at the top of this page.',
+//        summary: 'Login with existing account',
+//        requestBody: new OA\RequestBody(
+//            required: true,
+//            content: new OA\JsonContent(
+//                properties: [
+//                    new OA\Property(property: 'username', type: 'string', example: 'jane@gmail.com'),
+//                    new OA\Property(property: 'password', type: 'string', example: 'Password#1')
+//                ],
+//                type: 'object'
+//            )
+//        ),
+//        tags: ['Entry Points'],
+//        responses: [
+//            new OA\Response(
+//                response: 200,
+//                description: 'Successful login',
+//                content: new OA\JsonContent(ref: '#/components/schemas/LoginSuccess')
+//            ),
+//            new OA\Response(
+//                response: 401,
+//                description: 'Unauthorized access attempt detected',
+//                content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedLogin')
+//            ),
+//            new OA\Response(
+//                response: 403,
+//                description: 'Forbidden access',
+//                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+//            ),
+//            new OA\Response(
+//                response: 400,
+//                description: 'Bad Request JSON body data given',
+//            ),
+//            new OA\Response(
+//                response: 500,
+//                description: 'Internal server error(something went really bad)',
+//            )
+//        ]
+//    )]
     public function login(): JsonResponse
     {
         //In case of client didn't send json payload at all
@@ -83,9 +84,10 @@ class UserController extends AbstractController
     #[OA\Post(
         description: 'This is supposed to be a logout but it is not really utilized',
         summary: 'Logout of account',
-        tags: ['User'], responses: [
-        new OA\Response(response: 200, description: 'Logged out', content: new OA\JsonContent(ref: '#/components/schemas/Logout')),
-        new OA\Response(response: 401, description: 'Unauthorized access detected', content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')),])]
+        tags: ['User'],
+        responses: [
+            new OA\Response(response: 200, description: 'Logged out', content: new OA\JsonContent(ref: '#/components/schemas/Logout')),
+            new OA\Response(response: 401, description: 'Unauthorized access detected', content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')),])]
     public function logout(): JsonResponse
     {
         // This endpoint doesn't need to do anything server-side
@@ -142,7 +144,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -156,7 +158,7 @@ class UserController extends AbstractController
         description: 'Used for verifying email for your account',
         summary: 'Verify your email',
         tags: ['User'],
-        parameters: [ new OA\Parameter(name: 'token', in: 'query'), new OA\Parameter(name: 'signature', in: 'query'), new OA\Parameter(name: 'expires', in: 'query')],
+        parameters: [new OA\Parameter(name: 'token', in: 'query'), new OA\Parameter(name: 'signature', in: 'query'), new OA\Parameter(name: 'expires', in: 'query')],
         responses: [
             new OA\Response(
                 response: 200,
@@ -238,7 +240,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -336,7 +338,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -402,7 +404,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -484,7 +486,7 @@ class UserController extends AbstractController
                 [
                     'success' => true,
                     'data' => $dataArr['user']
-                ],context: [
+                ], context: [
                 ObjectNormalizer::GROUPS => ['user']
             ]
             );
@@ -544,13 +546,13 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
     }
 
-    #[Route('/{id<\d+>}/activate', name:'api_users_activate', methods: ['PATCH'])]
+    #[Route('/{id<\d+>}/activate', name: 'api_users_activate', methods: ['PATCH'])]
     #[OA\Patch(
         description: 'Reactivates user account if he decides not to deactivate and delete it and clears scheduled deletion date',
         summary: 'Used for reactivating the user account',
@@ -588,7 +590,7 @@ class UserController extends AbstractController
         ]
     )]
     public function activate(
-        int $id,
+        int         $id,
         UserService $userService
     ): JsonResponse
     {
@@ -597,7 +599,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );

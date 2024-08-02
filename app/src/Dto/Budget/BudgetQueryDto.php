@@ -13,11 +13,11 @@ readonly class BudgetQueryDto
 
         #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(allowNull: true)]
-        public ?string $dateStart = null,
+        public ?string $dateStart = '2024-01-01',
 
         #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(allowNull: true)]
-        public ?string $dateEnd = null,
+        public ?string $dateEnd = '2024-12-31',
 
         #[PositiveNumber]
         #[IntegerType]

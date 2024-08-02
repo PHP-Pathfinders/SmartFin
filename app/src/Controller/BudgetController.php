@@ -17,6 +17,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
 use Nelmio\ApiDocBundle\Annotation\Security;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 
 #[Route('/api/budgets')]
@@ -70,7 +71,6 @@ class BudgetController extends AbstractController
         #[MapQueryString] ?BudgetQueryDto $budgetQueryDto,
     ): JsonResponse
     {
-
         $data = $this->budgetService->search($budgetQueryDto);
 
         if (empty($data['budgets'])) {
@@ -197,7 +197,10 @@ class BudgetController extends AbstractController
 
         return $this->json([
             'success' => true,
-            'message' => $budget
+            'message' => 'New budget created',
+            'data' => $budget
+        ], context: [
+            ObjectNormalizer::GROUPS => ['budget']
         ]);
 
     }
@@ -254,10 +257,20 @@ class BudgetController extends AbstractController
         #[MapRequestPayload] BudgetUpdateDto $budgetUpdateDto,
     ): JsonResponse
     {
-        $message = $this->budgetService->update($budgetUpdateDto);
+        $data = $this->budgetService->update($budgetUpdateDto);
+
+        if(isset($data['budget'])){
+            return $this->json([
+                'success' => true,
+                'message' => $data['message'],
+                'data' => $data['budget']
+            ], context: [
+                ObjectNormalizer::GROUPS => ['budget']
+            ]);
+        }
         return $this->json([
             'success' => true,
-            'message' => $message
+            'message' => $data['message']
         ]);
 
     }

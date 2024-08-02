@@ -52,19 +52,10 @@ class BudgetRepository extends ServiceEntityRepository
     }
 
 
-    public function search(?BudgetQueryDto $budgetQueryDto, User $user): array
+    public function search(string $page, string $maxResults, string $dateStart, string $dateEnd, User $user): array
     {
-        $page = $budgetQueryDto->page ?? '1';
-        $maxResults = $budgetQueryDto->maxResults ?? '200';
-        $dateStart = $budgetQueryDto->dateStart ?? (new \DateTime('first day of this month'))->format('Y-m-d');
-        $dateEnd = $budgetQueryDto->dateEnd ?? (new \DateTime('last day of this month'))->format('Y-m-d');
-
-        if ($dateStart > $dateEnd) {
-            throw new NotFoundHttpException('Invalid date format');
-        }
-
         $qb = $this->createQueryBuilder('b')
-            ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryID, c.categoryName, c.color, COALESCE(SUM(t.moneyAmount), 0) as total, 
+            ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryId, c.categoryName, c.color, COALESCE(SUM(t.moneyAmount), 0) as total, 
                   CASE WHEN b.monthlyBudget > 0 THEN ((COALESCE(SUM(t.moneyAmount), 0) / b.monthlyBudget) * 100) ELSE 0 END as percent')
             ->innerJoin('b.category', 'c')
             ->leftJoin(Transaction::class, 't', 'WITH', 't.category = c.id AND t.user = :user AND t.transactionDate >= :dateStart AND t.transactionDate <= :dateEnd')
@@ -109,21 +100,9 @@ class BudgetRepository extends ServiceEntityRepository
     }
 
 
-    public function update(Budget $budget, BudgetUpdateDto $budgetUpdateDto, User $user, Category $category, string $date): void
+    public function update(): void
     {
-        $monthlyBudget = $budgetUpdateDto->monthlyBudgetAmount;
-
-        $budget->setCategory($category);
-
-        if ($monthlyBudget) {
-            $budget->setMonthlyBudget($monthlyBudget);
-        }
-
-        $budget->setMonthlyBudgetDate(new \DateTimeImmutable($date));
-
-
         $this->entityManager->flush();
-
     }
 
     public function delete(Budget $budget): void

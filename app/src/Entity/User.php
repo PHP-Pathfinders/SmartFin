@@ -24,11 +24,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups('user')]
+    #[Groups(['user', 'budget'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups('user')]
+    #[Groups(['user', 'budget'])]
     private ?string $email = null;
 
     /**
@@ -45,7 +45,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 80)]
-    #[Groups('user')]
+    #[Groups(['user', 'budget'])]
     private ?string $fullName = null;
     #[ORM\Column(options: ['default' => false])]
     #[Groups('user')]

@@ -47,7 +47,23 @@ class BudgetService
         /** @var User $user */
         $user = $this->security->getUser();
 
-        return $this->budgetRepository->search($budgetQueryDto, $user);
+        if(null === $budgetQueryDto){
+            $page = '1';
+            $maxResults = '200';
+            $dateStart = (new \DateTime('first day of this month'))->format('Y-m-d');
+            $dateEnd = (new \DateTime('last day of this month'))->format('Y-m-d');
+        }else{
+            $page = $budgetQueryDto->page;
+            $maxResults = $budgetQueryDto->maxResults;
+            $dateStart = $budgetQueryDto->dateStart;
+            $dateEnd = $budgetQueryDto->dateEnd;
+        }
+
+        if ($dateStart > $dateEnd) {
+            throw new NotFoundHttpException('Invalid date format');
+        }
+
+        return $this->budgetRepository->search($page,$maxResults,$dateStart,$dateEnd, $user);
     }
 
     public function create(BudgetCreateDto $budgetCreateDto): Budget
@@ -86,7 +102,7 @@ class BudgetService
         return $newBudget;
     }
 
-    public function update(BudgetUpdateDto $budgetUpdateDto): string
+    public function update(BudgetUpdateDto $budgetUpdateDto): array
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -107,7 +123,7 @@ class BudgetService
 
 
         if($category === $currentCategory && (!$budgetUpdateDto->monthlyBudgetAmount || $budgetUpdateDto->monthlyBudgetAmount === $budget->getMonthlyBudget()) && ($budgetUpdateDto->year === $budget->getMonthlyBudgetDate()->format('Y') && (int) $budgetUpdateDto->month === (int) $budget->getMonthlyBudgetDate()->format('m'))){
-            return 'Nothing to update';
+            return ['message' => 'Nothing to update'];
         }
 
         $month = $budgetUpdateDto->month ? date($budgetUpdateDto->month) : $budget->getMonthlyBudgetDate()->format('m');
@@ -126,9 +142,18 @@ class BudgetService
         }
 
 
-        $this->budgetRepository->update($budget, $budgetUpdateDto, $user, $category, $date);
+        $budget->setCategory($category);
 
-        return 'Update successful';
+        if ($budgetUpdateDto->monthlyBudgetAmount) {
+            $budget->setMonthlyBudget($budgetUpdateDto->monthlyBudgetAmount);
+        }
+
+        $budget->setMonthlyBudgetDate(new \DateTimeImmutable($date));
+
+
+        $this->budgetRepository->update();
+
+        return ['message' => 'Update successful', 'budget' => $budget];
 
 
     }
