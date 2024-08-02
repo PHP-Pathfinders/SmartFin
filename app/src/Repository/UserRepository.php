@@ -39,15 +39,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * Reset password
      * @param string $password
      * @param User $user
-     * @return void
+     * @return User
      */
-    public function resetPassword(string $password, User $user): void
+    public function resetPassword(string $password, User $user): User
     {
         $user->setPassword($password);
         // Log out user from all devices
         $user->incrementJwtVersion();
-        $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
 
@@ -62,9 +62,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param string $email
      * @param string $password
      * @param User $user
-     * @return void
+     * @return User
      */
-    public function create(string $fullName, string $email, string $password,User $user):void
+    public function register(string $fullName, string $email, string $password,User $user): User
     {
         $isEmailAvailable = $this->isEmailAvailable($email);
         if (!$isEmailAvailable) {
@@ -76,9 +76,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setScheduledDeletionDate();
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
-    public function update(UpdateDataDto $updateDataDto, User $user):void
+    public function update(UpdateDataDto $updateDataDto, User $user): User
     {
         $fullName = $updateDataDto->fullName;
         $birthdayStr = $updateDataDto->birthday;
@@ -90,15 +91,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             $birthday = \DateTime::createFromFormat('Y-m-d', $birthdayStr);
             $user->setBirthday($birthday);
         }
-        $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
-    public function updateProfileImage(?string $newFileName, User $user):void
+    public function updateProfileImage(?string $newFileName, User $user): User
     {
         $user->setAvatarFileName($newFileName);
-        $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
     /**
@@ -107,13 +108,13 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param User $user
      * @return void
      */
-    public function changePassword(string $password, User $user):void
+    public function changePassword(string $password, User $user): User
     {
         $user->setPassword($password);
         // Increment token version in order to invalidate jwt token (Log out from all devices)
         $user->incrementJwtVersion();
-        $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
     /**
@@ -121,12 +122,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param User $user
      * @return void
      */
-    public function deactivate(User $user): void
+    public function deactivate(User $user): User
     {
         $user->setIsActive(false);
         $user->setScheduledDeletionDate();
-        $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
     /**
@@ -134,12 +135,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param User $user
      * @return void
      */
-    public function activate(User $user): void
+    public function activate(User $user): User
     {
         $user->setIsActive(true);
         $user->clearScheduledDeletionDate();
-        $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+        return $user;
     }
 
     public function deleteUsers(): void

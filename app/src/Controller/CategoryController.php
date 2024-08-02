@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[Route('/api/categories', name: 'api_categories')]
 class CategoryController extends AbstractController
@@ -25,7 +26,7 @@ class CategoryController extends AbstractController
      * Find categories by income or expenses using query params
      * - Example url: localhost:8080/api/categories?page=1&type=expense&limit=15
      */
-    #[Route('', name: 'api_find_categories_by_type', methods: ['GET'])]
+    #[Route(name: 'api_find_categories_by_type', methods: ['GET'])]
     #[OA\Get(
         description: 'Returns list of categories based on chosen type',
         summary: 'Find categories by income or expenses using query params',
@@ -88,7 +89,7 @@ class CategoryController extends AbstractController
     /**
      * Create a new category for logged-in user
      */
-    #[Route('', name: 'api_add_category', methods: ['POST'])]
+    #[Route(name: 'api_add_category', methods: ['POST'])]
     #[OA\Post(
         description: 'Creates a new category with logged-in user as its owner',
         summary: 'Create a new category for logged-in user',
@@ -135,14 +136,19 @@ class CategoryController extends AbstractController
         CategoryService                        $categoryService
     ): JsonResponse
     {
-        $categoryService->create($categoryCreateDto);
+        $category = $categoryService->create($categoryCreateDto);
         return $this->json([
             'success' => true,
-            'message' => 'New category created'
-        ]);
+            'message' => 'New category created',
+            'data' => $category
+        ],
+        context:[
+                ObjectNormalizer::GROUPS => ['category']
+            ]
+        );
     }
 
-    #[Route('', name: 'api_update_category', methods: ['PATCH'])]
+    #[Route(name: 'api_update_category', methods: ['PATCH'])]
     #[OA\Patch(
         description: 'Makes changes to existing category',
         summary: 'Update existing category',
@@ -190,11 +196,24 @@ class CategoryController extends AbstractController
         CategoryService                        $categoryService,
     ): JsonResponse
     {
-        $message = $categoryService->update($categoryUpdateDto);
-        return $this->json([
-            'success' => true,
-            'message' => $message
-        ]);
+        $dataArr = $categoryService->update($categoryUpdateDto);
+        if (isset($dataArr['category'])) {
+            return $this->json(
+                [
+                    'success' => true,
+                    'message' => $dataArr['message'],
+                    'data' => $dataArr['category']
+                ], context: [
+                ObjectNormalizer::GROUPS => ['category']
+            ]
+            );
+        }
+        return $this->json(
+            [
+                'success' => true,
+                'message' => $dataArr['message']
+            ]
+        );
     }
 
     /**
