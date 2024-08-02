@@ -76,7 +76,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -89,7 +89,7 @@ class UserController extends AbstractController
         description: 'Used for verifying email for your account',
         summary: 'Verify your email',
         tags: ['User'],
-        parameters: [ new OA\Parameter(name: 'token', in: 'query'), new OA\Parameter(name: 'signature', in: 'query'), new OA\Parameter(name: 'expires', in: 'query')],
+        parameters: [new OA\Parameter(name: 'token', in: 'query'), new OA\Parameter(name: 'signature', in: 'query'), new OA\Parameter(name: 'expires', in: 'query')],
         responses: [
             new OA\Response(
                 response: 200,
@@ -172,7 +172,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -270,7 +270,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -336,7 +336,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -418,7 +418,7 @@ class UserController extends AbstractController
                 [
                     'success' => true,
                     'data' => $dataArr['user']
-                ],context: [
+                ], context: [
                 ObjectNormalizer::GROUPS => ['user']
             ]
             );
@@ -478,7 +478,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
@@ -522,7 +522,7 @@ class UserController extends AbstractController
     )]
     #[Route('/{id<\d+>}/activate', name:'api_users_activate', methods: ['PATCH'])]
     public function activate(
-        int $id,
+        int         $id,
         UserService $userService
     ): JsonResponse
     {
@@ -531,7 +531,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ],context: [
+            ], context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );

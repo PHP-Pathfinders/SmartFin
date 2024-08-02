@@ -3,9 +3,10 @@
 namespace App\Tests\Application\Controller;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserControllerTest extends ApiTestCase
+class UserControllerTest extends WebTestCase
 {
     public function testLogin(): void
     {
@@ -46,6 +47,7 @@ class UserControllerTest extends ApiTestCase
             'success' => true,
             'message' => 'User registered successfully',
         ]);
+
     }
     public function testForgotPasswordSystem(): void
     {

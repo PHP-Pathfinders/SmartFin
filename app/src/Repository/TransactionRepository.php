@@ -6,12 +6,15 @@ use App\Dto\Transaction\SpendingsDto;
 use App\Dto\Transaction\TransactionCreateDto;
 use App\Dto\Transaction\TransactionQueryDto;
 use App\Entity\Category;
+use App\Entity\Dashboard;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -22,7 +25,7 @@ class TransactionRepository extends ServiceEntityRepository
     public function __construct(
         ManagerRegistry                         $registry,
         private readonly EntityManagerInterface $entityManager,
-        private readonly PaginatorInterface $paginator
+        private readonly PaginatorInterface     $paginator
     )
     {
         parent::__construct($registry, Transaction::class);
@@ -30,30 +33,13 @@ class TransactionRepository extends ServiceEntityRepository
 
     /**
      * Find transactions by different parameters
-     * @param TransactionQueryDto|null $transactionQueryDto
+     * @param TransactionQueryDto $transactionQueryDto
      * @param User $user
      * @return array
      */
-    public function search(?TransactionQueryDto $transactionQueryDto, User $user): array
+    public function search(TransactionQueryDto $transactionQueryDto, User $user): array
     {
-        $paymentType = $transactionQueryDto->paymentType ?? null;
-        $dateStart = $transactionQueryDto->dateStart ?? null;
-        $dateEnd = $transactionQueryDto->dateEnd ?? null;
-        $transactionName = $transactionQueryDto->transactionName ?? null;
-        $partyName = $transactionQueryDto->partyName ?? null;
-        $transactionNotes = $transactionQueryDto->transactionNotes ?? null;
-        $categoryName = $transactionQueryDto->categoryName ?? null;
-        $categoryType = $transactionQueryDto->categoryType ?? null;
-        $categoryId = $transactionQueryDto->categoryId ?? null;
-        $page = $transactionQueryDto->page ?? '1';
-        $maxResults = $transactionQueryDto->maxResults ?? '200';
 
-        $orderBy = $transactionQueryDto->orderBy ?? null;
-        $sortBy = $transactionQueryDto->sortBy ?? null;
-
-        if ( (!$dateStart && $dateEnd) || $dateStart > $dateEnd ) {
-            throw new NotFoundHttpException('Invalid date format');
-        }
 
 
         $qb = $this->createQueryBuilder('t')
@@ -65,72 +51,72 @@ class TransactionRepository extends ServiceEntityRepository
             ->setParameter('user', $user);
 
 
-        if ($paymentType !== null) {
+        if ($transactionQueryDto->paymentType !== null) {
             $qb->andWhere('t.paymentType = :paymentType')
-                ->setParameter('paymentType', $paymentType);
+                ->setParameter('paymentType', $transactionQueryDto->paymentType);
         }
 
-        if ($dateStart !== null && $dateEnd !== null) {
+        if ($transactionQueryDto->dateStart !== null && $transactionQueryDto->dateEnd !== null) {
             $qb->andWhere('t.transactionDate >= :dateStart')
                 ->andWhere('t.transactionDate <= :dateEnd')
                 ->orderBy('t.transactionDate', 'ASC')
-                ->setParameter('dateStart', $dateStart)
-                ->setParameter('dateEnd', $dateEnd);
+                ->setParameter('dateStart', $transactionQueryDto->dateStart)
+                ->setParameter('dateEnd', $transactionQueryDto->dateEnd);
         }
 
-        if ($transactionName !== null) {
+        if ($transactionQueryDto->transactionName !== null) {
             $qb->andWhere('t.transactionName LIKE :transactionName')
-                ->setParameter('transactionName', "%" . $transactionName . "%");
+                ->setParameter('transactionName', "%" . $transactionQueryDto->transactionName . "%");
         }
 
-        if ($partyName !== null) {
+        if ($transactionQueryDto->partyName !== null) {
             $qb->andWhere('t.partyName LIKE :partyName')
-                ->setParameter('partyName', "%" . $partyName . "%");
+                ->setParameter('partyName', "%" . $transactionQueryDto->partyName . "%");
         }
 
-        if ($transactionNotes !== null) {
+        if ($transactionQueryDto->transactionNotes !== null) {
             $qb->andWhere('t.transactionNotes LIKE :transactionNotes')
-                ->setParameter('transactionNotes', "%" . $transactionNotes . "%");
+                ->setParameter('transactionNotes', "%" . $transactionQueryDto->transactionNotes . "%");
         }
 
-        if ($categoryName !== null) {
+        if ($transactionQueryDto->categoryName !== null) {
             $qb->andWhere('c.categoryName LIKE :categoryName')
-                ->setParameter('categoryName', "%" . $categoryName . "%");
+                ->setParameter('categoryName', "%" . $transactionQueryDto->categoryName . "%");
         }
 
-        if ($categoryType !== null) {
+        if ($transactionQueryDto->categoryType !== null) {
             $qb->andWhere('c.type = :categoryType')
-                ->setParameter('categoryType', $categoryType);
+                ->setParameter('categoryType', $transactionQueryDto->categoryType);
         }
 
-        if ($categoryId !== null) {
+        if ($transactionQueryDto->categoryId !== null) {
             $qb->andWhere('c.id = :categoryId')
-                ->setParameter('categoryId', $categoryId);
+                ->setParameter('categoryId', $transactionQueryDto->categoryId);
         }
-        if ($orderBy !== null) {
+        if ($transactionQueryDto->orderBy !== null) {
             // Input is validated so no sql injection is possible
-            $qb->orderBy('t.' . $orderBy, $sortBy);
+            $qb->orderBy('t.' . $transactionQueryDto->orderBy, $transactionQueryDto->sortBy);
         } else {
             $qb->orderBy('t.transactionName', 'ASC');
         }
         $pagination = $this->paginator->paginate(
             $qb,
-            $page,
-            $maxResults
+            $transactionQueryDto->page,
+            $transactionQueryDto->maxResults
         );
 
         $transactions = $pagination->getItems();
 
         // Calculate total pages
-        $totalPages = (int)ceil($pagination->getTotalItemCount() / $maxResults);
+        $totalPages = (int)ceil($pagination->getTotalItemCount() / $transactionQueryDto->maxResults);
         // Calculate the previous and next page
-        $previousPage = ($page > 1) ? $page - 1 : null;
-        $nextPage = ($page < $totalPages) ? $page + 1 : null;
+        $previousPage = ($transactionQueryDto->page > 1) ? $transactionQueryDto->page - 1 : null;
+        $nextPage = ($transactionQueryDto->page < $totalPages) ? $transactionQueryDto->page + 1 : null;
 
 
         return [
             'pagination' => [
-                'currentPage' => $page,
+                'currentPage' => $transactionQueryDto->page,
                 'previousPage' => $previousPage,
                 'nextPage' => $nextPage,
                 'totalPages' => $totalPages,
@@ -165,7 +151,7 @@ class TransactionRepository extends ServiceEntityRepository
             ->andWhere('c.user = :user OR c.user IS NULL')
             ->andWhere('YEAR(t.transactionDate) = :year')
             ->setParameter('user', $user)
-            ->setParameter('year',$year)
+            ->setParameter('year', $year)
             ->groupBy('year, month')
             ->orderBy('year', 'ASC')
             ->addOrderBy('month', 'ASC');
@@ -221,87 +207,98 @@ class TransactionRepository extends ServiceEntityRepository
         return $results;
     }
 
+    public function fetchDashboard(User $user, string $year, string $month): array
+    {
+        if ($month == 1) {
+            $previousMonth = 12;
+            $previousYear = $year - 1;
+        } else {
+            $previousMonth = $month - 1;
+            $previousYear = $year;
+        }
+
+
+        $dashboardData = $this->createQueryBuilder('t')
+            ->select('
+            MONTH(t.transactionDate) AS month, YEAR(t.transactionDate) AS year, 
+            SUM(CASE WHEN c.type = \'income\' THEN t.moneyAmount ELSE 0 END) AS totalIncome, 
+            SUM(CASE WHEN c.type = \'expense\' THEN t.moneyAmount ELSE 0 END) AS totalExpense,
+            (SUM(CASE WHEN c.type = \'income\' THEN t.moneyAmount ELSE 0 END)) - (SUM(CASE WHEN c.type = \'expense\' THEN t.moneyAmount ELSE 0 END)) AS savings
+            ')
+            ->leftJoin('t.category', 'c')
+            ->where('t.user = :user')
+            ->andWhere('YEAR(t.transactionDate) = :year AND MONTH(t.transactionDate) = :month')
+            ->setParameter('user', $user)
+            ->setParameter('year', $year)
+            ->setParameter('month', $month)
+            ->groupBy('year, month')
+            ->orderBy('year', 'ASC')
+            ->addOrderBy('month', 'ASC');
+
+        $results['current'] = $dashboardData->getQuery()->getResult();
+        $results['previous'] = $dashboardData->where('t.user = :user')
+            ->andWhere('YEAR(t.transactionDate) = :year AND MONTH(t.transactionDate) = :month')
+            ->setParameter('user', $user)
+            ->setParameter('year', $previousYear)
+            ->setParameter('month', $previousMonth)
+            ->getQuery()
+            ->getResult();
+        return $results;
+    }
+
     /**
      * Create new transaction
-     * @param TransactionCreateDto $transactionCreateDto
-     * @param User $user
-     * @param Category $category
+     * @param Transaction $newTransaction
      * @return void
-     * @throws \Exception
      */
-    public function create(TransactionCreateDto $transactionCreateDto, User $user, Category $category): void
+    public function create(Transaction $newTransaction): void
     {
-        $moneyAmount = $transactionCreateDto->moneyAmount;
-        $transactionDate = $transactionCreateDto->transactionDate;
-        $paymentType = $category->getType() === "expense" ? $transactionCreateDto->paymentType : null;
-        $partyName = $transactionCreateDto->partyName;
-        $transactionNotes = $transactionCreateDto->transactionNotes;
-        $transactionName = $transactionCreateDto->transactionName;
-
-
-        $newTransaction = new Transaction();
-        $newTransaction->setUser($user);
-        $newTransaction->setCategory($category);
-        $newTransaction->setPaymentType($paymentType);
-        $newTransaction->setTransactionDate(new \DateTimeImmutable($transactionDate));
-        $newTransaction->setMoneyAmount($moneyAmount);
-        $newTransaction->setTransactionName($transactionName);
-        if (null !== $transactionNotes) {
-            $newTransaction->setTransactionNotes($transactionNotes);
-        }
-        if (null !== $partyName) {
-            $newTransaction->setPartyName($partyName);
-        }
 
         $this->entityManager->persist($newTransaction);
         $this->entityManager->flush();
+
+//        if (null === $dashboard) {
+//            $transactions = $this->findByDateAndUser($user, $transactionDate);
+//            $sumExpense = 0;
+//            $sumIncome = 0;
+//            foreach ($transactions as $transaction) {
+//                if ($transaction->getCategory()->getType() === 'income') {
+//                    $sumIncome += $transaction->getMoneyAmount();
+//                } else {
+//                    $sumExpense += $transaction->getMoneyAmount();
+//                }
+//            }
+//
+//            $dashboardNew = new Dashboard();
+//            $dashboardNew->setUser($user);
+//            $dashboardNew->setDashboardDate(new \DateTimeImmutable($transactionDate));
+//            $dashboardNew->setTotalIncome($sumIncome);
+//            $dashboardNew->setTotalExpense($sumExpense);
+//            $dashboardNew->setSavingsProgress($sumIncome - $sumExpense);
+//            if (null !== $prevDashboard) {
+//                $dashboardNew->setCurrentBalance($prevDashboard->getCurrentBalance() + ($sumIncome - $sumExpense));
+//            } else {
+//                $dashboardNew->setCurrentBalance($sumIncome - $sumExpense);
+//            }
+//            $prevTransactions = $this->findByDateAndUserExpenseOnly($user, (new \DateTime($transactionDate))->modify('last day of previous month')->format('Y-m-d'));
+//            $transactions = $this->findByDateAndUserExpenseOnly($user, $transactionDate);
+//
+//            foreach ($transactions as $transaction) {
+//                $dataNew[] = $transaction->getCategory()->getCategoryName();
+//            }
+//            /** @var Transaction $prevTransaction */
+//            foreach ($prevTransactions as $prevTransaction) {
+//                $dataOld[] = $prevTransaction->getCategory()->getCategoryName();
+//            }
+//            dd(count($dataOld));
+//
+//        }
     }
 
 
-    public function update(int $id, ?string $transactionName, ?Category $category, ?float $moneyAmount, ?\DateTimeImmutable $transactionDate, $paymentType, ?string $partyName, ?string $transactionNotes, User $user): void
+    public function update(): void
     {
-        $transaction = $this->findByIdAndUser($id, $user);
-
-
-        if (!$transaction) {
-            throw new NotFoundHttpException('Transaction not found or doesn\'t belong to you.');
-        }
-
-        if ($category && $category->getType() === 'expense') {
-            $transaction->setCategory($category);
-        }
-
-        if ($category && $category->getType() === 'income') {
-            $transaction->setCategory($category);
-            $transaction->setPaymentType(null);
-        }
-
-        if ($transactionName) {
-            $transaction->setTransactionName($transactionName);
-        }
-
-        if ($moneyAmount) {
-            $transaction->setMoneyAmount($moneyAmount);
-        }
-
-        if ($transactionDate) {
-            $transaction->setTransactionDate($transactionDate);
-        }
-
-        if ($paymentType) {
-            $transaction->setPaymentType($paymentType);
-        }
-
-        if ($partyName) {
-            $transaction->setPartyName($partyName);
-        }
-
-        if ($transactionNotes) {
-            $transaction->setTransactionNotes($transactionNotes);
-        }
-
         $this->entityManager->flush();
-
     }
 
 
@@ -311,17 +308,10 @@ class TransactionRepository extends ServiceEntityRepository
      * @param User $user
      * @return void
      */
-    public function delete(int $id, User $user): void
+    public function delete(Transaction $transaction): void
     {
-        $transaction = $this->findByIdAndUser($id, $user);
-
-        if (!$transaction) {
-            throw new NotFoundHttpException('No transaction found.');
-        }
-
         $this->entityManager->remove($transaction);
         $this->entityManager->flush();
-
     }
 
     public function fetchSpecificColumns(
@@ -343,7 +333,7 @@ class TransactionRepository extends ServiceEntityRepository
             'c.categoryName' => $categoryName,
             'c.type' => $type,
             't.moneyAmount' => $moneyAmount,
-            't.paymentType' => $paymentType ,
+            't.paymentType' => $paymentType,
             't.transactionName' => $transactionName,
             't.partyName' => $partyName,
             't.transactionNotes' => $transactionNotes,
@@ -356,7 +346,7 @@ class TransactionRepository extends ServiceEntityRepository
 
         // If only one or more category fields are true, join category
         if ($categoryName || $type || $color) {
-            $transactions->leftJoin('t.category','c');
+            $transactions->leftJoin('t.category', 'c');
         }
         // Add separate day, month, and year fields if $transactionDate is true
 
@@ -377,7 +367,7 @@ class TransactionRepository extends ServiceEntityRepository
 
         $transactions->andWhere('t.user = :user')
             ->setParameter('user', $user)
-            ->orderBy('t.transactionDate','DESC');
+            ->orderBy('t.transactionDate', 'DESC');
 
         return $transactions->getQuery()->getResult();
 
@@ -393,4 +383,30 @@ class TransactionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+//    public function findByDateAndUser(User $user, string $date)
+//    {
+//        return $this->createQueryBuilder('t')
+//            ->where('t.user = :user')
+//            ->andWhere('YEAR(t.transactionDate) = YEAR(:date) AND MONTH(t.transactionDate) = MONTH(:date)')
+//            ->setParameter('user', $user)
+//            ->setParameter('date', $date)
+//            ->getQuery()
+//            ->getResult();
+//
+//    }
+//
+//    public function findByDateAndUserExpenseOnly(User $user, string $date)
+//    {
+//        return $this->createQueryBuilder('t')
+//            ->leftJoin('t.category', 'c')
+//            ->where('t.user = :user')
+//            ->andWhere('YEAR(t.transactionDate) = YEAR(:date) AND MONTH(t.transactionDate) = MONTH(:date)')
+//            ->andWhere('c.type = \'expense\'')
+//            ->setParameter('user', $user)
+//            ->setParameter('date', $date)
+//            ->getQuery()
+//            ->getResult();
+//
+//    }
 }
