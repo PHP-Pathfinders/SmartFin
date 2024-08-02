@@ -15,19 +15,19 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['category','budget','transaction'])]
+    #[Groups(['category','budget','transaction','template'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['category','budget','transaction'])]
+    #[Groups(['category','budget','transaction','template'])]
     private ?string $categoryName = null;
 
     #[ORM\Column(length: 10)]
-    #[Groups(['category','budget','transaction'])]
+    #[Groups(['category','budget','transaction','template'])]
     private ?string $type = null;
 
     #[ORM\Column(length: 10)]
-    #[Groups(['category','budget','transaction'])]
+    #[Groups(['category','budget','transaction','template'])]
     private ?string $color;
 
     /**

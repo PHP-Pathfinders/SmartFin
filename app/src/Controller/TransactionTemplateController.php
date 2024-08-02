@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Validator\Constraints\Json;
 use OpenApi\Attributes as OA;
 
@@ -22,11 +23,17 @@ use OpenApi\Attributes as OA;
 class TransactionTemplateController extends AbstractController
 {
 
+    public function __construct(
+        private TransactionTemplateService $transactionTemplateService
+    )
+    {
+    }
+
     /**
      * Finds transaction templates by category, payment type, transaction name, party name, transaction notes
      * - Example url: localhost:8080/api/transaction-templates?paymentType=cash&limit=5
      */
-    #[Route('', name: 'api_find_transaction_templates', methods: ['GET'])]
+    #[Route(name: 'api_find_transaction_templates', methods: ['GET'])]
     #[OA\Get(
         description: 'Returns array of transaction templates filtered by different parameters, if no parameters given it returns every transaction template for logged user',
         summary: 'Finds transaction templates by category, payment type, transaction name, party name and transaction notes',
@@ -66,19 +73,10 @@ class TransactionTemplateController extends AbstractController
     #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?TransactionTemplateQueryDto $transactionTemplateQueryDto,
-        TransactionTemplateService                     $transactionTemplateService
     ): JsonResponse
     {
 
-        $data = $transactionTemplateService->search($transactionTemplateQueryDto);
-
-        // If no templates are found
-        if (empty($data['transactionTemplates'])) {
-            return $this->json([
-                'success' => false,
-                'message' => 'No transaction template found'
-            ],404);
-        }
+        $data = $this->transactionTemplateService->search($transactionTemplateQueryDto);
 
         // Return found templates
         return $this->json([
@@ -90,7 +88,7 @@ class TransactionTemplateController extends AbstractController
 
 
 
-    #[Route('', name: 'api_add_transaction_template', methods: ['POST'])]
+    #[Route(name: 'api_add_transaction_template', methods: ['POST'])]
     #[OA\Post(
         description: 'Used for creating new transaction templates with current logged user as its owner',
         summary: "Creates an income/expense transaction template",
@@ -135,20 +133,22 @@ class TransactionTemplateController extends AbstractController
     #[Security(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] TransactionTemplateCreateDto $transactionTemplateCreateDto,
-        TransactionTemplateService                        $transactionTemplateService
     ): JsonResponse
     {
-        $transactionTemplateService->create($transactionTemplateCreateDto);
+        $template = $this->transactionTemplateService->create($transactionTemplateCreateDto);
 
         return $this->json([
             'success' => true,
-            'message' => 'New transaction template created'
+            'message' => 'New transaction template created',
+            'data' => $template
+        ], context: [
+            ObjectNormalizer::GROUPS => ['template']
         ]);
 
     }
 
 
-    #[Route('', name: 'api_update_transaction_templates', methods: ['PATCH'])]
+    #[Route(name: 'api_update_transaction_templates', methods: ['PATCH'])]
     #[OA\Patch(
         description: "Make changes to any transaction template that is in ownership of logged in user",
         summary: "Makes changes to certain transaction template for logged user",
@@ -193,14 +193,22 @@ class TransactionTemplateController extends AbstractController
     #[Security(name: 'Bearer')]
     public function update(
         #[MapRequestPayload] TransactionTemplateUpdateDto $transactionUpdateDto,
-        TransactionTemplateService                        $transactionTemplateService,
     ): JsonResponse
     {
-        $message = $transactionTemplateService->update($transactionUpdateDto);
+        $data = $this->transactionTemplateService->update($transactionUpdateDto);
 
+        if(isset($data['template'])){
+            return $this->json([
+                'success' => true,
+                'message' => $data['message'],
+                'data' => $data['template']
+            ], context: [
+                ObjectNormalizer::GROUPS => ['template']
+            ]);
+        }
         return $this->json([
             'success' => true,
-            'message' => $message
+            'message' => $data['message']
         ]);
 
     }
@@ -240,9 +248,9 @@ class TransactionTemplateController extends AbstractController
         ]
     )]
     #[Security(name: 'Bearer')]
-    public function delete(int $id, TransactionTemplateService $transactionTemplateService): JsonResponse
+    public function delete(int $id): JsonResponse
     {
-        $transactionTemplateService->delete($id);
+        $this->transactionTemplateService->delete($id);
 
         return $this->json([
             'success' => true,

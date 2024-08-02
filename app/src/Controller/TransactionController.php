@@ -81,14 +81,6 @@ class TransactionController extends AbstractController
     {
         $data = $this->transactionService->search($transactionQueryDto);
 
-        // If no transactions are found
-        if (empty($data['transactions'])) {
-            return $this->json([
-                'success' => true,
-                'message' => 'No transactions found'
-            ]);
-        }
-
         return $this->json([
             'success' => true,
             'data' => $data
