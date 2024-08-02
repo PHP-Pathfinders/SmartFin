@@ -18,25 +18,18 @@ readonly class ExportService
         private string $exportsDir
     )
     {}
-    public function search(SearchDto $searchDto): array
+    public function search(?SearchDto $searchDto): array
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        if (!$user || (int)$searchDto->userId !== $user->getId())
-        {
-           throw new AccessDeniedException('Wrong user id or user not authenticated');
-        }
-        return $this->exportRepository->fetchExports(user: $user, fileType: $searchDto->fileType);
+        $fileType = $searchDto->fileType ?? null;
+        return $this->exportRepository->fetchExports(user: $user, fileType: $fileType);
     }
 
     public function download(string $fileName): string
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        if (!$user)
-        {
-            throw new AccessDeniedException('User not authenticated');
-        }
 
         // Get the file extension
         $fileInfo = pathinfo($fileName);

@@ -88,7 +88,7 @@ readonly class UserService
     public function fetch(int $userId) :array
     {
         // Search by user id
-        $user = $this->userRepository->fetchUser($userId);
+        $user = $this->userRepository->find($userId);
         if (!$user){
             throw new NotFoundHttpException('User not found');
         }

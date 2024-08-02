@@ -100,27 +100,8 @@ class CategoryRepository extends ServiceEntityRepository
         return $newCategory;
     }
 
-    public function update(int $id, ?string $categoryName, ?string $color,User $user): Category
+    public function update(Category $category): Category
     {
-        $category = $this->findByIdAndUser($id,$user);
-
-        if (!$category) {
-            throw new NotFoundHttpException('Category not found or does not belongs to you');
-        }
-        if ($category->getUser() === null) {
-            throw new AccessDeniedHttpException('You cannot modify default category.');
-        }
-        if($categoryName) {
-            $userHasCategory = $this->userHasCategory($categoryName,$category->getType(),$user);
-            //Check if category exists with given name and exclude if category name matches the one with given id
-            if($userHasCategory  && strtolower($categoryName) !== strtolower($category->getCategoryName())){
-                throw new ConflictHttpException('You have already a category with the given name for that type.');
-            }
-            $category->setCategoryName($categoryName);
-        }
-        if($color){
-            $category->setColor($color);
-        }
         $this->entityManager->flush();
         return $category;
     }
@@ -174,7 +155,7 @@ class CategoryRepository extends ServiceEntityRepository
      * @param User $user
      * @return bool
      */
-    private function userHasCategory(string $categoryName,string $type, User $user): bool
+    public function userHasCategory(string $categoryName,string $type, User $user): bool
     {
         return (bool) $this->createQueryBuilder('c')
             ->select('count(c.id)')
