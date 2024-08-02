@@ -7,6 +7,7 @@ use App\Dto\Budget\BudgetQueryDto;
 use App\Dto\Budget\BudgetUpdateDto;
 use App\Dto\Budget\RandomDto;
 use App\Entity\Budget;
+use App\Entity\Category;
 use App\Entity\User;
 use App\Repository\BudgetRepository;
 use App\Repository\CategoryRepository;
@@ -63,7 +64,7 @@ class BudgetService
             throw new NotFoundHttpException('Invalid date format');
         }
 
-        return $this->budgetRepository->search($page,$maxResults,$dateStart,$dateEnd, $user);
+        return $this->budgetRepository->searchWithStats($page,$maxResults,$dateStart,$dateEnd, $user);
     }
 
     public function create(BudgetCreateDto $budgetCreateDto): Budget
@@ -113,6 +114,7 @@ class BudgetService
             throw new NotFoundHttpException("Budget not owned by you or does not exist");
         }
 
+        /** @var Category $currentCategory */
         $currentCategory = $budget->getCategory();
 
         $category = $budgetUpdateDto->categoryId ? $this->categoryRepository->findByIdUserAndType($budgetUpdateDto->categoryId, $user, 'expense') : $currentCategory;
@@ -122,7 +124,7 @@ class BudgetService
         }
 
 
-        if($category === $currentCategory && (!$budgetUpdateDto->monthlyBudgetAmount || $budgetUpdateDto->monthlyBudgetAmount === $budget->getMonthlyBudget()) && ($budgetUpdateDto->year === $budget->getMonthlyBudgetDate()->format('Y') && (int) $budgetUpdateDto->month === (int) $budget->getMonthlyBudgetDate()->format('m'))){
+        if($category->getId() === $currentCategory->getId() && (!$budgetUpdateDto->monthlyBudgetAmount || $budgetUpdateDto->monthlyBudgetAmount === $budget->getMonthlyBudget()) && ($budgetUpdateDto->year === $budget->getMonthlyBudgetDate()->format('Y') && (int) $budgetUpdateDto->month === (int) $budget->getMonthlyBudgetDate()->format('m'))){
             return ['message' => 'Nothing to update'];
         }
 

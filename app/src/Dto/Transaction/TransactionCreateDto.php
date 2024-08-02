@@ -31,7 +31,7 @@ readonly class TransactionCreateDto
 
         #[Assert\Choice(options: ['cash', 'card'], message: 'Payment type must only be cash or card')]
         #[Assert\NotBlank(message: 'Payment type cannot be blank')]
-        public string  $paymentType,
+        public string  $paymentType = '',
 
         #[Assert\Choice(options: ['income', 'expense'], message: 'Category type must be \'income\' or \'expense\'.')]
         #[Assert\NotBlank(message: 'Category Type cannot be blank')]

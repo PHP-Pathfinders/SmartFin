@@ -6,6 +6,9 @@ use App\Repository\TransactionRepository;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ORM\Table(name: '`transactions`')]
@@ -14,31 +17,41 @@ class Transaction
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['transaction'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['transaction'])]
     private ?User $user = null;
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['transaction'])]
     private ?Category $category = null;
 
     #[ORM\Column(length: 10, nullable: true)]
+    #[Groups(['transaction'])]
     private ?string $paymentType = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['transaction'])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s'])]
     private ?DateTimeInterface $transactionDate = null;
 
     #[ORM\Column]
+    #[Groups(['transaction'])]
     private ?float $moneyAmount = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['transaction'])]
     private ?string $transactionName = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['transaction'])]
     private ?string $partyName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['transaction'])]
     private ?string $transactionNotes = null;
 
     public function getId(): ?int

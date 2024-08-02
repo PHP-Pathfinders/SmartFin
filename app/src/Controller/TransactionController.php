@@ -19,17 +19,25 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 
 #[Route('/api/transactions')]
 class TransactionController extends AbstractController
 {
 
+    public function __construct(
+        private TransactionService $transactionService,
+    )
+    {
+    }
+
+
     /**
      * Finds transactions by category, payment type, month, transaction name, party name, transaction notes
      * - Example url: localhost:8080/api/transactions?transactionDate=2024-05-01&paymentType=cash&limit=5
      */
-    #[Route('', name: 'api_find_transactions',methods: ['GET'])]
+    #[Route(name: 'api_find_transactions',methods: ['GET'])]
     #[OA\Get(
         description: 'Returns array of transactions filtered by different parameters, if no parameters given it returns every transaction for logged user',
         summary: 'Finds transactions by category, payment type, month, transaction name, party name, transaction notes and much more',
@@ -69,17 +77,16 @@ class TransactionController extends AbstractController
     #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?TransactionQueryDto $transactionQueryDto,
-        TransactionService $transactionService
     ): JsonResponse
     {
-        $data = $transactionService->search($transactionQueryDto);
+        $data = $this->transactionService->search($transactionQueryDto);
 
         // If no transactions are found
         if (empty($data['transactions'])) {
             return $this->json([
-                'success' => false,
+                'success' => true,
                 'message' => 'No transactions found'
-            ],404);
+            ]);
         }
 
         return $this->json([
@@ -127,12 +134,11 @@ class TransactionController extends AbstractController
     )]
     #[Security(name: 'Bearer')]
     public function transactionsOverview(
-        TransactionService $transactionService,
         #[MapQueryString] ?OverviewDto $overviewDto
     ): JsonResponse
     {
         $year = $overviewDto->year ?? date('Y');
-        $data = $transactionService->transactionOverview((int) $year);
+        $data = $this->transactionService->transactionOverview((int) $year);
         if (empty($data)){
             return $this->json([
                 'success' => false,
@@ -184,13 +190,12 @@ class TransactionController extends AbstractController
     )]
     #[Security(name: 'Bearer')]
     public function spendingByCategories(
-        TransactionService $transactionService,
         #[MapQueryString] ?SpendingsDto $spendingsDto
     ): JsonResponse
     {
         $month = $spendingsDto->month ?? date('m');
         $year = $spendingsDto->year ?? date('Y');
-        $data = $transactionService->spendingByCategories($month, $year);
+        $data = $this->transactionService->spendingByCategories($month, $year);
 
         if(empty($data)){
             return $this->json(
@@ -261,18 +266,20 @@ class TransactionController extends AbstractController
     #[Security(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] TransactionCreateDto $transactionCreateDto,
-        TransactionService $transactionService
     ): JsonResponse
     {
-        $transactionService->create($transactionCreateDto);
+        $transaction = $this->transactionService->create($transactionCreateDto);
 
         return $this->json([
             'success' => true,
-            'message' => 'New transaction created'
+            'message' => 'New transaction created',
+            'data' => $transaction
+        ], context: [
+            ObjectNormalizer::GROUPS => ['transaction']
         ]);
     }
 
-    #[Route('', name: 'api_update_transactions', methods: ['PATCH'])]
+    #[Route(name: 'api_update_transactions', methods: ['PATCH'])]
     #[OA\Patch(
         description: "Make changes to any transaction that is in ownership of logged in user",
         summary: "Makes changes to certain transaction for logged user",
@@ -322,13 +329,23 @@ class TransactionController extends AbstractController
     #[Security(name: 'Bearer')]
     public function update(
         #[MapRequestPayload] TransactionUpdateDto $transactionUpdateDto,
-        TransactionService $transactionService,
     ): JsonResponse
     {
-        $message = $transactionService->update($transactionUpdateDto);
+        $data = $this->transactionService->update($transactionUpdateDto);
+
+        if(isset($data['transaction'])){
+            return $this->json([
+                'success' => true,
+                'message' => $data['message'],
+                'data' => $data['transaction']
+            ], context: [
+                ObjectNormalizer::GROUPS => ['transaction']
+            ]);
+        }
+
         return $this->json([
             'success' => true,
-            'message' => $message
+            'message' => $data['message']
         ]);
     }
 
@@ -366,9 +383,9 @@ class TransactionController extends AbstractController
         ]
     )]
     #[Security(name: 'Bearer')]
-    public function delete(int $id, TransactionService $transactionService): JsonResponse
+    public function delete(int $id): JsonResponse
     {
-        $transactionService->delete($id);
+        $this->transactionService->delete($id);
 
         return $this->json([
             'success' => true,

@@ -30,47 +30,46 @@ use OpenApi\Attributes as OA;
 class UserController extends AbstractController
 {
     #[Route('/login', name: 'api_login', methods: ['POST'])]
-    //TODO find out why this does not implements successfully
-//    #[OA\Post(
-//        description: 'Used as login entry point to our site, given example should work as a test user account. To use this test user here you will have to try it out, get the token copy and paste it in the Authorize section at the top of this page.',
-//        summary: 'Login with existing account',
-//        requestBody: new OA\RequestBody(
-//            required: true,
-//            content: new OA\JsonContent(
-//                properties: [
-//                    new OA\Property(property: 'username', type: 'string', example: 'jane@gmail.com'),
-//                    new OA\Property(property: 'password', type: 'string', example: 'Password#1')
-//                ],
-//                type: 'object'
-//            )
-//        ),
-//        tags: ['Entry Points'],
-//        responses: [
-//            new OA\Response(
-//                response: 200,
-//                description: 'Successful login',
-//                content: new OA\JsonContent(ref: '#/components/schemas/LoginSuccess')
-//            ),
-//            new OA\Response(
-//                response: 401,
-//                description: 'Unauthorized access attempt detected',
-//                content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedLogin')
-//            ),
-//            new OA\Response(
-//                response: 403,
-//                description: 'Forbidden access',
-//                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
-//            ),
-//            new OA\Response(
-//                response: 400,
-//                description: 'Bad Request JSON body data given',
-//            ),
-//            new OA\Response(
-//                response: 500,
-//                description: 'Internal server error(something went really bad)',
-//            )
-//        ]
-//    )]
+    #[OA\Post(
+        description: 'Used as login entry point to our site, given example should work as a test user account. To use this test user here you will have to try it out, get the token copy and paste it in the Authorize section at the top of this page.',
+        summary: 'Login with existing account',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'username', type: 'string', example: 'jane@gmail.com'),
+                    new OA\Property(property: 'password', type: 'string', example: 'Password#1')
+                ],
+                type: 'object'
+            )
+        ),
+        tags: ['Entry Points'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Successful login',
+                content: new OA\JsonContent(ref: '#/components/schemas/LoginSuccess')
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized access attempt detected',
+                content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedLogin')
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'Forbidden access',
+                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Bad Request JSON body data given',
+            ),
+            new OA\Response(
+                response: 500,
+                description: 'Internal server error(something went really bad)',
+            )
+        ]
+    )]
     public function login(): JsonResponse
     {
         //In case of client didn't send json payload at all

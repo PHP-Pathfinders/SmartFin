@@ -52,7 +52,7 @@ class BudgetRepository extends ServiceEntityRepository
     }
 
 
-    public function search(string $page, string $maxResults, string $dateStart, string $dateEnd, User $user): array
+    public function searchWithStats(string $page, string $maxResults, string $dateStart, string $dateEnd, User $user): array
     {
         $qb = $this->createQueryBuilder('b')
             ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryId, c.categoryName, c.color, COALESCE(SUM(t.moneyAmount), 0) as total, 

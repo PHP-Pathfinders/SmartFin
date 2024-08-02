@@ -66,7 +66,6 @@ class BudgetController extends AbstractController
             )
         ]
     )]
-    #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?BudgetQueryDto $budgetQueryDto,
     ): JsonResponse
@@ -125,6 +124,7 @@ class BudgetController extends AbstractController
         ]
 
     )]
+    #[Security(name: 'Bearer')]
     public function random(
         #[MapQueryString] ?RandomDto $randomDto,
     ): JsonResponse
@@ -188,7 +188,7 @@ class BudgetController extends AbstractController
             )
         ]
     )]
-    #[OA\Tag(name: 'Budgets')]
+    #[Security(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] BudgetCreateDto $budgetCreateDto,
     ): JsonResponse
@@ -253,6 +253,7 @@ class BudgetController extends AbstractController
             )
         ]
     )]
+    #[Security(name: 'Bearer')]
     public function update(
         #[MapRequestPayload] BudgetUpdateDto $budgetUpdateDto,
     ): JsonResponse
@@ -308,6 +309,7 @@ class BudgetController extends AbstractController
 
         ]
     )]
+    #[Security(name: 'Bearer')]
     public function delete(int $id): JsonResponse
     {
         $this->budgetService->delete($id);
