@@ -57,7 +57,7 @@ class ExportController extends AbstractController
         ]
     )]
     public function search(
-        #[MapQueryString] SearchDto $searchDto,
+        #[MapQueryString] ?SearchDto $searchDto,
         ExportService $exportService
     ): JsonResponse
     {

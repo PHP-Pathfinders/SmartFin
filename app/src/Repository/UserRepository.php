@@ -50,12 +50,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $user;
     }
 
-
-    public function fetchUser(int $id): ?User
-    {
-        return $this->find($id);
-    }
-
     /**
      * Creates a new user if email is not taken
      * @param string $fullName

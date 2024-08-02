@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Repository\CategoryRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 readonly class CategoryService
@@ -53,7 +54,28 @@ readonly class CategoryService
         if (!$categoryName && !$color) {
             return ['message'=>'Nothing to update'];
         }
-        $category = $this->categoryRepository->update($id,$categoryName,$color,$user);
+//        ---
+        $category = $this->categoryRepository->findByIdAndUser($id,$user);
+
+        if (!$category) {
+            throw new NotFoundHttpException('Category not found or does not belongs to you');
+        }
+        if ($category->getUser() === null) {
+            throw new AccessDeniedHttpException('You cannot modify default category.');
+        }
+        if($categoryName) {
+            $userHasCategory = $this->categoryRepository->userHasCategory($categoryName,$category->getType(),$user);
+            //Check if category exists with given name and exclude if category name matches the one with given id
+            if($userHasCategory  && strtolower($categoryName) !== strtolower($category->getCategoryName())){
+                throw new ConflictHttpException('You have already a category with the given name for that type.');
+            }
+            $category->setCategoryName($categoryName);
+        }
+        if($color){
+            $category->setColor($color);
+        }
+//        ---
+        $category = $this->categoryRepository->update($category);
         return ['message'=>'Update successful', 'category'=>$category];
     }
 
