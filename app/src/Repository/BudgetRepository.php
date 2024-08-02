@@ -161,24 +161,39 @@ class BudgetRepository extends ServiceEntityRepository
      */
     public function fetchRandomBudgets(string $month, string $year, string $amount, User $user): array
     {
-        return $this->createQueryBuilder('b')
-            ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryId, c.categoryName, c.color, 
-            SUM(t.moneyAmount) as totalSpent,
-            (SUM(t.moneyAmount) / b.monthlyBudget) * 100 AS percentageSpent
-            ')
+        // Get all id's for budgets with given criteria
+        $ids = $this->createQueryBuilder('b')
+            ->select('b.id')
             ->innerJoin('b.category', 'c')
-            ->innerJoin('c.transactions', 't')
             ->andWhere('b.user = :user')
+            ->andWhere('c.user = :user or c.user IS NULL')
             ->andWhere('MONTH(b.monthlyBudgetDate) = :month')
             ->andWhere('YEAR(b.monthlyBudgetDate) = :year')
             ->andWhere('c.type = \'expense\'')
-            ->andWhere('t.user = :user')
             ->setParameter('user', $user)
             ->setParameter('month', $month)
             ->setParameter('year', $year)
+            ->getQuery()
+            ->getArrayResult();
+
+        // Randomly pick the desired number of IDs
+        $selectedIds = array_column($ids, 'id');
+        shuffle($selectedIds);
+        $selectedIds = array_slice($selectedIds, 0, (int)$amount);
+        // Fetch the random budgets by selected IDs
+        return $this->createQueryBuilder('b')
+            ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryId, c.categoryName, c.color,
+            COALESCE(SUM(t.moneyAmount), 0) as totalSpent,
+            COALESCE((SUM(t.moneyAmount) / b.monthlyBudget) * 100 , 0) AS percentageSpent
+            ')
+            ->innerJoin('b.category', 'c')
+            ->leftJoin(Transaction::class, 't', 'WITH', 't.category = c.id AND t.user = :user AND MONTH(t.transactionDate) >= :month AND YEAR(t.transactionDate) <= :year')
+            ->andWhere('b.id IN (:ids)')
+            ->setParameter('ids', $selectedIds)
+            ->setParameter('user', $user)
+            ->setParameter('month',$month)
+            ->setParameter('year',$year)
             ->groupBy('b.id')
-            ->setMaxResults((int)$amount)
-            ->addOrderBy('RAND()')
             ->getQuery()
             ->getResult();
     }
