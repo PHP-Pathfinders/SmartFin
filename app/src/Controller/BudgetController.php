@@ -72,13 +72,6 @@ class BudgetController extends AbstractController
     {
         $data = $this->budgetService->search($budgetQueryDto);
 
-        if (empty($data['budgets'])) {
-            return $this->json([
-                'success' => true,
-                'message' => 'No budgets found'
-            ]);
-        }
-
         return $this->json([
             'success' => true,
             'data' => $data

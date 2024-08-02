@@ -43,7 +43,7 @@ class TransactionRepository extends ServiceEntityRepository
 
 
         $qb = $this->createQueryBuilder('t')
-            ->select(' t.id, t.paymentType, t.transactionDate, t.moneyAmount, t.transactionName, t.partyName, t.transactionNotes,c.id as categoryID, c.type, c.categoryName, c.color')
+            ->select(' t.id, t.paymentType, t.transactionDate, t.moneyAmount, t.transactionName, t.partyName, t.transactionNotes,c.id as categoryId, c.type, c.categoryName, c.color')
             ->leftJoin('t.category', 'c')
             ->leftJoin('c.user', 'u')
             ->andWhere('t.user = :user')

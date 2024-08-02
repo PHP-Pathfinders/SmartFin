@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\TransactionTemplateRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TransactionTemplateRepository::class)]
 #[ORM\Table(name: '`transaction_templates`')]
@@ -12,28 +13,36 @@ class TransactionTemplate
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['template'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'transactionTemplates')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['template'])]
     private ?User $user = null;
     #[ORM\ManyToOne(inversedBy: 'transactionTemplates')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['template'])]
     private ?Category $category = null;
 
     #[ORM\Column(length: 10, nullable: true)]
+    #[Groups(['template'])]
     private ?string $paymentType = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['template'])]
     private ?float $moneyAmount = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['template'])]
     private ?string $transactionName = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['template'])]
     private ?string $partyName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['template'])]
     private ?string $transactionNotes = null;
 
     public function getId(): ?int
