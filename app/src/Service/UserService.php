@@ -7,7 +7,7 @@ use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\RegisterDto;
 use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
-use App\Message\SendEmailVerification;
+use App\Message\SendEmailVerificationMessage;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -81,7 +81,7 @@ readonly class UserService
         $user = new User();
         $hashedPassword = $this->passwordHasher->hashPassword($user,$plainPassword);
         $user = $this->userRepository->register($fullName,$email,$hashedPassword,$user);
-        $this->bus->dispatch(new SendEmailVerification($email));
+        $this->bus->dispatch(new SendEmailVerificationMessage($email));
         return $user;
     }
 
@@ -93,7 +93,7 @@ readonly class UserService
             throw new NotFoundHttpException('User not found');
         }
         return [
-            'userId' => $user->getId(),
+            'id' => $user->getId(),
             'fullName' => $user->getFullName(),
             'birthday' => $user->getBirthday(),
             'avatarFileName' => $user->getAvatarFileName(),

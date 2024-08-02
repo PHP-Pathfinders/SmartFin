@@ -62,12 +62,7 @@ class ExportController extends AbstractController
     ): JsonResponse
     {
         $data = $exportService->search($searchDto);
-        if(!$data){
-            return $this->json([
-                'success' => false,
-                'message' => 'No exports found'
-            ], Response::HTTP_NOT_FOUND);
-        }
+
         return $this->json([
             'success' => true,
             'data' => $data

@@ -3,7 +3,7 @@
 namespace App\MessageHandler;
 
 use App\Entity\User;
-use App\Message\SendEmailVerification;
+use App\Message\SendEmailVerificationMessage;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -11,19 +11,21 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Mime\Address;
 
 #[AsMessageHandler]
-final readonly class SendEmailVerificationHandler
+class SendEmailVerificationMessageHandler
 {
     public function __construct(
-        private EmailVerifier $emailVerifier,
+        private EmailVerifier  $emailVerifier,
         private UserRepository $userRepository
     )
-    {}
-    public function __invoke(SendEmailVerification $message): void
+    {
+    }
+
+    public function __invoke(SendEmailVerificationMessage $message): void
     {
         /** @var User $user */
-        $user =  $this->userRepository->findOneBy(['email'=>$message->getEmail()]);
+        $user = $this->userRepository->findOneBy(['email' => $message->getEmail()]);
         // Send verification link to verify email
-        $this->emailVerifier->sendEmailConfirmation('api_verify_email',$user ,
+        $this->emailVerifier->sendEmailConfirmation('api_verify_email', $user,
             (new TemplatedEmail())
                 ->from(new Address('smart-fin@example.com', 'SmartFin'))
                 ->to($user->getEmail())
