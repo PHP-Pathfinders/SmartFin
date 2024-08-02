@@ -133,7 +133,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     /**
      * Activates the user and clears scheduled deletion date
      * @param User $user
-     * @return void
+     * @return User
      */
     public function activate(User $user): User
     {
@@ -143,10 +143,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $user;
     }
 
-    public function deleteUsers(): void
+    public function deleteUsers(array $userIds): void
     {
-        $userIds = $this->getUsersScheduledForDeletion();
-
         if (!empty($userIds)) {
             $entityManager = $this->getEntityManager();
             foreach ($userIds as $userId) {
@@ -159,7 +157,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         }
     }
 
-    private function getUsersScheduledForDeletion(): array
+    public function getUsersScheduledForDeletion(): array
     {
         $now = new \DateTime();
         return $this->createQueryBuilder('u')

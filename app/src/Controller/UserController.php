@@ -29,74 +29,6 @@ use OpenApi\Attributes as OA;
 #[Route('/api/users')]
 class UserController extends AbstractController
 {
-    #[Route('/login', name: 'api_login', methods: ['POST'])]
-    #[OA\Post(
-        description: 'Used as login entry point to our site, given example should work as a test user account. To use this test user here you will have to try it out, get the token copy and paste it in the Authorize section at the top of this page.',
-        summary: 'Login with existing account',
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                properties: [
-                    new OA\Property(property: 'username', type: 'string', example: 'jane@gmail.com'),
-                    new OA\Property(property: 'password', type: 'string', example: 'Password#1')
-                ],
-                type: 'object'
-            )
-        ),
-        tags: ['Entry Points'],
-        responses: [
-            new OA\Response(
-                response: 200,
-                description: 'Successful login',
-                content: new OA\JsonContent(ref: '#/components/schemas/LoginSuccess')
-            ),
-            new OA\Response(
-                response: 401,
-                description: 'Unauthorized access attempt detected',
-                content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedLogin')
-            ),
-            new OA\Response(
-                response: 403,
-                description: 'Forbidden access',
-                content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
-            ),
-            new OA\Response(
-                response: 400,
-                description: 'Bad Request JSON body data given',
-            ),
-            new OA\Response(
-                response: 500,
-                description: 'Internal server error(something went really bad)',
-            )
-        ]
-    )]
-    public function login(): JsonResponse
-    {
-        //In case of client didn't send json payload at all
-        return $this->json([
-            'success' => false,
-            'message' => 'Json payload not found'
-        ], Response::HTTP_BAD_REQUEST);
-    }
-
-    #[Route('/logout', name: 'api_logout', methods: ['POST'])]
-    #[OA\Post(
-        description: 'This is supposed to be a logout but it is not really utilized',
-        summary: 'Logout of account',
-        tags: ['User'],
-        responses: [
-            new OA\Response(response: 200, description: 'Logged out', content: new OA\JsonContent(ref: '#/components/schemas/Logout')),
-            new OA\Response(response: 401, description: 'Unauthorized access detected', content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')),])]
-    public function logout(): JsonResponse
-    {
-        // This endpoint doesn't need to do anything server-side
-        return $this->json([
-            'success' => true,
-            'message' => 'Logged out successfully',
-        ]);
-    }
-
-    #[Route('/register', name: 'api_register', methods: ['POST'])]
     #[OA\Post(
         description: 'Register new account that will be used on this site',
         summary: 'Used as register entry point to our site',
@@ -133,6 +65,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(
         #[MapRequestPayload] RegisterDto $registerDto,
         UserService                      $userService
@@ -152,7 +85,6 @@ class UserController extends AbstractController
     /**
      * @throws InvalidSignatureException
      */
-    #[Route('/verify-email', name: 'api_verify_email', methods: ['GET'])]
     #[OA\Get(
         description: 'Used for verifying email for your account',
         summary: 'Verify your email',
@@ -180,6 +112,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/verify-email', name: 'api_verify_email', methods: ['GET'])]
     public function verifyEmail(
         #[MapQueryParameter] int $id,
         UserService              $userService,
@@ -197,7 +130,6 @@ class UserController extends AbstractController
     /**
      * @throws ResetPasswordExceptionInterface
      */
-    #[Route('/reset-password', name: 'api_reset_password', methods: ['PATCH'])]
     #[OA\Patch(
         description: 'Used for resetting password of your account',
         summary: 'Reset password for certain account',
@@ -229,6 +161,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/reset-password', name: 'api_reset_password', methods: ['PATCH'])]
     public function resetPassword(
         #[MapRequestPayload] ResetPasswordDto $resetPasswordDto,
         UserService                           $userService
@@ -245,7 +178,6 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'])]
     #[OA\Get(
         description: 'Provides all details about singular registered user',
         summary: 'Gives data about single user',
@@ -277,6 +209,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'])]
     public function fetch(
         int         $id,
         UserService $userService
@@ -289,7 +222,6 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id<\d+>}/change-password', name: 'api_change_password', methods: ['PATCH'])]
     #[OA\Patch(
         description: 'Provides a password change functionality for user\'s account',
         summary: 'Used for changing password for user account',
@@ -326,6 +258,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/{id<\d+>}/change-password', name: 'api_change_password', methods: ['PATCH'])]
     public function changePassword(
         int                                    $id,
         #[MapRequestPayload] ChangePasswordDto $changePasswordDto,
@@ -343,7 +276,6 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/{id<\d+>}', name: 'api_update_user', methods: ['PATCH'])]
     #[OA\Patch(
         description: 'Enables to change details about single user',
         summary: 'Changes data about single user',
@@ -385,6 +317,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/{id<\d+>}', name: 'api_update_user', methods: ['PATCH'])]
     public function update(
         int                                $id,
         UserService                        $userService,
@@ -409,7 +342,6 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/{id<\d+>}/image', name: 'api_update_image', methods: ["POST"])]
     #[OA\Post(
         description: 'Gives user freedom to change his avatar picture with appropriate and valid one',
         summary: 'Used for changing profile avatar picture for user account',
@@ -465,6 +397,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/{id<\d+>}/image', name: 'api_update_image', methods: ["POST"])]
     public function updateProfileImage(
         int         $id,
         Request     $request,
@@ -496,7 +429,6 @@ class UserController extends AbstractController
         ], Response::HTTP_BAD_REQUEST);
     }
 
-    #[Route('/{id<\d+>}/deactivate', name: 'api_deactivate', methods: ['PATCH'])]
     #[OA\Patch(
         description: 'Deactivates user account after which will his access to site be limited and also will have a time period of 7 days to re-activate it',
         summary: 'Used for deactivating the user account',
@@ -533,6 +465,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/{id<\d+>}/deactivate', name: 'api_deactivate', methods: ['PATCH'])]
     public function deactivate(
         int                                       $id,
         #[MapRequestPayload] DeactivateAccountDto $deactivateAccountDto,
@@ -551,7 +484,6 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/{id<\d+>}/activate', name: 'api_users_activate', methods: ['PATCH'])]
     #[OA\Patch(
         description: 'Reactivates user account if he decides not to deactivate and delete it and clears scheduled deletion date',
         summary: 'Used for reactivating the user account',
@@ -588,6 +520,7 @@ class UserController extends AbstractController
             )
         ]
     )]
+    #[Route('/{id<\d+>}/activate', name:'api_users_activate', methods: ['PATCH'])]
     public function activate(
         int         $id,
         UserService $userService
@@ -608,9 +541,9 @@ class UserController extends AbstractController
      * This is a fake password reset page, and this route probably does not belong in this class
      * @return Response
      */
-    #[Route('/reset-password-page', name: 'app_reset_password_page', methods: ['GET'])]
     #[OA\Tag(name: 'User')]
     #[NSecurity(name: 'Bearer')]
+    #[Route('/reset-password-page', name: 'app_reset_password_page', methods: ['GET'])]
     public function resetPasswordPage(): Response
     {
         return $this->render('reset-password/reset_password.html.twig');
