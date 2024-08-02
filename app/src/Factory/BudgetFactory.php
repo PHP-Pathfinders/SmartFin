@@ -41,7 +41,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
             /** @var User $user */
             $user = $this->userRepository->findOneBy(['id' => $userProxy->_get('id')]);
 
-            $monthlyBudgetDate = self::faker()->dateTimeBetween('-1 months', '+1 months');
+            $monthlyBudgetDate = self::faker()->dateTimeBetween('-6 months', '+6 months');
 
             if (!$this->budgetRepository->doesBudgetExistForCategoryAndMonth($category, $user, $monthlyBudgetDate) && $category->getType() === 'expense') {
                 return [
@@ -52,7 +52,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
                 ];
             }
             $attempts++;
-        } while ($attempts <= 5000);
+        } while ($attempts <= 100);
 
         throw new \RuntimeException("Unable to generate a monthly budget after several attempts. Please try again later.");
     }

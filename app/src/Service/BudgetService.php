@@ -6,6 +6,8 @@ use App\Dto\Budget\BudgetCreateDto;
 use App\Dto\Budget\BudgetQueryDto;
 use App\Dto\Budget\BudgetUpdateDto;
 use App\Dto\Budget\RandomDto;
+use App\Entity\Budget;
+use App\Entity\Category;
 use App\Entity\User;
 use App\Repository\BudgetRepository;
 use App\Repository\CategoryRepository;
@@ -46,10 +48,26 @@ class BudgetService
         /** @var User $user */
         $user = $this->security->getUser();
 
-        return $this->budgetRepository->search($budgetQueryDto, $user);
+        if(null === $budgetQueryDto){
+            $page = '1';
+            $maxResults = '200';
+            $dateStart = (new \DateTime('first day of this month'))->format('Y-m-d');
+            $dateEnd = (new \DateTime('last day of this month'))->format('Y-m-d');
+        }else{
+            $page = $budgetQueryDto->page;
+            $maxResults = $budgetQueryDto->maxResults;
+            $dateStart = $budgetQueryDto->dateStart;
+            $dateEnd = $budgetQueryDto->dateEnd;
+        }
+
+        if ($dateStart > $dateEnd) {
+            throw new NotFoundHttpException('Invalid date format');
+        }
+
+        return $this->budgetRepository->searchWithStats($page,$maxResults,$dateStart,$dateEnd, $user);
     }
 
-    public function create(BudgetCreateDto $budgetCreateDto): void
+    public function create(BudgetCreateDto $budgetCreateDto): Budget
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -73,10 +91,19 @@ class BudgetService
             throw new ConflictHttpException('You already have a budget for this category in given month');
         }
 
-        $this->budgetRepository->create($budgetCreateDto, $user, $category, $date);
+        $newBudget = new Budget();
+        $newBudget->setMonthlyBudget($budgetCreateDto->monthlyBudgetAmount);
+        $newBudget->setCategory($category);
+        $newBudget->setUser($user);
+        $newBudget->setMonthlyBudgetDate(new \DateTimeImmutable($date));
+
+
+        $this->budgetRepository->create($newBudget);
+
+        return $newBudget;
     }
 
-    public function update(BudgetUpdateDto $budgetUpdateDto): string
+    public function update(BudgetUpdateDto $budgetUpdateDto): array
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -87,6 +114,7 @@ class BudgetService
             throw new NotFoundHttpException("Budget not owned by you or does not exist");
         }
 
+        /** @var Category $currentCategory */
         $currentCategory = $budget->getCategory();
 
         $category = $budgetUpdateDto->categoryId ? $this->categoryRepository->findByIdUserAndType($budgetUpdateDto->categoryId, $user, 'expense') : $currentCategory;
@@ -96,8 +124,8 @@ class BudgetService
         }
 
 
-        if($category === $currentCategory && (!$budgetUpdateDto->monthlyBudgetAmount || $budgetUpdateDto->monthlyBudgetAmount === $budget->getMonthlyBudget()) && ($budgetUpdateDto->year === $budget->getMonthlyBudgetDate()->format('Y') && (int) $budgetUpdateDto->month === (int) $budget->getMonthlyBudgetDate()->format('m'))){
-            return 'Nothing to update';
+        if($category->getId() === $currentCategory->getId() && (!$budgetUpdateDto->monthlyBudgetAmount || $budgetUpdateDto->monthlyBudgetAmount === $budget->getMonthlyBudget()) && ($budgetUpdateDto->year === $budget->getMonthlyBudgetDate()->format('Y') && (int) $budgetUpdateDto->month === (int) $budget->getMonthlyBudgetDate()->format('m'))){
+            return ['message' => 'Nothing to update'];
         }
 
         $month = $budgetUpdateDto->month ? date($budgetUpdateDto->month) : $budget->getMonthlyBudgetDate()->format('m');
@@ -116,9 +144,18 @@ class BudgetService
         }
 
 
-        $this->budgetRepository->update($budget, $budgetUpdateDto, $user, $category, $date);
+        $budget->setCategory($category);
 
-        return 'Update successful';
+        if ($budgetUpdateDto->monthlyBudgetAmount) {
+            $budget->setMonthlyBudget($budgetUpdateDto->monthlyBudgetAmount);
+        }
+
+        $budget->setMonthlyBudgetDate(new \DateTimeImmutable($date));
+
+
+        $this->budgetRepository->update();
+
+        return ['message' => 'Update successful', 'budget' => $budget];
 
 
     }
@@ -127,7 +164,14 @@ class BudgetService
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        $this->budgetRepository->delete($id, $user);
+
+        $budget = $this->budgetRepository->findByIdAndUser($id, $user);
+
+        if (!$budget) {
+            throw new NotFoundHttpException('Budget not found or not owned by you');
+        }
+
+        $this->budgetRepository->delete($budget);
 
     }
 

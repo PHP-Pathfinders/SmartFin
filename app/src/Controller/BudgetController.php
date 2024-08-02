@@ -17,12 +17,19 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use OpenApi\Attributes as OA;
 use Nelmio\ApiDocBundle\Annotation\Security;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 
 #[Route('/api/budgets')]
 class BudgetController extends AbstractController
 {
-    #[Route('', name: 'api_find_budgets', methods: ['GET'])]
+    public function __construct(
+        private BudgetService $budgetService
+    )
+    {
+    }
+
+    #[Route(name: 'api_find_budgets', methods: ['GET'])]
     #[OA\Get(
         description: 'Returns array of budgets in certain date period if no parameters given gives results for current month.',
         summary: "Finds budgets in certain time period for logged user",
@@ -59,20 +66,17 @@ class BudgetController extends AbstractController
             )
         ]
     )]
-    #[Security(name: 'Bearer')]
     public function search(
         #[MapQueryString] ?BudgetQueryDto $budgetQueryDto,
-        BudgetService                     $budgetService
     ): JsonResponse
     {
-
-        $data = $budgetService->search($budgetQueryDto);
+        $data = $this->budgetService->search($budgetQueryDto);
 
         if (empty($data['budgets'])) {
             return $this->json([
-                'success' => false,
+                'success' => true,
                 'message' => 'No budgets found'
-            ], 404);
+            ]);
         }
 
         return $this->json([
@@ -120,17 +124,17 @@ class BudgetController extends AbstractController
         ]
 
     )]
+    #[Security(name: 'Bearer')]
     public function random(
         #[MapQueryString] ?RandomDto $randomDto,
-        BudgetService                $budgetService
     ): JsonResponse
     {
-        $data = $budgetService->random($randomDto);
+        $data = $this->budgetService->random($randomDto);
         if (empty($data)) {
             return $this->json([
-                'success' => false,
+                'success' => true,
                 'message' => 'Budgets not found'
-            ], Response::HTTP_NOT_FOUND);
+            ]);
         }
         return $this->json([
             'success' => true,
@@ -138,7 +142,7 @@ class BudgetController extends AbstractController
         ]);
     }
 
-    #[Route('', name: 'api_add_budget', methods: ['POST'])]
+    #[Route(name: 'api_add_budget', methods: ['POST'])]
     #[OA\Post(
         summary: "Adds budget for this month for logged user",
         tags: ['Budgets'],
@@ -184,23 +188,25 @@ class BudgetController extends AbstractController
             )
         ]
     )]
-    #[OA\Tag(name: 'Budgets')]
+    #[Security(name: 'Bearer')]
     public function create(
         #[MapRequestPayload] BudgetCreateDto $budgetCreateDto,
-        BudgetService                        $budgetService
     ): JsonResponse
     {
-        $budgetService->create($budgetCreateDto);
+        $budget = $this->budgetService->create($budgetCreateDto);
 
         return $this->json([
             'success' => true,
-            'message' => 'New budget created'
+            'message' => 'New budget created',
+            'data' => $budget
+        ], context: [
+            ObjectNormalizer::GROUPS => ['budget']
         ]);
 
     }
 
 
-    #[Route('', name: 'api_update_budget', methods: ['PATCH'])]
+    #[Route(name: 'api_update_budget', methods: ['PATCH'])]
     #[OA\Patch(
         description: "Make changes to any budget that is in ownership of logged in user",
         summary: "Makes changes to certain budget for logged user",
@@ -247,15 +253,25 @@ class BudgetController extends AbstractController
             )
         ]
     )]
+    #[Security(name: 'Bearer')]
     public function update(
         #[MapRequestPayload] BudgetUpdateDto $budgetUpdateDto,
-        BudgetService                        $budgetService
     ): JsonResponse
     {
-        $message = $budgetService->update($budgetUpdateDto);
+        $data = $this->budgetService->update($budgetUpdateDto);
+
+        if(isset($data['budget'])){
+            return $this->json([
+                'success' => true,
+                'message' => $data['message'],
+                'data' => $data['budget']
+            ], context: [
+                ObjectNormalizer::GROUPS => ['budget']
+            ]);
+        }
         return $this->json([
             'success' => true,
-            'message' => $message
+            'message' => $data['message']
         ]);
 
     }
@@ -293,9 +309,10 @@ class BudgetController extends AbstractController
 
         ]
     )]
-    public function delete(int $id, BudgetService $budgetService): JsonResponse
+    #[Security(name: 'Bearer')]
+    public function delete(int $id): JsonResponse
     {
-        $budgetService->delete($id);
+        $this->budgetService->delete($id);
 
         return $this->json([
             'success' => true,

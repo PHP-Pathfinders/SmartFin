@@ -7,8 +7,10 @@ use App\Dto\Transaction\TransactionCreateDto;
 use App\Dto\Transaction\TransactionQueryDto;
 use App\Dto\Transaction\TransactionUpdateDto;
 use App\Entity\Category;
+use App\Entity\Transaction;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
+use App\Repository\DashboardRepository;
 use App\Repository\TransactionRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -20,6 +22,7 @@ readonly class TransactionService
         private Security              $security,
         private TransactionRepository $transactionRepository,
         private CategoryRepository    $categoryRepository,
+        private DashboardRepository   $dashboardRepository
     )
     {
     }
@@ -30,6 +33,16 @@ readonly class TransactionService
          * @var User $user
          */
         $user = $this->security->getUser();
+
+        if (null === $transactionQueryDto) {
+            throw new NotFoundHttpException('No parameters given');
+        }
+
+        if ($transactionQueryDto->dateStart > $transactionQueryDto->dateEnd) {
+            throw new NotFoundHttpException('Invalid date format');
+        }
+
+
         return $this->transactionRepository->search($transactionQueryDto, $user);
     }
 
@@ -39,7 +52,7 @@ readonly class TransactionService
          * @var User $user
          */
         $user = $this->security->getUser();
-        return $this->transactionRepository->transactionOverview($user,$year);
+        return $this->transactionRepository->transactionOverview($user, $year);
     }
 
     public function spendingByCategories(string $month, string $year): array
@@ -51,7 +64,8 @@ readonly class TransactionService
         return $this->transactionRepository->spendingByCategories($month, $year, $user);
     }
 
-    public function create(TransactionCreateDto $transactionCreateDto): void
+
+    public function create(TransactionCreateDto $transactionCreateDto): Transaction
     {
 
         /** @var User $user */
@@ -61,21 +75,44 @@ readonly class TransactionService
         $category = $this->categoryRepository->findByIdUserAndType($transactionCreateDto->categoryId, $user, $transactionCreateDto->categoryType);
 
         if (!$category) {
-            throw new NotFoundHttpException("Invalid category given");
+            throw new NotFoundHttpException("Category could not be found or doesn't match given Type");
         }
 
-        $this->transactionRepository->create($transactionCreateDto, $user, $category);
+        $paymentType = $category->getType() === "expense" ? $transactionCreateDto->paymentType : null;
+
+        $newTransaction = new Transaction();
+        $newTransaction->setUser($user);
+        $newTransaction->setCategory($category);
+        $newTransaction->setPaymentType($paymentType);
+        $newTransaction->setTransactionDate(new \DateTimeImmutable($transactionCreateDto->transactionDate));
+        $newTransaction->setMoneyAmount($transactionCreateDto->moneyAmount);
+        $newTransaction->setTransactionName($transactionCreateDto->transactionName);
+        if (null !== $transactionCreateDto->transactionNotes) {
+            $newTransaction->setTransactionNotes($transactionCreateDto->transactionNotes);
+        }
+        if (null !== $transactionCreateDto->partyName) {
+            $newTransaction->setPartyName($transactionCreateDto->partyName);
+        }
+
+//        $dashboard = $this->dashboardRepository->findByDateAndUser($user, $transactionCreateDto->transactionDate);
+
+
+//        $prevDashboard = $this->dashboardRepository->findByDateAndUser($user,(new \DateTime($transactionCreateDto->transactionDate))->modify('last day of previous month')->format('Y-m-d'));
+
+
+        $this->transactionRepository->create($newTransaction);
+
+        return $newTransaction;
 
     }
 
 
-    public function update(TransactionUpdateDto $transactionUpdateDto): string
+    public function update(TransactionUpdateDto $transactionUpdateDto): array
     {
         /** @var User $user */
         $user = $this->security->getUser();
 
-        $id = $transactionUpdateDto->id;
-        $transaction = $this->transactionRepository->findByIdAndUser($id, $user);
+        $transaction = $this->transactionRepository->findByIdAndUser($transactionUpdateDto->id, $user);
 
         if (!$transaction) {
             throw new NotFoundHttpException("Transaction not owned by you or does not exist");
@@ -85,13 +122,13 @@ readonly class TransactionService
         $currentCategory = $transaction->getCategory();
         $currentCategoryType = $currentCategory->getType();
 
-        $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : $currentCategory ;
+        $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : $currentCategory;
 
         if (!$category) {
             throw new NotFoundHttpException("Category could not be found");
         }
 
-        if($currentCategoryType !== $category->getType()){
+        if ($currentCategoryType !== $category->getType()) {
             throw new ConflictHttpException("Can't change income to expense and vice versa");
         }
 
@@ -102,13 +139,47 @@ readonly class TransactionService
         $partyName = $transactionUpdateDto->partyName;
         $transactionNotes = $transactionUpdateDto->transactionNotes;
 
-        if (!$transactionName && !$moneyAmount && !$transactionDate && !$paymentType && !$partyName && !$transactionNotes && $category === $currentCategory) {
-            return 'Nothing to update';
+        if (!$transactionName && !$moneyAmount && !$transactionDate && !$paymentType && !$partyName && !$transactionNotes && $category->getId() === $currentCategory->getId()) {
+            return ['message' => 'Nothing to update'];
         }
 
-        $this->transactionRepository->update($id, $transactionName, $category, $moneyAmount, $transactionDate, $paymentType, $partyName, $transactionNotes, $user);
 
-        return 'Update successful';
+        if ($category->getType() === 'expense') {
+            $transaction->setCategory($category);
+        }
+
+        if ($category->getType() === 'income') {
+            $transaction->setCategory($category);
+            $transaction->setPaymentType(null);
+        }
+
+        if ($transactionName) {
+            $transaction->setTransactionName($transactionName);
+        }
+
+        if ($moneyAmount) {
+            $transaction->setMoneyAmount($moneyAmount);
+        }
+
+        if ($transactionDate) {
+            $transaction->setTransactionDate($transactionDate);
+        }
+
+        if ($paymentType) {
+            $transaction->setPaymentType($paymentType);
+        }
+
+        if ($partyName) {
+            $transaction->setPartyName($partyName);
+        }
+
+        if ($transactionNotes) {
+            $transaction->setTransactionNotes($transactionNotes);
+        }
+
+        $this->transactionRepository->update();
+
+        return ['message' => 'Update successful', 'transaction' => $transaction];
 
 
     }
@@ -118,7 +189,13 @@ readonly class TransactionService
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        $this->transactionRepository->delete($id, $user);
+        $transaction = $this->transactionRepository->findByIdAndUser($id, $user);
+
+        if (!$transaction) {
+            throw new NotFoundHttpException('No transaction found.');
+        }
+
+        $this->transactionRepository->delete($transaction);
     }
 
 
