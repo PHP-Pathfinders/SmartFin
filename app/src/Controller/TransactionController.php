@@ -182,17 +182,6 @@ class TransactionController extends AbstractController
         $year = $spendingsDto->year ?? date('Y');
         $data = $transactionService->spendingByCategories($month, $year);
 
-        if(empty($data)){
-            return $this->json(
-                [
-                    'success'=>false,
-                    'month'=>(int)$month,
-                    'year'=>(int)$year,
-                    'message'=>'No spending\'s found for this period'
-                ]
-            );
-        }
-
         return $this->json(
             [
                 'success'=>true,
