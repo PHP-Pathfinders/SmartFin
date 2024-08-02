@@ -4,7 +4,7 @@ framework:
         # See https://symfony.com/doc/current/routing.html#generating-urls-in-commands
         #default_uri: http://localhost
 #        Added this because of asynchronous email verifier
-        default_uri: 'http://localhost:8080'
+        default_uri: '%env(DEFAULT_URI)%'
 
 when@prod:
     framework:

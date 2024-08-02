@@ -29,23 +29,25 @@ class CategoryRepository extends ServiceEntityRepository
 
     /**
      * Find categories by their type (Income or Expense)
-     * @param string $type
+     * @param string|null $type
      * @param int $page
      * @param int $maxResults
      * @param User $user
      * @return array
      */
-    public function search(string $type,int $page,int $maxResults,User $user): array
+    public function search(?string $type,int $page,int $maxResults,User $user): array
     {
         // Get paginated results
         $queryBuilder = $this->createQueryBuilder('c')
             ->select('c.id, c.categoryName, c.type, c.color')
-            ->where('c.type = :type')
             ->andWhere('c.user = :user OR c.user IS NULL')
-            ->setParameter('type', $type)
             ->setParameter('user', $user)
             ->orderBy('c.categoryName', 'ASC');
 
+        if ($type){
+            $queryBuilder->andWhere('c.type = :type')
+                ->setParameter('type', $type);
+        }
         $pagination = $this->paginator->paginate(
             $queryBuilder,
             $page,
@@ -75,7 +77,7 @@ class CategoryRepository extends ServiceEntityRepository
      * @param User $user
      * @return void
      */
-    public function create(CategoryCreateDto $categoryCreateDto,User $user):void
+    public function create(CategoryCreateDto $categoryCreateDto,User $user): Category
     {
         $categoryName = $categoryCreateDto->categoryName;
         $type = $categoryCreateDto->type;
@@ -95,9 +97,10 @@ class CategoryRepository extends ServiceEntityRepository
 
         $this->entityManager->persist($newCategory);
         $this->entityManager->flush();
+        return $newCategory;
     }
 
-    public function update(int $id, ?string $categoryName, ?string $color,User $user):void
+    public function update(int $id, ?string $categoryName, ?string $color,User $user): Category
     {
         $category = $this->findByIdAndUser($id,$user);
 
@@ -119,6 +122,7 @@ class CategoryRepository extends ServiceEntityRepository
             $category->setColor($color);
         }
         $this->entityManager->flush();
+        return $category;
     }
 
     /**

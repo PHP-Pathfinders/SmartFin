@@ -6,6 +6,7 @@ use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\Table(name: '`categories`')]
@@ -14,21 +15,20 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('category')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'categories')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?User $user = null;
-
     #[ORM\Column(length: 50)]
+    #[Groups('category')]
     private ?string $categoryName = null;
 
     #[ORM\Column(length: 10)]
+    #[Groups('category')]
     private ?string $type = null;
 
     #[ORM\Column(length: 10)]
+    #[Groups('category')]
     private ?string $color;
-
 
     /**
      * @var Collection<int, Transaction>
@@ -47,6 +47,10 @@ class Category
      */
     #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'category', cascade: ['remove'])]
     private Collection $budgets;
+
+    #[ORM\ManyToOne(inversedBy: 'categories')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $user = null;
 
     public function __construct()
     {

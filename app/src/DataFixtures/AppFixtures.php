@@ -7,6 +7,7 @@ use App\Factory\CategoryFactory;
 use App\Factory\TransactionFactory;
 use App\Factory\TransactionTemplateFactory;
 use App\Factory\UserFactory;
+use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -20,6 +21,9 @@ class AppFixtures extends Fixture
             'email' => 'john@gmail.com',
             'plainPassword' => 'Password#1',
             'fullName' => 'John Doe',
+            'birthday' => new DateTime('1990-01-01'),
+            'avatarFileName' => null,
+            'createdAt' => new DateTime('2020-04-18T20:41:39+00:00')
         ])->create();
 
         // Create another user manually with specific details

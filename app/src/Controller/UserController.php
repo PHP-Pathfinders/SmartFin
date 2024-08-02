@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\InvalidSignatureException;
 use OpenApi\Attributes as OA;
@@ -131,16 +132,20 @@ class UserController extends AbstractController
             )
         ]
     )]
-    public function create(
+    public function register(
         #[MapRequestPayload] RegisterDto $registerDto,
         UserService                      $userService
     ): JsonResponse
     {
-        $userService->create($registerDto);
-        return $this->json([
-            'success' => true,
-            'message' => 'User registered successfully'
-        ]);
+        $user = $userService->register($registerDto);
+        return $this->json(
+            [
+                'success' => true,
+                'data' => $user
+            ],context: [
+            ObjectNormalizer::GROUPS => ['user']
+        ]
+        );
     }
 
     /**
@@ -228,11 +233,15 @@ class UserController extends AbstractController
         UserService                           $userService
     ): JsonResponse
     {
-        $userService->resetPassword($resetPasswordDto);
-        return $this->json([
-            'success' => true,
-            'message' => 'Your password has been reset successfully'
-        ]);
+        $user = $userService->resetPassword($resetPasswordDto);
+        return $this->json(
+            [
+                'success' => true,
+                'data' => $user
+            ],context: [
+            ObjectNormalizer::GROUPS => ['user']
+        ]
+        );
     }
 
     #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'])]
@@ -267,12 +276,12 @@ class UserController extends AbstractController
             )
         ]
     )]
-    public function fetchUser(
+    public function fetch(
         int         $id,
         UserService $userService
     ): JsonResponse
     {
-        $profileData = $userService->fetchUser($id);
+        $profileData = $userService->fetch($id);
         return $this->json([
             'success' => true,
             'data' => $profileData
@@ -322,11 +331,15 @@ class UserController extends AbstractController
         UserService                            $userService
     ): JsonResponse
     {
-        $userService->changePassword($changePasswordDto, $id);
-        return $this->json([
-            'success' => true,
-            'message' => 'Your password has been changed successfully'
-        ]);
+        $user = $userService->changePassword($changePasswordDto, $id);
+        return $this->json(
+            [
+                'success' => true,
+                'data' => $user
+            ],context: [
+            ObjectNormalizer::GROUPS => ['user']
+        ]
+        );
     }
 
     #[Route('/{id<\d+>}', name: 'api_update_user', methods: ['PATCH'])]
@@ -384,12 +397,15 @@ class UserController extends AbstractController
             ]);
         }
 
-        $userService->update($updateDataDto, $id);
-
-        return $this->json([
-            'success' => true,
-            'message' => 'User updated successfully'
-        ]);
+        $user = $userService->update($updateDataDto, $id);
+        return $this->json(
+            [
+                'success' => true,
+                'data' => $user
+            ],context: [
+            ObjectNormalizer::GROUPS => ['user']
+        ]
+        );
     }
 
     #[Route('/{id<\d+>}/image', name: 'api_update_image', methods: ["POST"])]
@@ -461,13 +477,17 @@ class UserController extends AbstractController
             throw new NotFoundHttpException('User not found');
         }
         $form = $this->createForm(UserType::class, $user);
-        $isUploaded = $userService->updateProfileImage($request, $form, $user, $id);
+        $dataArr = $userService->updateProfileImage($request, $form, $user, $id);
 
-        if ($isUploaded) {
-            return $this->json([
-                'success' => true,
-                'message' => 'Profile image is updated successfully'
-            ]);
+        if ($dataArr['success']) {
+            return $this->json(
+                [
+                    'success' => true,
+                    'data' => $dataArr['user']
+                ],context: [
+                ObjectNormalizer::GROUPS => ['user']
+            ]
+            );
         }
         return new JsonResponse([
             'success' => false,
@@ -519,11 +539,15 @@ class UserController extends AbstractController
     ): JsonResponse
     {
         $password = $deactivateAccountDto->password;
-        $userService->deactivate($password, $id);
-        return $this->json([
-            'success' => true,
-            'message' => 'Your account has been deactivated successfully'
-        ]);
+        $user = $userService->deactivate($password, $id);
+        return $this->json(
+            [
+                'success' => true,
+                'data' => $user
+            ],context: [
+            ObjectNormalizer::GROUPS => ['user']
+        ]
+        );
     }
 
     #[Route('/{id<\d+>}/activate', name:'api_users_activate', methods: ['PATCH'])]
@@ -568,11 +592,15 @@ class UserController extends AbstractController
         UserService $userService
     ): JsonResponse
     {
-        $userService->activate($id);
-        return $this->json([
-            'success'=>'true',
-            'message'=> 'User is activated'
-        ]);
+        $user = $userService->activate($id);
+        return $this->json(
+            [
+                'success' => true,
+                'data' => $user
+            ],context: [
+            ObjectNormalizer::GROUPS => ['user']
+        ]
+        );
     }
 
     /**

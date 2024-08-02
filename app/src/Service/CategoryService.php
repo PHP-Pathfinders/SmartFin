@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Dto\Category\CategoryCreateDto;
 use App\Dto\Category\CategoryQueryDto;
 use App\Dto\Category\CategoryUpdateDto;
+use App\Entity\Category;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -19,9 +20,9 @@ readonly class CategoryService
     {
         // Check if no query params is passed and if not, go for default values
         if (null === $categoryQueryDto) {
-            $type = 'income';
+            $type = null;
             $page = 1;
-            $maxResults = 10;
+            $maxResults = 200;
         } else {
             $type = $categoryQueryDto->type;
             $page = $categoryQueryDto->page;
@@ -33,25 +34,25 @@ readonly class CategoryService
         return $this->categoryRepository->search($type, $page, $maxResults,$user);
     }
 
-    public function create(CategoryCreateDto $categoryCreateDto):void
+    public function create(CategoryCreateDto $categoryCreateDto): Category
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        $this->categoryRepository->create($categoryCreateDto,$user);
+        return $this->categoryRepository->create($categoryCreateDto,$user);
     }
 
-    public function update(CategoryUpdateDto $categoryUpdateDto):string
+    public function update(CategoryUpdateDto $categoryUpdateDto): array
     {
         $id = $categoryUpdateDto->id;
         $categoryName = $categoryUpdateDto->categoryName;
         $color = $categoryUpdateDto->color;
-        if (!$categoryName && !$color) {
-            return 'Nothing to update';
-        }
         /** @var User $user */
         $user = $this->security->getUser();
-        $this->categoryRepository->update($id,$categoryName,$color,$user);
-        return 'Update successful';
+        if (!$categoryName && !$color) {
+            return ['message'=>'Nothing to update'];
+        }
+        $category = $this->categoryRepository->update($id,$categoryName,$color,$user);
+        return ['message'=>'Update successful', 'category'=>$category];
     }
 
     public function delete(int $id):void
