@@ -125,7 +125,7 @@ readonly class TransactionService
         $category = $transactionUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionUpdateDto->categoryId, $user) : $currentCategory;
 
         if (!$category) {
-            throw new NotFoundHttpException("Category could not be found");
+            throw new NotFoundHttpException( "Category could not be found or doesn't match given Type");
         }
 
         if ($currentCategoryType !== $category->getType()) {

@@ -50,7 +50,7 @@ class TransactionController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'No transactions found',
+                description: 'Incorrect configuration',
                 content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
             ),
             new OA\Response(
@@ -90,18 +90,13 @@ class TransactionController extends AbstractController
     #[Route('/overview', name: 'api_transactions_overview', methods: ['GET'])]
     #[OA\Get(
         description: 'Data used for bar chart for overall monthly incomes and expenses at the overview dashboard',
-        summary: 'Gives a overall view for each month of given year, by default it give view for current year',
+        summary: 'Gives a overall view for each month of given year, by default it gives view for current year',
         tags: ['Overview'],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Successful response',
                 content: new OA\JsonContent(ref: '#/components/schemas/OverviewSuccess')
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'No transactions found',
-                content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
             ),
             new OA\Response(
                 response: 403,
@@ -150,10 +145,6 @@ class TransactionController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/SpendingsSuccess')
             ),
             new OA\Response(
-                response: 404,
-                description: 'No spendings found',
-            ),
-            new OA\Response(
                 response: 422,
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/YearInputError')
@@ -199,7 +190,7 @@ class TransactionController extends AbstractController
     #[Route(name: 'api_add_transaction', methods: ['POST'])]
     #[OA\Post(
         description: 'Used for creating new transaction with current logged user as its owner',
-        summary: "Creates a income/expense transaction",
+        summary: "Creates a income/expense transaction for logged user",
         tags: ['Transactions'],
         responses: [
             new OA\Response(
@@ -225,7 +216,7 @@ class TransactionController extends AbstractController
             new OA\Response(
                 response: 404,
                 description: 'Invalid category given',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionInputFail')
             ),
             new OA\Response(
                 response: 403,
@@ -263,7 +254,7 @@ class TransactionController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Successful transaction update or nothing to change',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateSuccess')
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionUpdateSuccess')
             ),
             new OA\Response(
                 response: 401,
@@ -282,8 +273,8 @@ class TransactionController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'Invalid category given',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
+                description: 'Invalid category or transaction given',
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionInputFail')
             ),
             new OA\Response(
                 response: 409,
@@ -343,7 +334,7 @@ class TransactionController extends AbstractController
             new OA\Response(
                 response: 404,
                 description: 'Transaction you selected is either not owned by you or does not exist',
-                content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionDeleteNotFound')
             ),
             new OA\Response(
                 response: 500,

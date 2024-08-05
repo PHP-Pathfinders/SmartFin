@@ -304,8 +304,7 @@ class TransactionRepository extends ServiceEntityRepository
 
     /**
      * Delete selected transaction
-     * @param int $id
-     * @param User $user
+     * @param Transaction $transaction
      * @return void
      */
     public function delete(Transaction $transaction): void

@@ -33,11 +33,6 @@ class PdfXlsController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
             ),
             new OA\Response(
-                response: 404,
-                description: 'User not found',
-                content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
-            ),
-            new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
             ),
@@ -80,11 +75,6 @@ class PdfXlsController extends AbstractController
                 response: 401,
                 description: 'User not found',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'Invalid category given',
-                content: new OA\JsonContent(ref: '#/components/schemas/UserNotFound')
             ),
             new OA\Response(
                 response: 500,

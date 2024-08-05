@@ -42,7 +42,7 @@ class BudgetController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'No budgets found',
+                description: 'Incorrect configuration',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetNotFound')
             ),
             new OA\Response(
@@ -80,15 +80,10 @@ class BudgetController extends AbstractController
 
     #[Route('/random', name: 'api_budget', methods: ['GET'])]
     #[OA\Get(
-        description: 'Returns random amount of budgets for logged user',
+        description: 'Returns random budgets for logged user, if no parameters given gives random budgets for current month',
         summary: "Random budgets",
         tags: ['Overview'],
         responses: [
-            new OA\Response(
-                response: 404,
-                description: 'No budgets found',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetsNotFound')
-            ),
             new OA\Response(
                 response: 200,
                 description: 'Successful response',
@@ -232,7 +227,7 @@ class BudgetController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'Budget you selected is either not owned by you or does not exist or invalid category was given',
+                description: 'Invalid category or budget given',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateFail')
             ),
             new OA\Response(
@@ -287,7 +282,7 @@ class BudgetController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'Budget you selected is either not owned by you or does not exist',
+                description: 'Invalid Budget given',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetDeleteFail')
             ),
             new OA\Response(

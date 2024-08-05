@@ -55,11 +55,6 @@ class UserController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/RegisterInputError')
             ),
             new OA\Response(
-                response: 409,
-                description: 'Same email already registered on our site',
-                content: new OA\JsonContent(ref: '#/components/schemas/RegisterEmailConflict')
-            ),
-            new OA\Response(
                 response: 500,
                 description: 'Internal server error(something went really bad)',
             )
@@ -86,8 +81,8 @@ class UserController extends AbstractController
      * @throws InvalidSignatureException
      */
     #[OA\Get(
-        description: 'Used for verifying email for your account',
-        summary: 'Verify your email',
+        description: 'This endpoint is easily tested by going to http://localhost:8025 because all of the required parameters are dynamically generated and are part of the link',
+        summary: 'Used for verifying email for your account',
         tags: ['User'],
         parameters: [new OA\Parameter(name: 'token', in: 'query'), new OA\Parameter(name: 'signature', in: 'query'), new OA\Parameter(name: 'expires', in: 'query')],
         responses: [
@@ -179,7 +174,7 @@ class UserController extends AbstractController
     }
 
     #[OA\Get(
-        description: 'Provides all details about singular registered user',
+        description: 'Provides all details about any registered user',
         summary: 'Gives data about single user',
         tags: ['User'],
         responses: [
@@ -230,7 +225,7 @@ class UserController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Successful response',
-                content: new OA\JsonContent(ref: '#/components/schemas/PassChangeSuccess')
+                content: new OA\JsonContent(ref: '#/components/schemas/UserUpdateSuccess')
             ),
             new OA\Response(
                 response: 404,
@@ -251,6 +246,11 @@ class UserController extends AbstractController
                 response: 403,
                 description: 'Forbidden access',
                 content: new OA\JsonContent(ref: '#/components/schemas/AccessForbidden')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/PassChangeInputError')
             ),
             new OA\Response(
                 response: 500,
@@ -369,7 +369,7 @@ class UserController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Successful response',
-                content: new OA\JsonContent(ref: '#/components/schemas/ImageSuccess')
+                content: new OA\JsonContent(ref: '#/components/schemas/UserUpdateSuccess')
             ),
             new OA\Response(
                 response: 404,
@@ -458,6 +458,11 @@ class UserController extends AbstractController
                 response: 400,
                 description: 'Bad request sent',
                 content: new OA\JsonContent(ref: '#/components/schemas/DeactivateError')
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Invalid input data given',
+                content: new OA\JsonContent(ref: '#/components/schemas/DeactivateInputError')
             ),
             new OA\Response(
                 response: 500,

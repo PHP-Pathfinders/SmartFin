@@ -96,7 +96,7 @@ readonly class TransactionTemplateService
         $category = $transactionTemplateUpdateDto->categoryId ? $this->categoryRepository->findByIdAndUser($transactionTemplateUpdateDto->categoryId, $user) : $currentCategory;
 
         if (!$category) {
-            throw new NotFoundHttpException("Category could not be found");
+            throw new NotFoundHttpException("Category could not be found or doesn't match given Type");
         }
 
         $paymentType = $category->getType() === "expense" ? $transactionTemplateUpdateDto->paymentType : null;
