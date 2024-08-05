@@ -11,6 +11,7 @@ use App\Message\SendEmailVerificationMessage;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +34,8 @@ readonly class UserService
         private Security                     $security,
         private string                       $avatarDirectory,
         private SluggerInterface             $slugger,
-        private MessageBusInterface          $bus
+        private MessageBusInterface          $bus,
+        private Filesystem                   $filesystem
     ){}
 
     /**
@@ -145,9 +147,9 @@ readonly class UserService
         $oldAvatar = $user->getAvatarFileName();
         if ($oldAvatar) {
             $oldAvatarPath = $this->avatarDirectory . '/' . $oldAvatar;
-            if (file_exists($oldAvatarPath)) {
+            if ($this->filesystem->exists($oldAvatarPath)) {
                 // If profile image exists, delete it
-                unlink($oldAvatarPath);
+                $this->filesystem->remove($oldAvatarPath);
             }
         }
     }
