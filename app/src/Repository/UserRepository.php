@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -111,7 +112,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->where('u.scheduledDeletionDate < :now')
             ->setParameter('now', $now)
             ->getQuery()
-            ->getResult();
+            ->getResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
     }
 
     /**
