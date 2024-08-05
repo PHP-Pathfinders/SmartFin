@@ -30,11 +30,6 @@ class ExportController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/Export')
             ),
             new OA\Response(
-                response: 404,
-                description: 'No exports found',
-                content: new OA\JsonContent(ref: '#/components/schemas/ExportsNotFound')
-            ),
-            new OA\Response(
                 response: 500,
                 description: 'Wrong user id or user not authenticated',
                 content: new OA\JsonContent(ref: '#/components/schemas/ExportsUserNotFound')
@@ -43,11 +38,6 @@ class ExportController extends AbstractController
                 response: 401,
                 description: 'Unauthorized access detected',
                 content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')
-            ),
-            new OA\Response(
-                response: 422,
-                description: 'Invalid input data given',
-                content: new OA\JsonContent(ref: '#/components/schemas/ExportsInputError')
             ),
             new OA\Response(
                 response: 403,

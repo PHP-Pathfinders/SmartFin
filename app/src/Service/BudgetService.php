@@ -75,7 +75,7 @@ class BudgetService
         $category = $this->categoryRepository->findByIdUserAndType($budgetCreateDto->categoryId, $user, 'expense');
 
         if (!$category) {
-            throw new NotFoundHttpException("Invalid category given");
+            throw new NotFoundHttpException("Category does not exist or is not of an expense type");
         }
 
         $month = $budgetCreateDto->month ?? date('m');
@@ -120,7 +120,7 @@ class BudgetService
         $category = $budgetUpdateDto->categoryId ? $this->categoryRepository->findByIdUserAndType($budgetUpdateDto->categoryId, $user, 'expense') : $currentCategory;
 
         if(!$category){
-            throw new NotFoundHttpException("Category could not be found");
+            throw new NotFoundHttpException("Category does not exist or is not of an expense type");
         }
 
 
@@ -140,7 +140,7 @@ class BudgetService
 
 
         if($potentialSameBudget && $potentialSameBudget->getId() !== $budget->getId()){
-            throw new ConflictHttpException('You already have budget for this category in this month');
+            throw new ConflictHttpException('You already have a budget for this category in given month and year');
         }
 
 

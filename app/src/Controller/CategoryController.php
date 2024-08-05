@@ -28,18 +28,13 @@ class CategoryController extends AbstractController
      */
     #[OA\Get(
         description: 'Returns list of categories based on chosen type',
-        summary: 'Find categories by income or expenses using query params',
+        summary: 'Find categories by income or expenses or both using query params',
         tags: ['Categories'],
         responses: [
             new OA\Response(
                 response: 200,
                 description: 'Successful response',
                 content: new OA\JsonContent(ref: '#/components/schemas/Category')
-            ),
-            new OA\Response(
-                response: 404,
-                description: 'No categories found',
-                content: new OA\JsonContent(ref: '#/components/schemas/CategoryNotFound')
             ),
             new OA\Response(
                 response: 401,
@@ -108,7 +103,8 @@ class CategoryController extends AbstractController
             ),
             new OA\Response(
                 response: 409,
-                description: 'You already have a category with the given name for that type.'
+                description: 'Name conflict',
+                content: new OA\JsonContent(ref: '#/components/schemas/CategoryNameConflict')
             ),
             new OA\Response(
                 response: 500,
@@ -141,13 +137,13 @@ class CategoryController extends AbstractController
     }
 
     #[OA\Patch(
-        description: 'Makes changes to existing category',
+        description: 'Make changes to existing category that is in ownership of user',
         summary: 'Update existing category',
         tags: ['Categories'],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Successful category update',
+                description: 'Successful category update or nothing to change',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryUpdateSuccess')
             ),
             new OA\Response(
@@ -157,7 +153,7 @@ class CategoryController extends AbstractController
             ),
             new OA\Response(
                 response: 403,
-                description: 'Cannot change default category',
+                description: 'Forbidden default category change',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryForbidden')
             ),
             new OA\Response(
@@ -167,7 +163,7 @@ class CategoryController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'Category you selected is either not owned by you or does not exist',
+                description: 'Invalid category given',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryFailed')
             ),
             new OA\Response(
@@ -213,8 +209,8 @@ class CategoryController extends AbstractController
      * - Example url: localhost:8080/api/categories/123
      */
     #[OA\Delete(
-        description: "Removes category that is in ownership of logged user",
-        summary: "Deletes specific category based on given id",
+        description: "Removes specific category that is in ownership of logged user",
+        summary: "Delete specific category based on given id",
         tags: ['Categories'],
         responses: [
             new OA\Response(
@@ -229,12 +225,12 @@ class CategoryController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'Category you selected is either not owned by you or does not exist',
+                description: 'Invalid category given',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryFailed')
             ),
             new OA\Response(
                 response: 403,
-                description: 'Cannot delete default category',
+                description: 'Forbidden default category deletion',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryForbiddenDelete')
             ),
             new OA\Response(

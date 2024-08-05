@@ -74,7 +74,7 @@ nelmio_api_doc:
                             example: 1758.14
                           monthlyBudgetDate:
                             example: "2024-07-23T00:00:00+00:00"
-                          categoryID:
+                          categoryId:
                             example: 9
                           categoryName:
                             example: "Nights out"
@@ -102,10 +102,10 @@ nelmio_api_doc:
             - type: object
               properties:
                 message:
-                  example: "Budget not found"
+                  example: "Invalid date format"
         BudgetsNotFound:
           allOf:
-            - $ref: '#/components/schemas/FailedAction'
+            - $ref: '#/components/schemas/SuccessfulAction'
             - type: object
               properties:
                 message:
@@ -172,20 +172,49 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "New budget created"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 41
+                    user:
+                      type: object
+                      properties:
+                        id:
+                          example: 2
+                        email:
+                          example: jane@gmail.com
+                        fullName:
+                          example: Jane Doe
+                    category:
+                      type: object
+                      properties:
+                        id:
+                          example: 5
+                        categoryName:
+                          example: Bills
+                        type:
+                          example: expense
+                        color:
+                          example: '#F44336'
+                    monthlyBudget:
+                      example: 2
+                    monthlyBudgetDate:
+                      example: "2020-02-05T00:00:00Z"
         BudgetInputFail:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
             - type: object
               properties:
                 message:
-                  example: "Invalid category given"
+                  example: "Category does not exist or is not of an expense type"
         BudgetConflict:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
             - type: object
               properties:
                 message:
-                  example: "You already have a budget for this category in given month"
+                  example: "You already have a budget for this category in given month and year"
         BudgetUpdateSuccess:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
@@ -193,13 +222,42 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "Update successful"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 41
+                    user:
+                      type: object
+                      properties:
+                        id:
+                          example: 2
+                        email:
+                          example: jane@gmail.com
+                        fullName:
+                          example: Jane Doe
+                    category:
+                      type: object
+                      properties:
+                        id:
+                          example: 5
+                        categoryName:
+                          example: Bills
+                        type:
+                          example: expense
+                        color:
+                          example: '#F44336'
+                    monthlyBudget:
+                      example: 2
+                    monthlyBudgetDate:
+                      example: "2020-02-05T00:00:00Z"
         BudgetUpdateFail:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
             - type: object
               properties:
                 message:
-                  example: "Category could not be found"
+                  example: "Category does not exist or is not of an expense type"
         BudgetDeleteSuccess:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
@@ -264,6 +322,13 @@ nelmio_api_doc:
                           color:
                             type: string
                             example: "#2196F3"
+        CategoryNameConflict:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "You have already a category with the given name for that type."
         CategoryNotFound:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -312,6 +377,17 @@ nelmio_api_doc:
             message:
               type: string
               example: "New category created"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 41
+                categoryName:
+                  example: "232"
+                type:
+                  example: "income"
+                color:
+                  example: "#faa"
         CategoryUpdateSuccess:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
@@ -319,6 +395,17 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "Update successful"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 15
+                    categoryName:
+                      example: "aw"
+                    type:
+                      example: "income"
+                    color:
+                      example: "#faa"
         CategoryForbidden:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -335,7 +422,7 @@ nelmio_api_doc:
                   example: "Category deleted with id=1"
         CategoryForbiddenDelete:
           allOf:
-            - $ref: '#/components/schemas/SuccessfulAction'
+            - $ref: '#/components/schemas/FailedAction'
           type: object
           properties:
             message:
@@ -375,7 +462,7 @@ nelmio_api_doc:
                             example: null
                           transactionNotes:
                             example: null
-                          categoryID:
+                          categoryId:
                             example: 12
                           type:
                             example: "expense"
@@ -392,6 +479,94 @@ nelmio_api_doc:
             message:
               type: string
               example: "New transaction created"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 53
+                user:
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    fullName:
+                      example: Jane Doe
+                category:
+                  type: object
+                  properties:
+                    id:
+                      example: 10
+                    categoryName:
+                      example: Fun
+                    type:
+                      example: expense
+                    color:
+                      example: '#9E9E9E'
+                paymentType:
+                  example: "card"
+                transactionDate:
+                  example: "2024-01-01T00:00:00Z"
+                moneyAmount:
+                  example: 10
+                transactionName:
+                  example: "go"
+                partyName:
+                  example: null
+                transactionNotes:
+                  example: null
+        TransactionUpdateSuccess:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "New transaction created"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 53
+                user:
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    fullName:
+                      example: Jane Doe
+                category:
+                  type: object
+                  properties:
+                    id:
+                      example: 10
+                    categoryName:
+                      example: Fun
+                    type:
+                      example: expense
+                    color:
+                      example: '#9E9E9E'
+                paymentType:
+                  example: "card"
+                transactionDate:
+                  example: "2024-01-01T00:00:00Z"
+                moneyAmount:
+                  example: 10
+                transactionName:
+                  example: "go"
+                partyName:
+                  example: null
+                transactionNotes:
+                  example: null
+        TransactionInputFail:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category could not be found or doesn't match given Type"
         TransactionConflict:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -412,8 +587,14 @@ nelmio_api_doc:
             - type: object
               properties:
                 message:
-                  example: "No transactions found"
-
+                  example: "No parameters given"
+        TransactionDeleteNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No transaction found."
         Template:
           allOf:
             - $ref: '#/components/schemas/QuerySuccessResponse'
@@ -442,7 +623,7 @@ nelmio_api_doc:
                             example: null
                           transactionNotes:
                             example: null
-                          categoryID:
+                          categoryId:
                             example: 12
                           type:
                             example: "expense"
@@ -461,11 +642,86 @@ nelmio_api_doc:
           type: object
           properties:
             success:
-              type: boolean
               example: true
             message:
-              type: string
               example: "New transaction template created"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 41
+                user:
+                  type: object
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    fullName:
+                      example: Jane Doe
+                category:
+                  type: object
+                  properties:
+                    id:
+                      example: 10
+                    categoryName:
+                      example: Fun
+                    type:
+                      example: expense
+                    color:
+                      example: '#9E9E9E'
+                paymentType:
+                  example: null
+                moneyAmount:
+                  example: 10
+                transactionName:
+                  example: null
+                partyName:
+                  example: null
+                transactionNotes:
+                  example: null
+        TemplateUpdateSuccess:
+          type: object
+          properties:
+            success:
+              example: true
+            message:
+              example: "Update successful"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 41
+                user:
+                  type: object
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    fullName:
+                      example: Jane Doe
+                category:
+                  type: object
+                  properties:
+                    id:
+                      example: 10
+                    categoryName:
+                      example: Fun
+                    type:
+                      example: expense
+                    color:
+                      example: '#9E9E9E'
+                paymentType:
+                  example: null
+                moneyAmount:
+                  example: 10
+                transactionName:
+                  example: null
+                partyName:
+                  example: null
+                transactionNotes:
+                  example: null
         TemplateDeletionError:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -533,8 +789,32 @@ nelmio_api_doc:
             - $ref: '#/components/schemas/SuccessfulAction'
             - type: object
               properties:
-                message:
-                  example: "User registered successfully"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 3
+                    email:
+                      example: gary@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: adcw
+                    isVerified:
+                      example: false
+                    isActive:
+                      example: false
+                    birthday:
+                      example: null
+                    avatarFileName:
+                      example: null
+                    createdAt:
+                      example: '2024-08-05 10:44:24'
+                    scheduledDeletionDate:
+                      example: '2024-08-12 10:44:25'
         Unauthorized:
           type: object
           properties:
@@ -665,6 +945,8 @@ nelmio_api_doc:
               properties:
                 data:
                   properties:
+                    id:
+                      example: 2
                     fullName:
                       example: "Jane Doe"
                     birthday:
@@ -672,14 +954,42 @@ nelmio_api_doc:
                     avatarFileName:
                       example: null
                     email:
-                      example: "admin@gmail.com"
+                      example: "jane@gmail.com"
+                    isActive:
+                      example: true
+                    createdAt:
+                      example: "2023-03-15T19:07:39+00:00"
         UserUpdateSuccess:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
             - type: object
               properties:
-                message:
-                  example: "User updated successfully"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 3
+                    email:
+                      example: gary@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: adcw
+                    isVerified:
+                      example: true
+                    isActive:
+                      example: true
+                    birthday:
+                      example: null
+                    avatarFileName:
+                      example: null
+                    createdAt:
+                      example: '2024-08-05 10:44:24'
+                    scheduledDeletionDate:
+                      example: '2024-08-12 10:44:25'
         EmailVerifySuccess:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
@@ -699,8 +1009,32 @@ nelmio_api_doc:
             - $ref: '#/components/schemas/SuccessfulAction'
             - type: object
               properties:
-                message:
-                  example: "Your password has been reset successfully"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: Jane Doe
+                    isVerified:
+                      example: true
+                    isActive:
+                      example: true
+                    birthday:
+                      example: '2004-03-11'
+                    avatarFileName:
+                      example: Starship-S20-66b0a9c4e21d27.21792671.jpg
+                    createdAt:
+                      example: '2023-03-15 19:07:39'
+                    scheduledDeletionDate:
+                      example: null
         ResetInputError:
           allOf:
             - $ref: '#/components/schemas/InputError'
@@ -738,6 +1072,22 @@ nelmio_api_doc:
                         example: "The birthday must be a valid date in the format YYYY-MM-DD."
                       code:
                         example: "69819696-02ac-4a99-9ff0-14e127c4d1bc"
+        DeactivateInputError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        example: password
+                      message:
+                        example: Password must be provided and cannot be blank
+                      code:
+                        example: c1051bb4-d103-4f74-8988-acbcafc7fdc3
         PassChangeSuccess:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'
@@ -745,6 +1095,22 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "Your password has been changed successfully"
+        PassChangeInputError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        example: confirmPassword
+                      message:
+                        example: Passwords do not match
+                      code:
+                        example: fields_not_match
         PassChangeError:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -771,8 +1137,32 @@ nelmio_api_doc:
             - $ref: '#/components/schemas/SuccessfulAction'
             - type: object
               properties:
-                message:
-                  example: "Your account has been deactivated successfully"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 3
+                    email:
+                      example: gary@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: adcw
+                    isVerified:
+                      example: true
+                    isActive:
+                      example: false
+                    birthday:
+                      example: null
+                    avatarFileName:
+                      example: null
+                    createdAt:
+                      example: '2024-08-05 10:44:24'
+                    scheduledDeletionDate:
+                      example: '2024-08-12 10:44:25'
         DeactivateError:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -785,8 +1175,32 @@ nelmio_api_doc:
             - $ref: '#/components/schemas/SuccessfulAction'
             - type: object
               properties:
-                message:
-                  example: "User is activated"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 3
+                    email:
+                      example: gary@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: adcw
+                    isVerified:
+                      example: true
+                    isActive:
+                      example: true
+                    birthday:
+                      example: null
+                    avatarFileName:
+                      example: null
+                    createdAt:
+                      example: '2024-08-05 10:44:24'
+                    scheduledDeletionDate:
+                      example: '2024-08-12 10:44:25'
         AccessForbidden:
           allOf:
             - $ref: '#/components/schemas/FailedAction'

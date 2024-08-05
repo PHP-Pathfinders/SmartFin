@@ -46,8 +46,8 @@ class TransactionTemplateController extends AbstractController
             ),
             new OA\Response(
                 response: 404,
-                description: 'No transaction templates found',
-                content: new OA\JsonContent(ref: '#/components/schemas/TemplateNotFound')
+                description: 'Incorrect configuration',
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionNotFound')
             ),
             new OA\Response(
                 response: 422,
@@ -117,7 +117,7 @@ class TransactionTemplateController extends AbstractController
             new OA\Response(
                 response: 404,
                 description: 'Invalid category given',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionInputFail')
             ),
             new OA\Response(
                 response: 403,
@@ -157,7 +157,7 @@ class TransactionTemplateController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Successful transaction template update or nothing to change',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetUpdateSuccess')
+                content: new OA\JsonContent(ref: '#/components/schemas/TemplateUpdateSuccess')
             ),
             new OA\Response(
                 response: 401,
@@ -177,7 +177,7 @@ class TransactionTemplateController extends AbstractController
             new OA\Response(
                 response: 404,
                 description: 'Invalid category given or you do not have ownership of the template',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputFail')
+                content: new OA\JsonContent(ref: '#/components/schemas/TransactionInputFail')
             ),
             new OA\Response(
                 response: 403,
