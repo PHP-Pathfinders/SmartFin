@@ -2,6 +2,6 @@
 
 namespace App\Scheduler\Message;
 
-readonly class DeleteUser
+readonly class DeleteUserMessage
 {
 }

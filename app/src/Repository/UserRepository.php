@@ -36,21 +36,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Reset password
-     * @param string $password
-     * @param User $user
-     * @return User
-     */
-    public function resetPassword(string $password, User $user): User
-    {
-        $user->setPassword($password);
-        // Log out user from all devices
-        $user->incrementJwtVersion();
-        $this->getEntityManager()->flush();
-        return $user;
-    }
-
-    /**
      * Creates a new user if email is not taken
      * @param string $fullName
      * @param string $email
@@ -95,7 +80,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     /**
      * Deactivates the user and sets scheduled deletion date
      * @param User $user
-     * @return void
+     * @return User
      */
     public function deactivate(User $user): User
     {
@@ -116,20 +101,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->clearScheduledDeletionDate();
         $this->getEntityManager()->flush();
         return $user;
-    }
-
-    public function deleteUsers(array $userIds): void
-    {
-        if (!empty($userIds)) {
-            $entityManager = $this->getEntityManager();
-            foreach ($userIds as $userId) {
-                $user = $this->find($userId['id']);
-                if ($user) {
-                    $entityManager->remove($user);
-                }
-            }
-            $entityManager->flush();
-        }
     }
 
     public function getUsersScheduledForDeletion(): array

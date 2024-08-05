@@ -67,7 +67,11 @@ readonly class UserService
         $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
 
         $hashedPassword = $this->passwordHasher->hashPassword($user, $resetPasswordDto->password);
-        return $this->userRepository->resetPassword($hashedPassword,$user);
+        $user->setPassword($hashedPassword);
+        // Log out user from all devices
+        $user->incrementJwtVersion();
+        $this->entityManager->flush();
+        return $user;
     }
 
     /**
