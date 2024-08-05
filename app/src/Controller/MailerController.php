@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Dto\User\RequestPasswordResetDto;
 use App\Service\MailerService;
+use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -64,10 +65,10 @@ class MailerController extends AbstractController
     )]
     public function resetPassword(
         #[MapRequestPayload] RequestPasswordResetDto $requestPasswordResetDto,
-        MailerService                                $mailerService
+        UserService                                  $userService
     ): JsonResponse
     {
-        $mailerService->forgotPassword($requestPasswordResetDto);
+        $userService->forgotPassword($requestPasswordResetDto);
 
         return $this->json([
             'success' => true,

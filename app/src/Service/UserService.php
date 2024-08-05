@@ -3,10 +3,12 @@
 namespace App\Service;
 
 use App\Dto\User\ChangePasswordDto;
+use App\Dto\User\RequestPasswordResetDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\RegisterDto;
 use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
+use App\Message\SendEmailMessage;
 use App\Message\SendEmailVerificationMessage;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
@@ -72,6 +74,27 @@ readonly class UserService
         $user->incrementJwtVersion();
         $this->entityManager->flush();
         return $user;
+    }
+    /**
+     * @throws ResetPasswordExceptionInterface
+     * @throws ExceptionInterface
+     */
+    public function forgotPassword(RequestPasswordResetDto $requestPasswordResetDto): void
+    {
+        $email = $requestPasswordResetDto->email;
+        $user = $this->userRepository->findOneBy(['email'=>$email]);
+        if (!$user) {
+            return;
+        }
+        $resetToken = $this->resetPasswordHelper->generateResetToken($user);
+        $subject = 'Reset password';
+        $template = 'email/reset_password.html.twig';
+        $context = [
+            'resetToken' => $resetToken->getToken(),
+            'expirationMessageKey' => 'reset_password.expiration',
+            'expirationMessageData' => ['%count%' => ($resetToken->getExpiresAt()->getTimestamp() - time()) / 60]
+        ];
+        $this->bus->dispatch(new SendEmailMessage($email, $subject, $template, $context));
     }
 
     /**
