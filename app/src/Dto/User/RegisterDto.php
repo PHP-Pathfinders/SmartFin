@@ -3,6 +3,7 @@
 namespace App\Dto\User;
 
 use App\Validator\FieldsMatch;
+use App\Validator\IsEmailAvailable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[FieldsMatch(field:'password',matchingField: 'confirmPassword', message:'Passwords do not match')]
@@ -21,6 +22,7 @@ readonly class RegisterDto
             maxMessage: 'Email cannot be longer than 80 characters.'
         )]
         #[Assert\Email]
+        #[IsEmailAvailable]
         public string $email='',
 
         #[Assert\NotBlank(message: 'Password must be provided and cannot be blank.')]

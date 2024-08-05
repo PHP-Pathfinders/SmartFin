@@ -75,7 +75,7 @@ class CategoryRepository extends ServiceEntityRepository
      * Create a new category
      * @param CategoryCreateDto $categoryCreateDto
      * @param User $user
-     * @return void
+     * @return Category
      */
     public function create(CategoryCreateDto $categoryCreateDto,User $user): Category
     {
