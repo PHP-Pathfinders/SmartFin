@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Message\SendEmailVerificationMessage;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
@@ -35,7 +36,8 @@ readonly class UserService
         private string                       $avatarDirectory,
         private SluggerInterface             $slugger,
         private MessageBusInterface          $bus,
-        private Filesystem                   $filesystem
+        private Filesystem                   $filesystem,
+        private EntityManagerInterface $entityManager
     ){}
 
     /**
@@ -165,7 +167,12 @@ readonly class UserService
         $newPassword = $changePasswordDto->newPassword;
         $hashedPassword = $this->passwordHasher->hashPassword($user,$newPassword);
 
-        return $this->userRepository->changePassword($hashedPassword, $user);
+        $user->setPassword($hashedPassword);
+        // Increment token version in order to invalidate jwt token (Log out from all devices)
+        $user->incrementJwtVersion();
+        $this->entityManager->flush();
+
+        return $user;
     }
 
     public function deactivate(string $password, int $userId): User
