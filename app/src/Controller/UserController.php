@@ -37,7 +37,7 @@ class UserController extends AbstractController
         tags: ['Entry Points'],
         responses: [
             new OA\Response(
-                response: 200,
+                response: 201,
                 description: 'Successful account registration done',
                 content: new OA\JsonContent(ref: '#/components/schemas/RegisterSuccess')
             ),

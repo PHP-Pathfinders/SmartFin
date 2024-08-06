@@ -137,7 +137,7 @@ class CategoryController extends AbstractController
         tags: ['Categories'],
         responses: [
             new OA\Response(
-                response: 200,
+                response: 201,
                 description: 'Successful category update or nothing to change',
                 content: new OA\JsonContent(ref: '#/components/schemas/CategoryUpdateSuccess')
             ),
