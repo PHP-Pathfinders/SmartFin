@@ -3,12 +3,14 @@ namespace App\Dto\Transaction;
 
 
 use App\Entity\Category;
+use App\Validator\DateCheck;
 use App\Validator\DateFormat;
 use App\Validator\IntegerType;
 use App\Validator\LessThanOrEqual;
 use App\Validator\PositiveNumber;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[DateCheck(dateStart: 'dateStart', dateEnd: 'dateEnd')]
 readonly class TransactionQueryDto
 {
     public function __construct(
@@ -30,11 +32,11 @@ readonly class TransactionQueryDto
 
         #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?string $dateStart = null,
+        public ?string $dateStart = '1970-01-01',
 
         #[Assert\Date(message: 'Given date must be in format YYYY-MM-DD')]
         #[Assert\NotBlank(message: 'Transaction date cannot be blank', allowNull: true)]
-        public ?string $dateEnd = null,
+        public ?string $dateEnd = '2024-12-31',
 
         #[Assert\NotBlank(message: 'Transaction name cannot be blank', allowNull: true)]
         public ?string $transactionName = null,

@@ -38,11 +38,6 @@ readonly class TransactionService
             throw new NotFoundHttpException('No parameters given');
         }
 
-        if ($transactionQueryDto->dateStart > $transactionQueryDto->dateEnd) {
-            throw new NotFoundHttpException('Invalid date format');
-        }
-
-
         return $this->transactionRepository->search($transactionQueryDto, $user);
     }
 

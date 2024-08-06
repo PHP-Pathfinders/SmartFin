@@ -41,11 +41,6 @@ class BudgetController extends AbstractController
                 content: new OA\JsonContent(ref: '#/components/schemas/Budget')
             ),
             new OA\Response(
-                response: 404,
-                description: 'Incorrect configuration',
-                content: new OA\JsonContent(ref: '#/components/schemas/BudgetNotFound')
-            ),
-            new OA\Response(
                 response: 422,
                 description: 'Invalid input data given',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetDateError')
@@ -136,7 +131,7 @@ class BudgetController extends AbstractController
         tags: ['Budgets'],
         responses: [
             new OA\Response(
-                response: 200,
+                response: 201,
                 description: 'Successful budget insertion',
                 content: new OA\JsonContent(ref: '#/components/schemas/BudgetInputSuccess')
             ),
@@ -187,7 +182,7 @@ class BudgetController extends AbstractController
             'success' => true,
             'message' => 'New budget created',
             'data' => $budget
-        ], context: [
+        ], status: Response::HTTP_CREATED, context: [
             ObjectNormalizer::GROUPS => ['budget']
         ]);
 
