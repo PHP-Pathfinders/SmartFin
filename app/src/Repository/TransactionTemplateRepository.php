@@ -96,7 +96,7 @@ class TransactionTemplateRepository extends ServiceEntityRepository
 
         // Calculate the previous and next page
         $previousPage = ($transactionTemplateQueryDto->page > 1) ? $transactionTemplateQueryDto->page - 1 : null;
-        $nextPage = ($transactionTemplateQueryDto->page < $totalPages) ? $transactionTemplateQueryDto->page + 1 : null;
+        $nextPage = ($transactionTemplateQueryDto->page < $totalPages) ? (int)$transactionTemplateQueryDto->page + 1 : null;
 
 
         return [

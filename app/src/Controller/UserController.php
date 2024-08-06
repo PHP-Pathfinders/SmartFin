@@ -34,7 +34,7 @@ class UserController extends AbstractController
     #[OA\Post(
         description: 'Register new account that will be used on this site',
         summary: 'Used as register entry point to our site',
-        tags: ['Entry Points'],
+        tags: ['User'],
         responses: [
             new OA\Response(
                 response: 201,
