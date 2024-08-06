@@ -60,10 +60,6 @@ class BudgetService
             $dateEnd = $budgetQueryDto->dateEnd;
         }
 
-        if ($dateStart > $dateEnd) {
-            throw new NotFoundHttpException('Invalid date format');
-        }
-
         return $this->budgetRepository->searchWithStats($page,$maxResults,$dateStart,$dateEnd, $user);
     }
 

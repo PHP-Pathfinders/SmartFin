@@ -2,11 +2,13 @@
 
 namespace App\Dto\Budget;
 
+use App\Validator\DateCheck;
 use App\Validator\IntegerType;
 use App\Validator\LessThanOrEqual;
 use App\Validator\PositiveNumber;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[DateCheck(dateStart: 'dateStart', dateEnd: 'dateEnd')]
 readonly class BudgetQueryDto
 {
     public function __construct(
