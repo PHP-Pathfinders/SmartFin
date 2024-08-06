@@ -9,6 +9,7 @@ use App\Service\CategoryService;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -123,7 +124,7 @@ class CategoryController extends AbstractController
             'success' => true,
             'message' => 'New category created',
             'data' => $category
-        ],
+        ],Response::HTTP_CREATED,
         context:[
                 ObjectNormalizer::GROUPS => ['category']
             ]

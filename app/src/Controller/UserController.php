@@ -70,7 +70,7 @@ class UserController extends AbstractController
             [
                 'success' => true,
                 'data' => $user
-            ], context: [
+            ],Response::HTTP_CREATED, context: [
             ObjectNormalizer::GROUPS => ['user']
         ]
         );
