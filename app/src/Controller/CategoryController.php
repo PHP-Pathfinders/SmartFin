@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 #[Route('/api/categories', name: 'api_categories')]
 class CategoryController extends AbstractController
 {
-    public function __construct()
+    public function __construct(readonly private CategoryService $categoryService)
     {
     }
 
@@ -59,13 +59,10 @@ class CategoryController extends AbstractController
     )]
     #[Security(name: 'Bearer')]
     #[Route(name: 'api_find_categories_by_type', methods: ['GET'])]
-    public function search(
-        #[MapQueryString] ?CategoryQueryDto $categoryQueryDto,
-        CategoryService                     $categoryService
-    ): JsonResponse
+    public function search(#[MapQueryString] ?CategoryQueryDto $categoryQueryDto): JsonResponse
     {
         //Search
-        $data = $categoryService->search($categoryQueryDto);
+        $data = $this->categoryService->search($categoryQueryDto);
 
         return $this->json([
             'success' => true,
@@ -119,12 +116,9 @@ class CategoryController extends AbstractController
     )]
     #[Security(name: 'Bearer')]
     #[Route(name: 'api_add_category', methods: ['POST'])]
-    public function create(
-        #[MapRequestPayload] CategoryCreateDto $categoryCreateDto,
-        CategoryService                        $categoryService
-    ): JsonResponse
+    public function create(#[MapRequestPayload] CategoryCreateDto $categoryCreateDto): JsonResponse
     {
-        $category = $categoryService->create($categoryCreateDto);
+        $category = $this->categoryService->create($categoryCreateDto);
         return $this->json([
             'success' => true,
             'message' => 'New category created',
@@ -179,12 +173,9 @@ class CategoryController extends AbstractController
     )]
     #[Route(name: 'api_update_category', methods: ['PATCH'])]
     #[Security(name: 'Bearer')]
-    public function update(
-        #[MapRequestPayload] CategoryUpdateDto $categoryUpdateDto,
-        CategoryService                        $categoryService,
-    ): JsonResponse
+    public function update(#[MapRequestPayload] CategoryUpdateDto $categoryUpdateDto): JsonResponse
     {
-        $dataArr = $categoryService->update($categoryUpdateDto);
+        $dataArr = $this->categoryService->update($categoryUpdateDto);
         if (isset($dataArr['category'])) {
             return $this->json(
                 [
@@ -242,9 +233,9 @@ class CategoryController extends AbstractController
     )]
     #[Security(name: 'Bearer')]
     #[Route('/{id<\d+>}', name: 'api_delete_category', methods: ['DELETE'])]
-    public function delete(int $id, CategoryService $categoryService): JsonResponse
+    public function delete(int $id): JsonResponse
     {
-        $categoryService->delete($id);
+        $this->categoryService->delete($id);
         return $this->json([
             'success' => true,
             'message' => "Category deleted with id=$id"

@@ -12,6 +12,8 @@ use OpenApi\Attributes as OA;
 #[Route('/api')]
 class PdfXlsController extends AbstractController
 {
+    public function __construct(private readonly PdfXlsService $pdfXlsService)
+    {}
     #[Route('/pdf/generator', name: 'api_pdf_generator', methods: ['GET'])]
     #[OA\Get(
         description: 'Used for generating pdf file of all transactions for logged user',
@@ -43,11 +45,9 @@ class PdfXlsController extends AbstractController
             )
         ]
     )]
-    public function generatePDF(
-        PdfXlsService $pdfXlsService,
-    ): Response
+    public function generatePDF(): Response
     {
-        $dompdf = $pdfXlsService->generatePDF();
+        $dompdf = $this->pdfXlsService->generatePDF();
 
         return new Response (
             $dompdf->stream('transactions', ["Attachment" => false]),
@@ -87,11 +87,9 @@ class PdfXlsController extends AbstractController
             )
         ]
     )]
-    public function generateXLS(
-        PdfXlsService $pdfXlsService
-    ) :Response
+    public function generateXLS() :Response
     {
-        $response = $pdfXlsService->generateXLS();
+        $response = $this->pdfXlsService->generateXLS();
         // Redirect output to a client’s web browser (Xls)
         $response->headers->set('Content-Type', 'application/vnd.ms-excel');
         $response->headers->set('Content-Disposition', 'attachment;filename="Transactions.xls"');

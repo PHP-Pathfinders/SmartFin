@@ -29,6 +29,8 @@ use OpenApi\Attributes as OA;
 #[Route('/api/users')]
 class UserController extends AbstractController
 {
+    public function __construct(private readonly UserService $userService)
+    {}
     #[OA\Post(
         description: 'Register new account that will be used on this site',
         summary: 'Used as register entry point to our site',
@@ -61,12 +63,9 @@ class UserController extends AbstractController
         ]
     )]
     #[Route('/register', name: 'api_register', methods: ['POST'])]
-    public function register(
-        #[MapRequestPayload] RegisterDto $registerDto,
-        UserService                      $userService
-    ): JsonResponse
+    public function register(#[MapRequestPayload] RegisterDto $registerDto): JsonResponse
     {
-        $user = $userService->register($registerDto);
+        $user = $this->userService->register($registerDto);
         return $this->json(
             [
                 'success' => true,
@@ -110,11 +109,10 @@ class UserController extends AbstractController
     #[Route('/verify-email', name: 'api_verify_email', methods: ['GET'])]
     public function verifyEmail(
         #[MapQueryParameter] int $id,
-        UserService              $userService,
         Request                  $request
     ): JsonResponse
     {
-        $userService->verifyEmail($id, $request);
+        $this->userService->verifyEmail($id, $request);
 
         return $this->json([
             'success' => true,
@@ -157,12 +155,9 @@ class UserController extends AbstractController
         ]
     )]
     #[Route('/reset-password', name: 'api_reset_password', methods: ['PATCH'])]
-    public function resetPassword(
-        #[MapRequestPayload] ResetPasswordDto $resetPasswordDto,
-        UserService                           $userService
-    ): JsonResponse
+    public function resetPassword(#[MapRequestPayload] ResetPasswordDto $resetPasswordDto): JsonResponse
     {
-        $user = $userService->resetPassword($resetPasswordDto);
+        $user = $this->userService->resetPassword($resetPasswordDto);
         return $this->json(
             [
                 'success' => true,
@@ -205,12 +200,9 @@ class UserController extends AbstractController
         ]
     )]
     #[Route('/{id<\d+>}', name: 'api_profile', methods: ['GET'])]
-    public function fetch(
-        int         $id,
-        UserService $userService
-    ): JsonResponse
+    public function fetch(int $id): JsonResponse
     {
-        $profileData = $userService->fetch($id);
+        $profileData = $this->userService->fetch($id);
         return $this->json([
             'success' => true,
             'data' => $profileData
@@ -260,12 +252,11 @@ class UserController extends AbstractController
     )]
     #[Route('/{id<\d+>}/change-password', name: 'api_change_password', methods: ['PATCH'])]
     public function changePassword(
-        int                                    $id,
-        #[MapRequestPayload] ChangePasswordDto $changePasswordDto,
-        UserService                            $userService
+        int $id,
+        #[MapRequestPayload] ChangePasswordDto $changePasswordDto
     ): JsonResponse
     {
-        $user = $userService->changePassword($changePasswordDto, $id);
+        $user = $this->userService->changePassword($changePasswordDto, $id);
         return $this->json(
             [
                 'success' => true,
@@ -320,7 +311,6 @@ class UserController extends AbstractController
     #[Route('/{id<\d+>}', name: 'api_update_user', methods: ['PATCH'])]
     public function update(
         int                                $id,
-        UserService                        $userService,
         #[MapRequestPayload] UpdateDataDto $updateDataDto
     ): JsonResponse
     {
@@ -331,7 +321,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $user = $userService->update($updateDataDto, $id);
+        $user = $this->userService->update($updateDataDto, $id);
         return $this->json(
             [
                 'success' => true,
@@ -401,7 +391,6 @@ class UserController extends AbstractController
     public function updateProfileImage(
         int         $id,
         Request     $request,
-        UserService $userService,
         Security    $security,
     ): JsonResponse
     {
@@ -411,7 +400,7 @@ class UserController extends AbstractController
             throw new NotFoundHttpException('User not found');
         }
         $form = $this->createForm(UserType::class, $user);
-        $dataArr = $userService->updateProfileImage($request, $form, $user, $id);
+        $dataArr = $this->userService->updateProfileImage($request, $form, $user, $id);
 
         if ($dataArr['success']) {
             return $this->json(
@@ -473,12 +462,11 @@ class UserController extends AbstractController
     #[Route('/{id<\d+>}/deactivate', name: 'api_deactivate', methods: ['PATCH'])]
     public function deactivate(
         int                                       $id,
-        #[MapRequestPayload] DeactivateAccountDto $deactivateAccountDto,
-        UserService                               $userService
+        #[MapRequestPayload] DeactivateAccountDto $deactivateAccountDto
     ): JsonResponse
     {
         $password = $deactivateAccountDto->password;
-        $user = $userService->deactivate($password, $id);
+        $user = $this->userService->deactivate($password, $id);
         return $this->json(
             [
                 'success' => true,
@@ -526,12 +514,9 @@ class UserController extends AbstractController
         ]
     )]
     #[Route('/{id<\d+>}/activate', name:'api_users_activate', methods: ['PATCH'])]
-    public function activate(
-        int         $id,
-        UserService $userService
-    ): JsonResponse
+    public function activate(int $id): JsonResponse
     {
-        $user = $userService->activate($id);
+        $user = $this->userService->activate($id);
         return $this->json(
             [
                 'success' => true,
