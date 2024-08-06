@@ -10,7 +10,9 @@ use App\Entity\User;
 use App\Message\SendEmailVerificationMessage;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +35,9 @@ readonly class UserService
         private Security                     $security,
         private string                       $avatarDirectory,
         private SluggerInterface             $slugger,
-        private MessageBusInterface          $bus
+        private MessageBusInterface          $bus,
+        private Filesystem                   $filesystem,
+        private EntityManagerInterface $entityManager
     ){}
 
     /**
@@ -145,9 +149,9 @@ readonly class UserService
         $oldAvatar = $user->getAvatarFileName();
         if ($oldAvatar) {
             $oldAvatarPath = $this->avatarDirectory . '/' . $oldAvatar;
-            if (file_exists($oldAvatarPath)) {
+            if ($this->filesystem->exists($oldAvatarPath)) {
                 // If profile image exists, delete it
-                unlink($oldAvatarPath);
+                $this->filesystem->remove($oldAvatarPath);
             }
         }
     }
@@ -163,7 +167,12 @@ readonly class UserService
         $newPassword = $changePasswordDto->newPassword;
         $hashedPassword = $this->passwordHasher->hashPassword($user,$newPassword);
 
-        return $this->userRepository->changePassword($hashedPassword, $user);
+        $user->setPassword($hashedPassword);
+        // Increment token version in order to invalidate jwt token (Log out from all devices)
+        $user->incrementJwtVersion();
+        $this->entityManager->flush();
+
+        return $user;
     }
 
     public function deactivate(string $password, int $userId): User

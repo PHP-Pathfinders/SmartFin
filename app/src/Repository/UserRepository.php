@@ -60,10 +60,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      */
     public function register(string $fullName, string $email, string $password,User $user): User
     {
-        $isEmailAvailable = $this->isEmailAvailable($email);
-        if (!$isEmailAvailable) {
-            throw new ConflictHttpException('E-mail is already taken');
-        }
         $user->setFullName($fullName);
         $user->setEmail($email);
         $user->setPassword($password);
@@ -92,21 +88,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function updateProfileImage(?string $newFileName, User $user): User
     {
         $user->setAvatarFileName($newFileName);
-        $this->getEntityManager()->flush();
-        return $user;
-    }
-
-    /**
-     * Change password
-     * @param string $password
-     * @param User $user
-     * @return void
-     */
-    public function changePassword(string $password, User $user): User
-    {
-        $user->setPassword($password);
-        // Increment token version in order to invalidate jwt token (Log out from all devices)
-        $user->incrementJwtVersion();
         $this->getEntityManager()->flush();
         return $user;
     }
@@ -167,7 +148,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param string $email
      * @return bool
      */
-    private function isEmailAvailable(string $email): bool
+    public function isEmailAvailable(string $email): bool
     {
 //        Checking if email exists in db
         $isEmailTaken = (bool) $this->createQueryBuilder('u')
