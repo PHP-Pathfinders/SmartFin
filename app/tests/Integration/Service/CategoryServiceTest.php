@@ -3,6 +3,8 @@
 namespace App\Tests\Integration\Service;
 
 use App\Dto\Category\CategoryCreateDto;
+use App\Dto\Category\CategoryQueryDto;
+use App\Entity\User;
 use App\Repository\CategoryRepository;
 use App\Repository\UserRepository;
 use App\Service\CategoryService;
@@ -17,6 +19,7 @@ class CategoryServiceTest extends KernelTestCase
     private CategoryService $categoryService;
     private CategoryRepository $categoryRepository;
     private Mock $mock;
+    private User $user;
     protected function setUp(): void
     {
         self::bootKernel();
@@ -28,12 +31,57 @@ class CategoryServiceTest extends KernelTestCase
         $userRepository = $container->get(UserRepository::class);
         $tokenStorage = $container->get(TokenStorageInterface::class);
         $this->mock = new Mock($userRepository, $tokenStorage);
+        $this->user = $this->mock->login();
     }
     public function testCreate(): void
     {
-        $user = $this->mock->login();
         $categoryCreateDto = new CategoryCreateDto('Festival','expense','#f02');
-        $this->categoryService->create($categoryCreateDto);
-//        TODO finish off this test
+        $newCategory = $this->categoryService->create($categoryCreateDto);
+        $dbCategory = $this->categoryRepository->find($newCategory->getId());
+//        Check if new category is stored in database
+        $this->assertSame('Festival',$dbCategory->getCategoryName());
+        $this->assertSame('expense', $dbCategory->getType());
+        $this->assertSame('#f02', $dbCategory->getColor());
+    }
+    public function testSearch(): void
+    {
+        $categoryQueryDto = new CategoryQueryDto(type:'income');
+        $categories = $this->categoryService->search($categoryQueryDto);
+        dump($categories);
+        $expectedArray = [
+            "pagination" => [
+                "currentPage" => 1,
+                "previousPage" => null,
+                "nextPage" => null,
+                "totalPages" => 1,
+            ],
+            "categories" => [
+                [
+                    "id" => 3,
+                    "categoryName" => "Gift",
+                    "type" => "income",
+                    "color" => "#2196F3",
+                ],
+                [
+                    "id" => 4,
+                    "categoryName" => "Other",
+                    "type" => "income",
+                    "color" => "#9C27B0",
+                ],
+                [
+                    "id" => 1,
+                    "categoryName" => "Salary",
+                    "type" => "income",
+                    "color" => "#4CAF50",
+                ],
+                [
+                    "id" => 2,
+                    "categoryName" => "Scholarship",
+                    "type" => "income",
+                    "color" => "#FFC107",
+                ],
+            ],
+        ];
+//TODO FINISH OFF THIS!
     }
 }
