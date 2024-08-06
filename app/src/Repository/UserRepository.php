@@ -5,8 +5,8 @@ namespace App\Repository;
 use App\Dto\User\UpdateDataDto;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -33,21 +33,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
-    }
-
-    /**
-     * Reset password
-     * @param string $password
-     * @param User $user
-     * @return User
-     */
-    public function resetPassword(string $password, User $user): User
-    {
-        $user->setPassword($password);
-        // Log out user from all devices
-        $user->incrementJwtVersion();
-        $this->getEntityManager()->flush();
-        return $user;
     }
 
     /**
@@ -95,7 +80,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     /**
      * Deactivates the user and sets scheduled deletion date
      * @param User $user
-     * @return void
+     * @return User
      */
     public function deactivate(User $user): User
     {
@@ -118,20 +103,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $user;
     }
 
-    public function deleteUsers(array $userIds): void
-    {
-        if (!empty($userIds)) {
-            $entityManager = $this->getEntityManager();
-            foreach ($userIds as $userId) {
-                $user = $this->find($userId['id']);
-                if ($user) {
-                    $entityManager->remove($user);
-                }
-            }
-            $entityManager->flush();
-        }
-    }
-
     public function getUsersScheduledForDeletion(): array
     {
         $now = new \DateTime();
@@ -140,7 +111,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->where('u.scheduledDeletionDate < :now')
             ->setParameter('now', $now)
             ->getQuery()
-            ->getResult();
+            ->getResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
     }
 
     /**

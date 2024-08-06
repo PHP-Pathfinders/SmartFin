@@ -15,6 +15,8 @@ use OpenApi\Attributes as OA;
 #[Route('/api/exports')]
 class ExportController extends AbstractController
 {
+    public function __construct(private readonly ExportService $exportService)
+    {}
     /**
      * Get a list of all exports made by a user
      */
@@ -47,11 +49,9 @@ class ExportController extends AbstractController
         ]
     )]
     public function search(
-        #[MapQueryString] ?SearchDto $searchDto,
-        ExportService $exportService
-    ): JsonResponse
+        #[MapQueryString] ?SearchDto $searchDto): JsonResponse
     {
-        $data = $exportService->search($searchDto);
+        $data = $this->exportService->search($searchDto);
 
         return $this->json([
             'success' => true,
@@ -98,12 +98,9 @@ class ExportController extends AbstractController
             )
         ]
     )]
-    public function downloadFile(
-        string $fileName,
-        ExportService $exportService
-    ): BinaryFileResponse
+    public function downloadFile(string $fileName): BinaryFileResponse
     {
-        $filePath = $exportService->download($fileName);
+        $filePath = $this->exportService->download($fileName);
         return new BinaryFileResponse($filePath);
     }
 }

@@ -83,12 +83,6 @@ class CategoryRepository extends ServiceEntityRepository
         $type = $categoryCreateDto->type;
         $color = $categoryCreateDto->color;
 
-        /* Check if user already has category with given name for that type
-         before adding a new category to the database */
-        $userHasCategory = $this->userHasCategory($categoryName,$type,$user);
-        if($userHasCategory){
-            throw new ConflictHttpException('You have already a category with the given name for that type.');
-        }
         $newCategory = new Category();
         $newCategory->setCategoryName($categoryName);
         $newCategory->setType($type);

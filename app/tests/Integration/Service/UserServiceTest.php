@@ -23,6 +23,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\String\UnicodeString;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\InvalidResetPasswordTokenException;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
@@ -35,6 +36,8 @@ class UserServiceTest extends KernelTestCase
     private int $userId = 1;
     private UserPasswordHasherInterface  $passwordHasher;
     private ResetPasswordHelperInterface $resetPasswordHelper;
+    private Mock $mock;
+    private ValidatorInterface $validator;
     protected function setUp(): void
     {
         self::bootKernel();
@@ -45,6 +48,7 @@ class UserServiceTest extends KernelTestCase
         $this->userService = $container->get(UserService::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
         $this->resetPasswordHelper = $container->get(ResetPasswordHelperInterface::class);
+        $this->validator = $container->get(ValidatorInterface::class);
 
         // Instantiate Mock
         $userRepository = $container->get(UserRepository::class);
@@ -59,7 +63,7 @@ class UserServiceTest extends KernelTestCase
         $result = $this->userService->fetch($this->userId);
 
         $this->assertSame([
-            'userId' => 1,
+            'id' => 1,
             'fullName' => 'John Doe',
             'birthday' => $user->getBirthday(),
             'avatarFileName' => null,
@@ -88,7 +92,7 @@ class UserServiceTest extends KernelTestCase
         // Prepare the RegisterDto
         $registerDto = new RegisterDto('Jane Doe','jane@example.com','Password#1');
         // Call the create method
-        $this->userService->create($registerDto);
+        $this->userService->register($registerDto);
 
         // Assert that the user was created
         $createdUser = $this->userRepository->findOneBy(['email' => $registerDto->email]);
@@ -98,16 +102,17 @@ class UserServiceTest extends KernelTestCase
         $this->assertFalse($createdUser->getIsVerified());
     }
 
-    public function testCreateUserWithExistingEmail(): void
+    public function testRegisterDtoValidation(): void
     {
         // Prepare the RegisterDto with an existing email
-        $registerDto = new RegisterDto('John Doe','john@gmail.com','Password#1');
+        $registerDto = new RegisterDto('John Doe','john@gmail.com','Password#1','NotMatching');
 
-        // Expect an exception or handle the logic that should occur with duplicate emails
-        $this->expectException(ConflictHttpException::class);
-
-        // Call the create method, expecting it to fail due to duplicate email
-        $this->userService->create($registerDto);
+        // Validate the DTO
+        $violations = $this->validator->validate($registerDto);
+        // Assert that there is one violation
+        $this->assertCount(2, $violations);
+        $this->assertEquals('confirmPassword', $violations[0]->getPropertyPath());
+        $this->assertEquals('email', $violations[1]->getPropertyPath());
     }
 
     public function testUpdateSuccess(): void
@@ -158,7 +163,7 @@ class UserServiceTest extends KernelTestCase
 
         // Call the method and assert the result
         $result = $this->userService->updateProfileImage($request, $form, $user, $user->getId());
-        $this->assertTrue($result);
+        $this->assertTrue($result['success']);
     }
     public function testUpdateProfileImageInvalidForm(): void
     {
@@ -171,7 +176,7 @@ class UserServiceTest extends KernelTestCase
         $form->method('isValid')->willReturn(false);
 
         $result = $this->userService->updateProfileImage($request, $form, $user, $user->getId());
-        $this->assertFalse($result);
+        $this->assertFalse($result['success']);
     }
     public function testChangePasswordSuccess(): void
     {

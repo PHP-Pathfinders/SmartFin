@@ -41,6 +41,16 @@ readonly class CategoryService
     {
         /** @var User $user */
         $user = $this->security->getUser();
+        /* Check if user already has category with given name for that type
+         before adding a new category to the database */
+        $userHasCategory = $this->categoryRepository->userHasCategory(
+            $categoryCreateDto->categoryName,
+            $categoryCreateDto->type, $user
+        );
+        if($userHasCategory){
+            throw new ConflictHttpException('You have already a category with the given name for that type.');
+        }
+
         return $this->categoryRepository->create($categoryCreateDto,$user);
     }
 

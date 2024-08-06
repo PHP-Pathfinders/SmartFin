@@ -34,7 +34,6 @@ class CategoryServiceTest extends KernelTestCase
         $user = $this->mock->login();
         $categoryCreateDto = new CategoryCreateDto('Festival','expense','#f02');
         $this->categoryService->create($categoryCreateDto);
-//        TODO When I finish with repairs from code review I will finish this test. . .
-
+//        TODO finish off this test
     }
 }

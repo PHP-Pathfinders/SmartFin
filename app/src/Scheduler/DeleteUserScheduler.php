@@ -2,14 +2,14 @@
 
 namespace App\Scheduler;
 
-use App\Scheduler\Message\DeleteUser;
+use App\Scheduler\Message\DeleteUserMessage;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
-#[AsSchedule('DeleteUser')]
+#[AsSchedule('DeleteUserMessage')]
 readonly class DeleteUserScheduler implements ScheduleProviderInterface
 {
     public function __construct(
@@ -20,7 +20,7 @@ readonly class DeleteUserScheduler implements ScheduleProviderInterface
     {
         return (new Schedule())
             ->add(
-                 RecurringMessage::every('1 minute', new DeleteUser()),
+                 RecurringMessage::every('1 minute', new DeleteUserMessage()),
             )
             ->stateful($this->cache)
             ;

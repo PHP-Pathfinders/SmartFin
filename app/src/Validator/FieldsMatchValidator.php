@@ -18,7 +18,7 @@ class FieldsMatchValidator extends ConstraintValidator
         $field = $constraint->field;
         $matchingField = $constraint->matchingField;
 
-        // Remember, $value is actually object in this case
+        //  $value is object
         if(!property_exists($value, $field) || !property_exists($value, $matchingField)){
             throw new UnexpectedValueException($value, 'object with properties '.$field.' and '.$matchingField);
         }

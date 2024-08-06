@@ -9,11 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[ORM\Table(
-    name: '`categories`',
-    indexes: [new ORM\Index(columns: ['category_name', 'type', 'user_id'])],
-    uniqueConstraints: [new ORM\UniqueConstraint(columns: ['category_name', 'type', 'user_id'])]
-)]
+#[ORM\Table(name: '`categories`')]
+#[ORM\Index(name: 'search_idx', columns: ['category_name', 'type', 'user_id'])]
+#[ORM\UniqueConstraint(name: 'unique_name_idx', columns: ['category_name', 'type', 'user_id'])]
 class Category
 {
     #[ORM\Id]
