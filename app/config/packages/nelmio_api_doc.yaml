@@ -102,7 +102,7 @@ nelmio_api_doc:
             - type: object
               properties:
                 message:
-                  example: "Invalid date format"
+                  example: "No parameters given"
         BudgetsNotFound:
           allOf:
             - $ref: '#/components/schemas/SuccessfulAction'

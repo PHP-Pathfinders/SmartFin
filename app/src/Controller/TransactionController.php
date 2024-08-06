@@ -194,7 +194,7 @@ class TransactionController extends AbstractController
         tags: ['Transactions'],
         responses: [
             new OA\Response(
-                response: 200,
+                response: 201,
                 description: 'Successful transaction creation',
                 content: new OA\JsonContent(ref: '#/components/schemas/TransactionInputSuccess')
             ),
@@ -240,7 +240,7 @@ class TransactionController extends AbstractController
             'success' => true,
             'message' => 'New transaction created',
             'data' => $transaction
-        ], context: [
+        ], status: Response::HTTP_CREATED, context: [
             ObjectNormalizer::GROUPS => ['transaction']
         ]);
     }

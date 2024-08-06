@@ -11,6 +11,7 @@ use App\Service\TransactionTemplateService;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -95,7 +96,7 @@ class TransactionTemplateController extends AbstractController
         tags: ['Transaction Templates'],
         responses: [
             new OA\Response(
-                response: 200,
+                response: 201,
                 description: 'Successful transaction template creation',
                 content: new OA\JsonContent(ref: '#/components/schemas/TemplateInputSuccess')
             ),
@@ -141,7 +142,7 @@ class TransactionTemplateController extends AbstractController
             'success' => true,
             'message' => 'New transaction template created',
             'data' => $template
-        ], context: [
+        ], status: Response::HTTP_CREATED, context: [
             ObjectNormalizer::GROUPS => ['template']
         ]);
 
