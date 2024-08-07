@@ -322,6 +322,9 @@ nelmio_api_doc:
                           color:
                             type: string
                             example: "#2196F3"
+                          isDefault:
+                            type: integer
+                            example: 1
         CategoryNameConflict:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
