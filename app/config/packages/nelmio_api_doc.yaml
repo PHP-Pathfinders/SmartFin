@@ -1,0 +1,1270 @@
+nelmio_api_doc:
+  documentation:
+    info:
+      title: SmartFin
+      description: Your ultimate financial dashboard with intuitive tools for smart financial management
+      version: 1.0.0
+    tags:
+      - name: "Entry Points"
+        description: "This is the main entry point for out site"
+      - name: "User"
+        description: "These are all of the endpoints that have to do with user"
+      - name: "Categories"
+        description: "These are all of the endpoints that have to do with categories"
+      - name: "Transactions"
+        description: "These are all of the endpoints that have to do with transactions"
+      - name: "Budgets"
+        description: "These are all of the endpoints that have to do with budgets"
+      - name: "Overview"
+        description: "API endpoints used for overview page"
+      - name: "Transaction Templates"
+        description: "These are all of the endpoints that have to do with transaction templates"
+      - name: "Mailer"
+        description: "Mailer service used for sending emails"
+      - name: "Generators"
+        description: "PDF and XLS file generators"
+      - name: "Exports"
+        description: "Everything that has to do with exporting or viewing the exported files"
+    components:
+      securitySchemes:
+        Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+
+      schemas:
+        QuerySuccessResponse:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: object
+              properties:
+                pagination:
+                  type: object
+                  properties:
+                    currentPage:
+                      type: string
+                      example: '1'
+                    previousPage:
+                      type: integer
+                      example: null
+                    nextPage:
+                      type: integer
+                      example: null
+                    totalPages:
+                      type: integer
+                      example: 1
+        Budget:
+          allOf:
+            - $ref: '#/components/schemas/QuerySuccessResponse'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    budgets:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            example: 2
+                          monthlyBudget:
+                            example: 1758.14
+                          monthlyBudgetDate:
+                            example: "2024-07-23T00:00:00+00:00"
+                          categoryId:
+                            example: 9
+                          categoryName:
+                            example: "Nights out"
+                          color:
+                            example: "#607D8B"
+                          total:
+                            example: 5876.911
+                          percent:
+                            example: 334.2686589236352
+        FailedAction:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: false
+        SuccessfulAction:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+        BudgetNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No parameters given"
+        BudgetsNotFound:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Budgets not found"
+        InputError:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: false
+        BudgetDateError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "dateStart"
+                      message:
+                        example: "Given date must be in format YYYY-MM-DD"
+                      code:
+                        example: "69819696-02ac-4a99-9ff0-14e127c4d1bc"
+        YearInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "year"
+                      message:
+                        example: "'da' is not an integer."
+                      code:
+                        example: "integer_type"
+        BudgetInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        type: string
+                        example: "categoryId"
+                      message:
+                        type: string
+                        example: "0 is not a positive number"
+                      code:
+                        type: string
+                        format: string
+                        example: "positive_number"
+        BudgetInputSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "New budget created"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 41
+                    user:
+                      type: object
+                      properties:
+                        id:
+                          example: 2
+                        email:
+                          example: jane@gmail.com
+                        fullName:
+                          example: Jane Doe
+                    category:
+                      type: object
+                      properties:
+                        id:
+                          example: 5
+                        categoryName:
+                          example: Bills
+                        type:
+                          example: expense
+                        color:
+                          example: '#F44336'
+                    monthlyBudget:
+                      example: 2
+                    monthlyBudgetDate:
+                      example: "2020-02-05T00:00:00Z"
+        BudgetInputFail:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category does not exist or is not of an expense type"
+        BudgetConflict:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "You already have a budget for this category in given month and year"
+        BudgetUpdateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Update successful"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 41
+                    user:
+                      type: object
+                      properties:
+                        id:
+                          example: 2
+                        email:
+                          example: jane@gmail.com
+                        fullName:
+                          example: Jane Doe
+                    category:
+                      type: object
+                      properties:
+                        id:
+                          example: 5
+                        categoryName:
+                          example: Bills
+                        type:
+                          example: expense
+                        color:
+                          example: '#F44336'
+                    monthlyBudget:
+                      example: 2
+                    monthlyBudgetDate:
+                      example: "2020-02-05T00:00:00Z"
+        BudgetUpdateFail:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category does not exist or is not of an expense type"
+        BudgetDeleteSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Budget with id 1 has been deleted"
+        BudgetDeleteFail:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Budget not found or not owned by you"
+        BudgetRandomResult:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    properties:
+                      id:
+                        example: 33
+                      monthlyBudget:
+                        example: 2607.71
+                      monthlyBudgetDate:
+                        example: "2024-07-31T00:00:00+00:00"
+                      categoryId:
+                        example: 12
+                      categoryName:
+                        example: "Other"
+                      color:
+                        example: "#FF9800"
+                      totalSpent:
+                        example: 7868.837
+                      percentageSpent:
+                        example: 301.75276391930083
+        Category:
+          allOf:
+            - $ref: '#/components/schemas/QuerySuccessResponse'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    categories:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 3
+                          categoryName:
+                            type: string
+                            example: "Gift"
+                          type:
+                            type: string
+                            enum: [ "income" ]
+                            example: "income"
+                          color:
+                            type: string
+                            example: "#2196F3"
+                          isDefault:
+                            type: integer
+                            example: 1
+        CategoryNameConflict:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "You have already a category with the given name for that type."
+        CategoryNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No categories found"
+        CategoryQueryError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "page"
+                      message:
+                        example: "'123d' is not an integer."
+                      code:
+                        example: "integer_type"
+        CategoryInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        example: "categoryName"
+                      message:
+                        example: "Category name must be provided and cannot be blank"
+                      code:
+                        example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+
+        CategoryInputSuccess:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "New category created"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 41
+                categoryName:
+                  example: "232"
+                type:
+                  example: "income"
+                color:
+                  example: "#faa"
+        CategoryUpdateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Update successful"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 15
+                    categoryName:
+                      example: "aw"
+                    type:
+                      example: "income"
+                    color:
+                      example: "#faa"
+        CategoryForbidden:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "You cannot modify default category."
+        CategoryDeleteSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category deleted with id=1"
+        CategoryForbiddenDelete:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "You cannot delete default category."
+        CategoryFailed:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category not found or does not belong to the user."
+        Transaction:
+          allOf:
+            - $ref: '#/components/schemas/QuerySuccessResponse'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    totalResults:
+                      example: 9
+                    transactions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            example: 23
+                          paymentType:
+                            example: "card"
+                          transactionDate:
+                            example: "2024-05-12T00:00:00+00:00"
+                          moneyAmount:
+                            example: 7328.199
+                          transactionName:
+                            example: "Beatae voluptatem."
+                          partyName:
+                            example: null
+                          transactionNotes:
+                            example: null
+                          categoryId:
+                            example: 12
+                          type:
+                            example: "expense"
+                          categoryName:
+                            example: "Other"
+                          color:
+                            example: "#FF9800"
+        TransactionInputSuccess:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "New transaction created"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 53
+                user:
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    fullName:
+                      example: Jane Doe
+                category:
+                  type: object
+                  properties:
+                    id:
+                      example: 10
+                    categoryName:
+                      example: Fun
+                    type:
+                      example: expense
+                    color:
+                      example: '#9E9E9E'
+                paymentType:
+                  example: "card"
+                transactionDate:
+                  example: "2024-01-01T00:00:00Z"
+                moneyAmount:
+                  example: 10
+                transactionName:
+                  example: "go"
+                partyName:
+                  example: null
+                transactionNotes:
+                  example: null
+        TransactionUpdateSuccess:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: "New transaction created"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 53
+                user:
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    fullName:
+                      example: Jane Doe
+                category:
+                  type: object
+                  properties:
+                    id:
+                      example: 10
+                    categoryName:
+                      example: Fun
+                    type:
+                      example: expense
+                    color:
+                      example: '#9E9E9E'
+                paymentType:
+                  example: "card"
+                transactionDate:
+                  example: "2024-01-01T00:00:00Z"
+                moneyAmount:
+                  example: 10
+                transactionName:
+                  example: "go"
+                partyName:
+                  example: null
+                transactionNotes:
+                  example: null
+        TransactionInputFail:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Category could not be found or doesn't match given Type"
+        TransactionConflict:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Can't change income to expense and vice versa"
+        TransactionDeleteSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Transaction with id 1 has been deleted"
+        TransactionNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No parameters given"
+        TransactionDeleteNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No transaction found."
+        Template:
+          allOf:
+            - $ref: '#/components/schemas/QuerySuccessResponse'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    totalResults:
+                      example: 9
+                    transactionTemplates:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            example: 23
+                          paymentType:
+                            example: "card"
+                          transactionDate:
+                            example: "2024-05-12T00:00:00+00:00"
+                          moneyAmount:
+                            example: 7328.199
+                          transactionName:
+                            example: "Beatae voluptatem."
+                          partyName:
+                            example: null
+                          transactionNotes:
+                            example: null
+                          categoryId:
+                            example: 12
+                          type:
+                            example: "expense"
+                          categoryName:
+                            example: "Other"
+                          color:
+                            example: "#FF9800"
+        TemplateNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No transaction template found"
+        TemplateInputSuccess:
+          type: object
+          properties:
+            success:
+              example: true
+            message:
+              example: "New transaction template created"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 41
+                user:
+                  type: object
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    fullName:
+                      example: Jane Doe
+                category:
+                  type: object
+                  properties:
+                    id:
+                      example: 10
+                    categoryName:
+                      example: Fun
+                    type:
+                      example: expense
+                    color:
+                      example: '#9E9E9E'
+                paymentType:
+                  example: null
+                moneyAmount:
+                  example: 10
+                transactionName:
+                  example: null
+                partyName:
+                  example: null
+                transactionNotes:
+                  example: null
+        TemplateUpdateSuccess:
+          type: object
+          properties:
+            success:
+              example: true
+            message:
+              example: "Update successful"
+            data:
+              type: object
+              properties:
+                id:
+                  example: 41
+                user:
+                  type: object
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    fullName:
+                      example: Jane Doe
+                category:
+                  type: object
+                  properties:
+                    id:
+                      example: 10
+                    categoryName:
+                      example: Fun
+                    type:
+                      example: expense
+                    color:
+                      example: '#9E9E9E'
+                paymentType:
+                  example: null
+                moneyAmount:
+                  example: 10
+                transactionName:
+                  example: null
+                partyName:
+                  example: null
+                transactionNotes:
+                  example: null
+        TemplateDeletionError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Template not found or doesn't belong to you"
+        TemplateDeleteSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Transaction template with id 13 successfully deleted"
+        SpendingsSuccess:
+          type: object
+          properties:
+            success:
+              example: true
+            month:
+              example: 7
+            year:
+              example: 2024
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  categoryName:
+                    example: Shopping
+                  totalExpense:
+                    example: 897.667
+                  percentage:
+                    example: 100
+        OverviewSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  example:
+                    - month: 1
+                      year: 2024
+                      totalIncome: 6014.846
+                      totalExpense: 6378.543
+                    - month: 2
+                      year: 2024
+                      totalIncome: 0
+                      totalExpense: 6169.177
+                    - month: 3
+                      year: 2024
+                      totalIncome: 22349.090
+                      totalExpense: 22993.34
+                    - month: 4
+                      year: 2024
+                      totalIncome: 0
+                      totalExpense: 5081.696
+        LoginSuccess:
+          type: object
+          properties:
+            token:
+              example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImN0eSI6IkpXVCJ9.eyJpYXQiOjE3MjE4MTUwMDksImV4cCI6MTcyMTgxODYwOSwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidXNlckBnbWFpbC5jb20iLCJ0b2tlbl92ZXJzaW9uIjowLCJ1c2VyX2lkIjoyfQ.oZIzxmsYs2SDVdcG0zb4JQH95F1Tap7D-PqpNzFFiqzjqpMn-SZCTZSpKBr2ddQZlW-p0-oJp1vfakedc0VgoUMkAJ1aEho7G5_P8jzuFqUwgb3PbxchJAWtx1Fqs4yKruu_mfT8-tT8PFg0NAOw0-WJ2qotWwL1NZYt-X2k4UH1pjLcz13blNyjx65okXo3V4XDO0aSyVeKsAxY4SCeM6yQ-8G3fUcvpGLIcVP4LS_YsSNhne0ec2nGTpRX5bFXhZrgcG6vzCY1N9NPs3I8PasmM1A8EerGTemO1jmRoqABrV7NM1Yta2HZ5YxyJ0-lK6mCdwkPzSXunrQUYSJMWA"
+        RegisterSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 3
+                    email:
+                      example: gary@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: adcw
+                    isVerified:
+                      example: false
+                    isActive:
+                      example: false
+                    birthday:
+                      example: null
+                    avatarPath:
+                      example: null
+                    createdAt:
+                      example: '2024-08-05 10:44:24'
+                    scheduledDeletionDate:
+                      example: '2024-08-12 10:44:25'
+        Unauthorized:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: 401
+            message:
+              type: string
+              example: "JWT Token not found"
+        UnauthorizedLogin:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: 401
+            message:
+              type: string
+              example: "Invalid credentials."
+        RegisterInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "email"
+                      message:
+                        example: "Email must be provided and cannot be blank"
+                      code:
+                        example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+        RegisterEmailConflict:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "E-mail is already taken"
+        InvalidRequest:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  type: string
+                  example: "Request payload contains invalid \"json\" data."
+        GeneratorPDFError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  type: string
+                  example: "You can only generate one PDF export every 24 hours."
+        GeneratorXLSError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  type: string
+                  example: "You can only generate one XLSX export every 24 hours."
+        ExportInvalidRequest:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  type: string
+                  example: "File extension not found."
+        Export:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    properties:
+                      fileName:
+                        example: "66a0e27ac64573.46940784.xlsx"
+                      fileType:
+                        example: "xlsx"
+                      createdAt:
+                        example: "2024-07-24T11:16:10+00:00"
+        ExportsNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "No exports found"
+        UserNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "User not found"
+        UserResetInputError:
+            allOf:
+              - $ref: '#/components/schemas/InputError'
+              - type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      properties:
+                        field:
+                          example: "token"
+                        message:
+                          example: "Token must be provided and cannot be blank"
+                        code:
+                          example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+        User:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  properties:
+                    id:
+                      example: 2
+                    fullName:
+                      example: "Jane Doe"
+                    birthday:
+                      example: "1993-06-29T00:00:00+00:00"
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
+                    email:
+                      example: "jane@gmail.com"
+                    isActive:
+                      example: true
+                    createdAt:
+                      example: "2023-03-15T19:07:39+00:00"
+        UserUpdateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 3
+                    email:
+                      example: gary@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: adcw
+                    isVerified:
+                      example: true
+                    isActive:
+                      example: true
+                    birthday:
+                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
+                    createdAt:
+                      example: '2024-08-05 10:44:24'
+                    scheduledDeletionDate:
+                      example: '2024-08-12 10:44:25'
+        EmailVerifySuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Your email address has been verified"
+        EmailInvalidSig:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Invalid signature"
+        ResetSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 2
+                    email:
+                      example: jane@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: Jane Doe
+                    isVerified:
+                      example: true
+                    isActive:
+                      example: true
+                    birthday:
+                      example: '2004-03-11'
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
+                    createdAt:
+                      example: '2023-03-15 19:07:39'
+                    scheduledDeletionDate:
+                      example: null
+        ResetInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "token"
+                      message:
+                        example: "Token must be provided and cannot be blank"
+                      code:
+                        example: "c1051bb4-d103-4f74-8988-acbcafc7fdc3"
+        ResetForbidden:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Invalid reset password token"
+        UserPatchError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "birthday"
+                      message:
+                        example: "The birthday must be a valid date in the format YYYY-MM-DD."
+                      code:
+                        example: "69819696-02ac-4a99-9ff0-14e127c4d1bc"
+        DeactivateInputError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        example: password
+                      message:
+                        example: Password must be provided and cannot be blank
+                      code:
+                        example: c1051bb4-d103-4f74-8988-acbcafc7fdc3
+        PassChangeSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Your password has been changed successfully"
+        PassChangeInputError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        example: confirmPassword
+                      message:
+                        example: Passwords do not match
+                      code:
+                        example: fields_not_match
+        PassChangeError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Incorrect old password"
+        ImageSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "Profile image is updated successfully"
+        ImageError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Form is not submitted or not valid. Image can be only jpg, jpeg or png"
+        DeactivateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 3
+                    email:
+                      example: gary@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: adcw
+                    isVerified:
+                      example: true
+                    isActive:
+                      example: false
+                    birthday:
+                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
+                    createdAt:
+                      example: '2024-08-05 10:44:24'
+                    scheduledDeletionDate:
+                      example: '2024-08-12 10:44:25'
+        DeactivateError:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Incorrect password"
+        ActivateSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                data:
+                  type: object
+                  properties:
+                    id:
+                      example: 3
+                    email:
+                      example: gary@gmail.com
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                      example: [ "ROLE_USER" ]
+                    fullName:
+                      example: adcw
+                    isVerified:
+                      example: true
+                    isActive:
+                      example: true
+                    birthday:
+                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
+                    createdAt:
+                      example: '2024-08-05 10:44:24'
+                    scheduledDeletionDate:
+                      example: '2024-08-12 10:44:25'
+        AccessForbidden:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+          type: object
+          properties:
+            message:
+              example: "Access Denied."
+        ExportsUserNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Wrong user id or user not authenticated"
+        ExportsFileNotFound:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "File not found"
+        ExportsInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "userId"
+                      message:
+                        example: "'da' is not an integer."
+                      code:
+                        example: "integer_type"
+        MailerInputError:
+          allOf:
+            - $ref: '#/components/schemas/InputError'
+            - type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    properties:
+                      field:
+                        example: "email"
+                      message:
+                        example: "This value is not a valid email address."
+                      code:
+                        example: "bd79c0ab-ddba-46cc-a703-a7a4b08de310"
+        MailerSuccess:
+          allOf:
+            - $ref: '#/components/schemas/SuccessfulAction'
+            - type: object
+              properties:
+                message:
+                  example: "If your email exists in our system, you will receive a password reset email shortly"
+        MailerTooMany:
+          allOf:
+            - $ref: '#/components/schemas/FailedAction'
+            - type: object
+              properties:
+                message:
+                  example: "Too many reset password requests, try again later..."
+    security:
+      - Bearer: [ ]
+  areas: # to filter documented areas
+    default:
+      path_patterns: # an array of regexps (document only routes under /api, except /api/doc)
+        - ^/api(?!/doc$)
