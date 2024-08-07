@@ -39,7 +39,7 @@ class TransactionController extends AbstractController
      */
     #[Route(name: 'api_find_transactions',methods: ['GET'])]
     #[OA\Get(
-        description: 'Returns array of transactions filtered by different parameters, if no parameters given it returns every transaction for logged user',
+        description: 'Returns array of transactions filtered by different parameters, at least one parameter is needed to successfully perform a search',
         summary: 'Finds transactions by category, payment type, month, transaction name, party name, transaction notes and much more',
         tags: ['Transactions'],
         responses: [

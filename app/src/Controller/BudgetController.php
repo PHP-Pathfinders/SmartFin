@@ -127,6 +127,7 @@ class BudgetController extends AbstractController
 
     #[Route(name: 'api_add_budget', methods: ['POST'])]
     #[OA\Post(
+        description: "Create a new budget for logged user, but keep in mind that user cannot have a budget of same category twice in same month and year",
         summary: "Adds budget for this month for logged user",
         tags: ['Budgets'],
         responses: [
