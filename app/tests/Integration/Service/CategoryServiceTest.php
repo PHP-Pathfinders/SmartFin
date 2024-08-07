@@ -47,7 +47,6 @@ class CategoryServiceTest extends KernelTestCase
     {
         $categoryQueryDto = new CategoryQueryDto(type:'income');
         $categories = $this->categoryService->search($categoryQueryDto);
-        dump($categories);
         $expectedArray = [
             "pagination" => [
                 "currentPage" => 1,
@@ -61,27 +60,31 @@ class CategoryServiceTest extends KernelTestCase
                     "categoryName" => "Gift",
                     "type" => "income",
                     "color" => "#2196F3",
+                    "isDefault" => 1
                 ],
                 [
                     "id" => 4,
                     "categoryName" => "Other",
                     "type" => "income",
                     "color" => "#9C27B0",
+                    "isDefault" => 1
                 ],
                 [
                     "id" => 1,
                     "categoryName" => "Salary",
                     "type" => "income",
                     "color" => "#4CAF50",
+                    "isDefault" => 1
                 ],
                 [
                     "id" => 2,
                     "categoryName" => "Scholarship",
                     "type" => "income",
                     "color" => "#FFC107",
+                    "isDefault" => 1
                 ],
             ],
         ];
-//TODO FINISH OFF THIS!
+        $this->assertSame($expectedArray,$categories);
     }
 }

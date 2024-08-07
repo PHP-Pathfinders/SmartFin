@@ -63,7 +63,7 @@ class UserServiceTest extends KernelTestCase
             'id' => 1,
             'fullName' => 'John Doe',
             'birthday' => $user->getBirthday(),
-            'avatarFileName' => null,
+            'avatarPath' => null,
             'email' => 'john@gmail.com',
             'isActive' => true,
             'createdAt' => $user->getCreatedAt(),
