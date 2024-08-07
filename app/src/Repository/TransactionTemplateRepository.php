@@ -2,18 +2,13 @@
 
 namespace App\Repository;
 
-use App\Dto\TransactionTemplate\TransactionTemplateCreateDto;
 use App\Dto\TransactionTemplate\TransactionTemplateQueryDto;
-use App\Entity\Category;
 use App\Entity\TransactionTemplate;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Bridge\Twig\Attribute\Template;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<TransactionTemplate>
@@ -37,7 +32,6 @@ class TransactionTemplateRepository extends ServiceEntityRepository
      */
     public function search(TransactionTemplateQueryDto $transactionTemplateQueryDto, User $user): array
     {
-
 
         $qb = $this->createQueryBuilder('tt')
             ->select('tt.id, tt.transactionName, tt.paymentType, tt.moneyAmount, tt.partyName, tt.transactionNotes,c.id as categoryId, c.type, c.categoryName, c.color')

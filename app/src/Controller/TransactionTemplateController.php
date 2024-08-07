@@ -2,11 +2,9 @@
 
 namespace App\Controller;
 
-use App\Dto\Transaction\TransactionUpdateDto;
 use App\Dto\TransactionTemplate\TransactionTemplateCreateDto;
 use App\Dto\TransactionTemplate\TransactionTemplateQueryDto;
 use App\Dto\TransactionTemplate\TransactionTemplateUpdateDto;
-use App\Service\TransactionService;
 use App\Service\TransactionTemplateService;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +14,6 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Validator\Constraints\Json;
 use OpenApi\Attributes as OA;
 
 
@@ -36,7 +33,7 @@ class TransactionTemplateController extends AbstractController
      */
     #[Route(name: 'api_find_transaction_templates', methods: ['GET'])]
     #[OA\Get(
-        description: 'Returns array of transaction templates filtered by different parameters, if no parameters given it returns every transaction template for logged user',
+        description: 'Returns array of transaction templates filtered by different parameters, at least one parameter is needed to successfully perform a search',
         summary: 'Finds transaction templates by category, payment type, transaction name, party name and transaction notes',
         tags: ['Transaction Templates'],
         responses: [

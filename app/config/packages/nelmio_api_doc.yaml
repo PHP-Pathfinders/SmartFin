@@ -5,26 +5,26 @@ nelmio_api_doc:
       description: Your ultimate financial dashboard with intuitive tools for smart financial management
       version: 1.0.0
     tags:
-      - name: "Budgets"
-        description: "These are all of the endpoints that have to do with budgets"
-      - name: "Overview"
-        description: "API endpoints used for overview page"
+      - name: "Entry Points"
+        description: "This is the main entry point for out site"
+      - name: "User"
+        description: "These are all of the endpoints that have to do with user"
       - name: "Categories"
         description: "These are all of the endpoints that have to do with categories"
       - name: "Transactions"
         description: "These are all of the endpoints that have to do with transactions"
+      - name: "Budgets"
+        description: "These are all of the endpoints that have to do with budgets"
+      - name: "Overview"
+        description: "API endpoints used for overview page"
       - name: "Transaction Templates"
         description: "These are all of the endpoints that have to do with transaction templates"
-      - name: "Entry Points"
-        description: "These are the main entry points for out site"
-      - name: "User"
-        description: "These are all of the endpoints that have to do with user"
-      - name: "Exports"
-        description: "Everything that has to do with exporting or viewing the exported files"
       - name: "Mailer"
         description: "Mailer service used for sending emails"
       - name: "Generators"
         description: "PDF and XLS file generators"
+      - name: "Exports"
+        description: "Everything that has to do with exporting or viewing the exported files"
     components:
       securitySchemes:
         Bearer:
@@ -812,7 +812,7 @@ nelmio_api_doc:
                       example: false
                     birthday:
                       example: null
-                    avatarFileName:
+                    avatarPath:
                       example: null
                     createdAt:
                       example: '2024-08-05 10:44:24'
@@ -980,8 +980,8 @@ nelmio_api_doc:
                       example: true
                     birthday:
                       example: null
-                    avatarFileName:
-                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     createdAt:
                       example: '2024-08-05 10:44:24'
                     scheduledDeletionDate:
@@ -1025,8 +1025,8 @@ nelmio_api_doc:
                       example: true
                     birthday:
                       example: '2004-03-11'
-                    avatarFileName:
-                      example: Starship-S20-66b0a9c4e21d27.21792671.jpg
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     createdAt:
                       example: '2023-03-15 19:07:39'
                     scheduledDeletionDate:
@@ -1153,8 +1153,8 @@ nelmio_api_doc:
                       example: false
                     birthday:
                       example: null
-                    avatarFileName:
-                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     createdAt:
                       example: '2024-08-05 10:44:24'
                     scheduledDeletionDate:
@@ -1191,8 +1191,8 @@ nelmio_api_doc:
                       example: true
                     birthday:
                       example: null
-                    avatarFileName:
-                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     createdAt:
                       example: '2024-08-05 10:44:24'
                     scheduledDeletionDate:

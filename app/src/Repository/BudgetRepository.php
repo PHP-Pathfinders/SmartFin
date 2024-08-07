@@ -2,9 +2,6 @@
 
 namespace App\Repository;
 
-use App\Dto\Budget\BudgetCreateDto;
-use App\Dto\Budget\BudgetQueryDto;
-use App\Dto\Budget\BudgetUpdateDto;
 use App\Entity\Budget;
 use App\Entity\Category;
 use App\Entity\User;
@@ -12,8 +9,6 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use function Zenstruck\Foundry\set;
 use App\Entity\Transaction;
 
 /**
@@ -55,8 +50,9 @@ class BudgetRepository extends ServiceEntityRepository
     public function searchWithStats(string $page, string $maxResults, string $dateStart, string $dateEnd, User $user): array
     {
         $qb = $this->createQueryBuilder('b')
-            ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryId, c.categoryName, c.color, COALESCE(SUM(t.moneyAmount), 0) as total, 
-                  CASE WHEN b.monthlyBudget > 0 THEN ((COALESCE(SUM(t.moneyAmount), 0) / b.monthlyBudget) * 100) ELSE 0 END as percent')
+            ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryId, c.categoryName, c.color,
+            COALESCE(SUM(CASE WHEN MONTH(t.transactionDate) = MONTH(b.monthlyBudgetDate) AND YEAR(t.transactionDate) = YEAR(b.monthlyBudgetDate) THEN t.moneyAmount ELSE 0 END),0) as total,
+                  COALESCE((SUM(CASE WHEN MONTH(t.transactionDate) = MONTH(b.monthlyBudgetDate) AND YEAR(t.transactionDate) = YEAR(b.monthlyBudgetDate) THEN t.moneyAmount ELSE 0 END) / b.monthlyBudget) * 100, 0) as percent')
             ->innerJoin('b.category', 'c')
             ->leftJoin(Transaction::class, 't', 'WITH', 't.category = c.id AND t.user = :user AND t.transactionDate >= :dateStart AND t.transactionDate <= :dateEnd')
             ->andWhere('b.user = :user')

@@ -28,8 +28,8 @@ class CategoryController extends AbstractController
      * - Example url: localhost:8080/api/categories?page=1&type=expense&limit=15
      */
     #[OA\Get(
-        description: 'Returns list of categories based on query parameters. If no query parameters are specified, query will return all default and custom categories of logged-in user',
-        summary: 'Find categories by income or expenses or both using query params',
+        description: 'Returns list of default and custom categories based on query parameters. If no query parameters are specified, query will return all default and custom categories of logged-in user',
+        summary: 'Find custom and default categories by income or expenses or both using query params',
         tags: ['Categories'],
         responses: [
             new OA\Response(
