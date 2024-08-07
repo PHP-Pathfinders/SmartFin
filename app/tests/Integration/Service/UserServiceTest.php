@@ -6,7 +6,6 @@ use App\Dto\User\ChangePasswordDto;
 use App\Dto\User\RegisterDto;
 use App\Dto\User\ResetPasswordDto;
 use App\Dto\User\UpdateDataDto;
-use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\UserService;
 use App\Tests\Mock;
@@ -16,11 +15,9 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -66,7 +63,7 @@ class UserServiceTest extends KernelTestCase
             'id' => 1,
             'fullName' => 'John Doe',
             'birthday' => $user->getBirthday(),
-            'avatarFileName' => null,
+            'avatarPath' => null,
             'email' => 'john@gmail.com',
             'isActive' => true,
             'createdAt' => $user->getCreatedAt(),

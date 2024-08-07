@@ -32,17 +32,19 @@ class CategoryRepository extends ServiceEntityRepository
      * @param string|null $type
      * @param int $page
      * @param int $maxResults
+     * @param string $orderBy
+     * @param string $sortBy
      * @param User $user
      * @return array
      */
-    public function search(?string $type,int $page,int $maxResults,User $user): array
+    public function search(?string $type,int $page,int $maxResults,string $orderBy,string $sortBy,User $user): array
     {
         // Get paginated results
         $queryBuilder = $this->createQueryBuilder('c')
-            ->select('c.id, c.categoryName, c.type, c.color')
+            ->select('c.id, c.categoryName, c.type, c.color, CASE WHEN c.user IS NULL THEN true ELSE false END AS isDefault')
             ->andWhere('c.user = :user OR c.user IS NULL')
             ->setParameter('user', $user)
-            ->orderBy('c.categoryName', 'ASC');
+            ->orderBy('c.'.$orderBy, $sortBy);
 
         if ($type){
             $queryBuilder->andWhere('c.type = :type')
