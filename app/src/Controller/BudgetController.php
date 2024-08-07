@@ -6,9 +6,7 @@ use App\Dto\Budget\BudgetCreateDto;
 use App\Dto\Budget\BudgetUpdateDto;
 use App\Dto\Budget\RandomDto;
 use App\Dto\Budget\BudgetQueryDto;
-use App\Entity\Budget;
 use App\Service\BudgetService;
-use Nelmio\ApiDocBundle\Model\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -127,6 +125,7 @@ class BudgetController extends AbstractController
 
     #[Route(name: 'api_add_budget', methods: ['POST'])]
     #[OA\Post(
+        description: "Create a new budget for logged user, but keep in mind that user cannot have a budget of same category twice in same month and year",
         summary: "Adds budget for this month for logged user",
         tags: ['Budgets'],
         responses: [
