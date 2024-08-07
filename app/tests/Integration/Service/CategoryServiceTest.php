@@ -87,4 +87,8 @@ class CategoryServiceTest extends KernelTestCase
         ];
         $this->assertSame($expectedArray,$categories);
     }
+    public function test()
+    {
+
+    }
 }
