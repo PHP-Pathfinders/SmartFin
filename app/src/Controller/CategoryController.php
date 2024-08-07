@@ -28,8 +28,8 @@ class CategoryController extends AbstractController
      * - Example url: localhost:8080/api/categories?page=1&type=expense&limit=15
      */
     #[OA\Get(
-        description: 'Returns list of categories based on chosen type',
-        summary: 'Find categories by income or expenses or both using query params',
+        description: 'Returns list of default and custom categories based on chosen type',
+        summary: 'Find custom and default categories by income or expenses or both using query params',
         tags: ['Categories'],
         responses: [
             new OA\Response(

@@ -2,9 +2,6 @@
 
 namespace App\Controller;
 
-use App\Dto\Category\CategoryQueryDto;
-use App\Dto\Category\CategoryUpdateDto;
-use App\Dto\Transaction\DashboardDto;
 use App\Dto\Transaction\OverviewDto;
 use App\Dto\Transaction\SpendingsDto;
 use App\Dto\Transaction\TransactionCreateDto;

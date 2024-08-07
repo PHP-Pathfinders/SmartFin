@@ -6,7 +6,7 @@ nelmio_api_doc:
       version: 1.0.0
     tags:
       - name: "Entry Points"
-        description: "These are the main entry points for out site"
+        description: "This is the main entry point for out site"
       - name: "User"
         description: "These are all of the endpoints that have to do with user"
       - name: "Categories"
@@ -21,10 +21,10 @@ nelmio_api_doc:
         description: "These are all of the endpoints that have to do with transaction templates"
       - name: "Mailer"
         description: "Mailer service used for sending emails"
-      - name: "Exports"
-        description: "Everything that has to do with exporting or viewing the exported files"
       - name: "Generators"
         description: "PDF and XLS file generators"
+      - name: "Exports"
+        description: "Everything that has to do with exporting or viewing the exported files"
     components:
       securitySchemes:
         Bearer:
@@ -809,7 +809,7 @@ nelmio_api_doc:
                       example: false
                     birthday:
                       example: null
-                    avatarFileName:
+                    avatarPath:
                       example: null
                     createdAt:
                       example: '2024-08-05 10:44:24'
@@ -984,8 +984,8 @@ nelmio_api_doc:
                       example: true
                     birthday:
                       example: null
-                    avatarFileName:
-                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     createdAt:
                       example: '2024-08-05 10:44:24'
                     scheduledDeletionDate:
@@ -1029,8 +1029,8 @@ nelmio_api_doc:
                       example: true
                     birthday:
                       example: '2004-03-11'
-                    avatarFileName:
-                      example: Starship-S20-66b0a9c4e21d27.21792671.jpg
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     createdAt:
                       example: '2023-03-15 19:07:39'
                     scheduledDeletionDate:
@@ -1157,8 +1157,8 @@ nelmio_api_doc:
                       example: false
                     birthday:
                       example: null
-                    avatarFileName:
-                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     createdAt:
                       example: '2024-08-05 10:44:24'
                     scheduledDeletionDate:
@@ -1195,8 +1195,8 @@ nelmio_api_doc:
                       example: true
                     birthday:
                       example: null
-                    avatarFileName:
-                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     createdAt:
                       example: '2024-08-05 10:44:24'
                     scheduledDeletionDate:

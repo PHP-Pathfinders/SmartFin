@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Dto\Transaction\SpendingsDto;
 use App\Dto\Transaction\TransactionCreateDto;
 use App\Dto\Transaction\TransactionQueryDto;
 use App\Dto\Transaction\TransactionUpdateDto;
@@ -10,7 +9,6 @@ use App\Entity\Category;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
-use App\Repository\DashboardRepository;
 use App\Repository\TransactionRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -22,7 +20,6 @@ readonly class TransactionService
         private Security              $security,
         private TransactionRepository $transactionRepository,
         private CategoryRepository    $categoryRepository,
-        private DashboardRepository   $dashboardRepository
     )
     {
     }
@@ -88,12 +85,6 @@ readonly class TransactionService
         if (null !== $transactionCreateDto->partyName) {
             $newTransaction->setPartyName($transactionCreateDto->partyName);
         }
-
-//        $dashboard = $this->dashboardRepository->findByDateAndUser($user, $transactionCreateDto->transactionDate);
-
-
-//        $prevDashboard = $this->dashboardRepository->findByDateAndUser($user,(new \DateTime($transactionCreateDto->transactionDate))->modify('last day of previous month')->format('Y-m-d'));
-
 
         $this->transactionRepository->create($newTransaction);
 

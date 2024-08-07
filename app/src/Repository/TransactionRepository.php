@@ -2,20 +2,13 @@
 
 namespace App\Repository;
 
-use App\Dto\Transaction\SpendingsDto;
-use App\Dto\Transaction\TransactionCreateDto;
 use App\Dto\Transaction\TransactionQueryDto;
-use App\Entity\Category;
-use App\Entity\Dashboard;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<Transaction>
@@ -39,8 +32,6 @@ class TransactionRepository extends ServiceEntityRepository
      */
     public function search(TransactionQueryDto $transactionQueryDto, User $user): array
     {
-
-
 
         $qb = $this->createQueryBuilder('t')
             ->select(' t.id, t.paymentType, t.transactionDate, t.moneyAmount, t.transactionName, t.partyName, t.transactionNotes,c.id as categoryId, c.type, c.categoryName, c.color')
@@ -253,46 +244,8 @@ class TransactionRepository extends ServiceEntityRepository
      */
     public function create(Transaction $newTransaction): void
     {
-
         $this->entityManager->persist($newTransaction);
         $this->entityManager->flush();
-
-//        if (null === $dashboard) {
-//            $transactions = $this->findByDateAndUser($user, $transactionDate);
-//            $sumExpense = 0;
-//            $sumIncome = 0;
-//            foreach ($transactions as $transaction) {
-//                if ($transaction->getCategory()->getType() === 'income') {
-//                    $sumIncome += $transaction->getMoneyAmount();
-//                } else {
-//                    $sumExpense += $transaction->getMoneyAmount();
-//                }
-//            }
-//
-//            $dashboardNew = new Dashboard();
-//            $dashboardNew->setUser($user);
-//            $dashboardNew->setDashboardDate(new \DateTimeImmutable($transactionDate));
-//            $dashboardNew->setTotalIncome($sumIncome);
-//            $dashboardNew->setTotalExpense($sumExpense);
-//            $dashboardNew->setSavingsProgress($sumIncome - $sumExpense);
-//            if (null !== $prevDashboard) {
-//                $dashboardNew->setCurrentBalance($prevDashboard->getCurrentBalance() + ($sumIncome - $sumExpense));
-//            } else {
-//                $dashboardNew->setCurrentBalance($sumIncome - $sumExpense);
-//            }
-//            $prevTransactions = $this->findByDateAndUserExpenseOnly($user, (new \DateTime($transactionDate))->modify('last day of previous month')->format('Y-m-d'));
-//            $transactions = $this->findByDateAndUserExpenseOnly($user, $transactionDate);
-//
-//            foreach ($transactions as $transaction) {
-//                $dataNew[] = $transaction->getCategory()->getCategoryName();
-//            }
-//            /** @var Transaction $prevTransaction */
-//            foreach ($prevTransactions as $prevTransaction) {
-//                $dataOld[] = $prevTransaction->getCategory()->getCategoryName();
-//            }
-//            dd(count($dataOld));
-//
-//        }
     }
 
 
@@ -383,29 +336,4 @@ class TransactionRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-//    public function findByDateAndUser(User $user, string $date)
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->where('t.user = :user')
-//            ->andWhere('YEAR(t.transactionDate) = YEAR(:date) AND MONTH(t.transactionDate) = MONTH(:date)')
-//            ->setParameter('user', $user)
-//            ->setParameter('date', $date)
-//            ->getQuery()
-//            ->getResult();
-//
-//    }
-//
-//    public function findByDateAndUserExpenseOnly(User $user, string $date)
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->leftJoin('t.category', 'c')
-//            ->where('t.user = :user')
-//            ->andWhere('YEAR(t.transactionDate) = YEAR(:date) AND MONTH(t.transactionDate) = MONTH(:date)')
-//            ->andWhere('c.type = \'expense\'')
-//            ->setParameter('user', $user)
-//            ->setParameter('date', $date)
-//            ->getQuery()
-//            ->getResult();
-//
-//    }
 }
