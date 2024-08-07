@@ -112,9 +112,8 @@ class BudgetRepository extends ServiceEntityRepository
     }
 
     /**
-     * Fetches $amount number of categories by $month and $year
-     * - Calculates a sum of expense transactions ONLY if
-     * - budget exists for category where transaction is made
+     * Fetches $amount number of random budgets by $month and $year
+     * - Calculates a sum of expense transactions for budgets that have same category like transaction in $month and $year
      * @param string $month
      * @param string $year
      * @param string $amount
