@@ -143,21 +143,39 @@ class BudgetRepository extends ServiceEntityRepository
         shuffle($selectedIds);
         $selectedIds = array_slice($selectedIds, 0, (int)$amount);
         // Fetch the random budgets by selected IDs
-        return $this->createQueryBuilder('b')
-            ->select('b.id, b.monthlyBudget, b.monthlyBudgetDate, c.id as categoryId, c.categoryName, c.color,
-            COALESCE(SUM(t.moneyAmount), 0) as totalSpent,
-            COALESCE((SUM(t.moneyAmount) / b.monthlyBudget) * 100 , 0) AS percentageSpent
-            ')
-            ->innerJoin('b.category', 'c')
-            ->leftJoin(Transaction::class, 't', 'WITH', 't.category = c.id AND t.user = :user AND MONTH(t.transactionDate) >= :month AND YEAR(t.transactionDate) <= :year')
-            ->andWhere('b.id IN (:ids)')
-            ->setParameter('ids', $selectedIds)
+        $query = $this->getEntityManager()->createQuery('
+        SELECT 
+            b.id,
+            b.monthlyBudget,
+            b.monthlyBudgetDate,
+            c.id AS categoryId,
+            c.categoryName,
+            c.color,
+            COALESCE(SUM(CASE WHEN t.paymentType IN (\'cash\', \'card\') THEN t.moneyAmount ELSE 0 END), 0) AS totalSpent,
+            COALESCE((SUM(CASE WHEN t.paymentType IN (\'cash\', \'card\') THEN t.moneyAmount ELSE 0 END) / b.monthlyBudget) * 100, 0) AS percentageSpent
+        FROM 
+            App\Entity\Budget b
+        LEFT JOIN 
+            b.category c
+        LEFT JOIN 
+            App\Entity\Transaction t WITH t.category = c.id AND t.user = b.user
+            AND MONTH(t.transactionDate) = :month AND YEAR(t.transactionDate) = :year
+        WHERE 
+            b.user = :user
+            AND MONTH(b.monthlyBudgetDate) = :month
+            AND YEAR(b.monthlyBudgetDate) = :year
+            AND b.id IN (:ids)
+        GROUP BY 
+            b.id
+        ORDER BY
+            c.categoryName
+    ')
             ->setParameter('user', $user)
-            ->setParameter('month',$month)
-            ->setParameter('year',$year)
-            ->groupBy('b.id')
-            ->getQuery()
-            ->getResult();
+            ->setParameter('month', $month)
+            ->setParameter('year', $year)
+            ->setParameter('ids', $selectedIds);
+
+        return $query->getResult();
     }
 
     public function findByCategoryAndDate(Category $category, string $budgetDate, User $user): ?Budget
