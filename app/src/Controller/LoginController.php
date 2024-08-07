@@ -62,12 +62,6 @@ class LoginController extends AbstractController
     }
 
     #[Route('/logout', name: 'api_logout', methods: ['POST'])]
-    #[OA\Post(
-        description: 'This is supposed to be a logout but it is not really utilized',
-        summary: 'Logout of account',
-        tags: ['User'], responses: [
-        new OA\Response(response: 200, description: 'Logged out', content: new OA\JsonContent(ref: '#/components/schemas/Logout')),
-        new OA\Response(response: 401, description: 'Unauthorized access detected', content: new OA\JsonContent(ref: '#/components/schemas/Unauthorized')),])]
     public function logout(): JsonResponse
     {
         // This endpoint doesn't need to do anything server-side

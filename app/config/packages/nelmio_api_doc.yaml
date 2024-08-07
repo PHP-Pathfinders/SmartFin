@@ -322,6 +322,9 @@ nelmio_api_doc:
                           color:
                             type: string
                             example: "#2196F3"
+                          isDefault:
+                            type: integer
+                            example: 1
         CategoryNameConflict:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -909,13 +912,6 @@ nelmio_api_doc:
               properties:
                 message:
                   example: "No exports found"
-        Logout:
-          allOf:
-            - $ref: '#/components/schemas/SuccessfulAction'
-            - type: object
-              properties:
-                message:
-                  example: "Logged out successfully"
         UserNotFound:
           allOf:
             - $ref: '#/components/schemas/FailedAction'
@@ -951,8 +947,8 @@ nelmio_api_doc:
                       example: "Jane Doe"
                     birthday:
                       example: "1993-06-29T00:00:00+00:00"
-                    avatarFileName:
-                      example: null
+                    avatarPath:
+                      example: "/files/img/tiger-66b32edbc59c65.72791579.jpg"
                     email:
                       example: "jane@gmail.com"
                     isActive:

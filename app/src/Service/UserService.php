@@ -123,17 +123,31 @@ readonly class UserService
         if (!$user){
             throw new NotFoundHttpException('User not found');
         }
+        $fullPath = null;
+        if($user->getAvatarFileName()){
+            $avatarPath = $this->getPathAfterPublic();
+            $fullPath = $avatarPath.'/'.$user->getAvatarFileName();
+        }
         return [
             'id' => $user->getId(),
             'fullName' => $user->getFullName(),
             'birthday' => $user->getBirthday(),
-            'avatarFileName' => $user->getAvatarFileName(),
+            'avatarPath' => $fullPath,
             'email' => $user->getEmail(),
             'isActive' => $user->getIsActive(),
             'createdAt' => $user->getCreatedAt()
         ];
     }
 
+    /**
+     *  Get path after /public/ based on yaml config
+     * @return string
+     */
+    private function getPathAfterPublic(): string
+    {
+        $positionStart = strpos($this->avatarDirectory, '/public');
+        return substr($this->avatarDirectory, $positionStart + strlen('/public'));
+    }
     public function update(UpdateDataDto $updateDataDto, int $userId): User
     {
         $user = $this->checkUser($userId);

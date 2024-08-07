@@ -26,15 +26,19 @@ readonly class CategoryService
             $type = null;
             $page = 1;
             $maxResults = 200;
+            $orderBy = 'categoryName';
+            $sortBy = 'asc';
         } else {
             $type = $categoryQueryDto->type;
             $page = $categoryQueryDto->page;
             $maxResults = $categoryQueryDto->maxResults;
+            $orderBy = $categoryQueryDto->orderBy;
+            $sortBy = $categoryQueryDto->sortBy;
         }
         /** @var User $user */
         $user = $this->security->getUser();
 
-        return $this->categoryRepository->search($type, $page, $maxResults,$user);
+        return $this->categoryRepository->search($type, $page, $maxResults,$orderBy,$sortBy,$user);
     }
 
     public function create(CategoryCreateDto $categoryCreateDto): Category
