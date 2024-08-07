@@ -74,9 +74,14 @@ Before proceeding with the installation, you need to set up your environment var
     ./bin/console lexik:jwt:generate-keypair
     ```
 
-10. **Consume messages from rabbitMQ (asynchronous mailing)**:
+10. **Set permissions for the `files` directory**:
     ```bash
-    ./bin/console messenger:consume --vv
+    chown -R www-data:www-data /var/www/project/public/files
+    ```
+
+11. **Set permissions for the `exports` directory**:
+    ```bash
+    chown -R www-data:www-data /var/www/project/exports
     ```
 
 ## Usage
