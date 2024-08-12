@@ -131,7 +131,7 @@ class CategoryRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findByIdUserAndType(int $id, User $user, string $type)
+    public function findByIdUserAndType(int $id, User $user, string $type): Category|null
     {
         return $this->createQueryBuilder('c')
             ->where('c.id = :id')
