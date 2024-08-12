@@ -19,10 +19,7 @@ readonly class JWTCreatedListener
      */
     public function onJWTCreated(JWTCreatedEvent $event): void
     {
-//        TODO using IP address limit only 1 registration per device
-//        $request = $this->requestStack->getCurrentRequest();
         $payload = $event->getData();
-//        $payload['ip'] = $request->getClientIp();
 
         /** @var User $user */
         $user = $event->getUser();
