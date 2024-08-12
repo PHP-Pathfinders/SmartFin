@@ -4,6 +4,7 @@ namespace App\Tests\Integration\Service;
 
 use App\Dto\Category\CategoryCreateDto;
 use App\Dto\Category\CategoryQueryDto;
+use App\Dto\Category\CategoryUpdateDto;
 use App\Entity\User;
 use App\Repository\CategoryRepository;
 use App\Repository\UserRepository;
@@ -33,7 +34,7 @@ class CategoryServiceTest extends KernelTestCase
         $this->mock = new Mock($userRepository, $tokenStorage);
         $this->user = $this->mock->login();
     }
-    public function testCreate(): void
+    public function testCreateAndUpdate(): void
     {
         $categoryCreateDto = new CategoryCreateDto('Festival','expense','#f02');
         $newCategory = $this->categoryService->create($categoryCreateDto);
@@ -42,6 +43,17 @@ class CategoryServiceTest extends KernelTestCase
         $this->assertSame('Festival',$dbCategory->getCategoryName());
         $this->assertSame('expense', $dbCategory->getType());
         $this->assertSame('#f02', $dbCategory->getColor());
+
+        $categoryUpdateDto = new CategoryUpdateDto($dbCategory->getId(),'Zoo','#0f0');
+        $updatedCategory = $this->categoryService->update($categoryUpdateDto);
+        $dbCategory = $this->categoryRepository->find($dbCategory->getId());
+        $this->assertSame('Zoo', $updatedCategory['category']->getCategoryName());
+        $this->assertSame('expense', $updatedCategory['category']->getType());
+        $this->assertSame('#0f0', $updatedCategory['category']->getColor());
+
+        $this->assertSame('Zoo', $dbCategory->getCategoryName());
+        $this->assertSame('expense', $dbCategory->getType());
+        $this->assertSame('#0f0', $dbCategory->getColor());
     }
     public function testSearch(): void
     {
@@ -86,9 +98,5 @@ class CategoryServiceTest extends KernelTestCase
             ],
         ];
         $this->assertSame($expectedArray,$categories);
-    }
-    public function test()
-    {
-
     }
 }
