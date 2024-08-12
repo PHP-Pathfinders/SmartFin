@@ -60,14 +60,4 @@ class LoginController extends AbstractController
             'message' => 'Json payload not found'
         ], Response::HTTP_BAD_REQUEST);
     }
-
-    #[Route('/logout', name: 'api_logout', methods: ['POST'])]
-    public function logout(): JsonResponse
-    {
-        // This endpoint doesn't need to do anything server-side
-        return $this->json([
-            'success' => true,
-            'message' => 'Logged out successfully',
-        ]);
-    }
 }
