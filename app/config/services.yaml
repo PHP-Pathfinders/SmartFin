@@ -4,6 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    avatar_directory: '%kernel.project_dir%/public/files/img'
+    exports_directory: '%kernel.project_dir%/exports'
 
 services:
     # default configuration for services in *this* file
@@ -20,5 +22,40 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+#    Custom JWT login response
+    app.listener.authentication_success_response:
+        class: App\EventListener\AuthenticationSuccessListener
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_authentication_success, method: onAuthenticationSuccessResponse }
+
+#    Custom JWT Payload config
+    acme_api.event.jwt_created_listener:
+        class: App\EventListener\JWTCreatedListener
+        arguments: [ '@request_stack' ]
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
+
+#    Custom JWT Validation when decoding
+    acme_api.event.jwt_decoded_listener:
+        class: App\EventListener\JWTDecodedListener
+        arguments: [ '@doctrine.orm.entity_manager' ]
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_decoded, method: onJWTDecoded }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    # Explicitly bind the parameter to the UserService
+    App\Service\UserService:
+        arguments:
+            $avatarDirectory: '%avatar_directory%'
+    App\Service\PdfXlsService:
+        arguments:
+            $avatarDir: '%avatar_directory%'
+            $exportsDir: '%exports_directory%'
+    App\Service\ExportService:
+        arguments:
+            $exportsDir: '%exports_directory%'
+    App\Security\Voter\UserStatusVoter:
+        arguments:
+            $requestStack: '@request_stack'
+        tags: [ 'security.voter' ]
