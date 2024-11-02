@@ -1,0 +1,2 @@
+reset_password:
+  expiration: "This link will expire in %count% minutes."
